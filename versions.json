@@ -1,0 +1,15 @@
+{
+  "python_image": "python:3.14.8-alpine3.24@sha256:f6a589d43c42b9e7f7dc67a12d37132491f362859a5d750607710cc56da3bc72",
+  "k3d": "v5.9.0",
+  "k3s_image": "rancher/k3s:v1.35.9-k3s1",
+  "argo_rollouts": "v1.10.1",
+  "argo_rollouts_cli_sha256": "fb28a5ba80939aae8e6cb4c04c1e809d080938a2f0d03d496311fc643b4b92cd",
+  "argo_cd": "v3.5.5",
+  "prometheus_image": "prom/prometheus:v3.15.0",
+  "trivy": "0.76.0",
+  "docker_engine_apt": "5:29.9.1-1~ubuntu.24.04~noble",
+  "containerd_apt": "2.4.2-2~ubuntu.24.04~noble",
+  "docker_buildx_apt": "0.38.0-1~ubuntu.24.04~noble",
+  "selection_date": "2026-10-20",
+  "validation": "Docker/k3d/k3s/Rollouts/Prometheus/Trivy installed and exercised locally. Application base digest pinned and high/critical scan passed. Jenkins and Argo CD integration is pending; infrastructure images still need a complete enforced digest lock."
+}

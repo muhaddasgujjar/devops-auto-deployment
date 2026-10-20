@@ -1,0 +1,33 @@
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: release-lab
+servers: 1
+agents: 0
+image: rancher/k3s:v1.35.9-k3s1
+kubeAPI:
+  hostIP: 127.0.0.1
+  hostPort: "6550"
+registries:
+  create:
+    name: registry.localhost
+    host: 127.0.0.1
+    hostPort: "5001"
+    image: registry:2.8.3
+  config: |
+    mirrors:
+      "localhost:5001":
+        endpoint:
+          - http://registry.localhost:5000
+options:
+  k3d:
+    wait: true
+  k3s:
+    extraArgs:
+      - arg: --disable=traefik
+        nodeFilters: [server:*]
+      - arg: --disable=metrics-server
+        nodeFilters: [server:*]
+  kubeconfig:
+    updateDefaultKubeconfig: false
+    switchCurrentContext: false

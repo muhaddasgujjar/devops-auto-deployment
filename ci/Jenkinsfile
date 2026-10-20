@@ -1,0 +1,79 @@
+// One trusted-branch job on an isolated Linux host. No Kubernetes credentials.
+pipeline {
+  agent { label 'trusted-linux-docker' }
+  options {
+    disableConcurrentBuilds()
+    timeout(time: 20, unit: 'MINUTES')
+    timestamps()
+    skipDefaultCheckout(true)
+  }
+  parameters {
+    choice(name: 'DEMO_MODE', choices: ['healthy', 'error', 'latency', 'startup'], description: 'Controlled lab artifact')
+    string(name: 'IMAGE_REPOSITORY', defaultValue: 'localhost:5001/release-demo', description: 'Reachable registry/repository')
+    string(name: 'ENV_REPO_URL', defaultValue: '', description: 'Separate environment Git repository, SSH URL')
+  }
+  stages {
+    stage('Checkout trusted main') {
+      steps {
+        checkout scm
+        sh '''
+          set -eu
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          python3 -c 'import os,re; assert re.fullmatch(r"[a-z0-9][a-z0-9.:-]*(/[a-z0-9]+([._-][a-z0-9]+)*)+", os.environ["IMAGE_REPOSITORY"])'
+          test -n "$ENV_REPO_URL"
+        '''
+        script { env.COMMIT_SHA = sh(script: 'git rev-parse HEAD', returnStdout: true).trim() }
+      }
+    }
+    stage('Tests') {
+      steps { sh 'python3 -m unittest discover -s tests -v' }
+    }
+    stage('Build and scan') {
+      steps {
+        sh '''
+          set -eu
+          mkdir -p output
+          docker build -f demo/Dockerfile --build-arg DEMO_MODE="$DEMO_MODE" --build-arg APP_REVISION="$COMMIT_SHA" -t "$IMAGE_REPOSITORY:$COMMIT_SHA-$BUILD_NUMBER" .
+          expected=$(python3 -c 'import json; print(json.load(open("versions.json"))["trivy"])')
+          trivy --version | head -n 1 | grep -Fx "Version: $expected"
+          trivy image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --output output/scan.json "$IMAGE_REPOSITORY:$COMMIT_SHA-$BUILD_NUMBER"
+          trivy image --format cyclonedx --output output/sbom.json "$IMAGE_REPOSITORY:$COMMIT_SHA-$BUILD_NUMBER"
+        '''
+      }
+    }
+    stage('Publish immutable artifact') {
+      steps {
+        sh '''
+          set -eu
+          docker push "$IMAGE_REPOSITORY:$COMMIT_SHA-$BUILD_NUMBER"
+          docker pull "$IMAGE_REPOSITORY:$COMMIT_SHA-$BUILD_NUMBER"
+          docker image inspect "$IMAGE_REPOSITORY:$COMMIT_SHA-$BUILD_NUMBER" > output/image-inspect.json
+          python3 -c 'import json,os; from pathlib import Path; prefix=os.environ["IMAGE_REPOSITORY"]+"@sha256:"; refs=json.load(open("output/image-inspect.json"))[0]["RepoDigests"]; matches=[x for x in refs if x.startswith(prefix)]; assert len(matches)==1, refs; Path("output/image.txt").write_text(matches[0])'
+        '''
+      }
+    }
+    stage('Record desired state') {
+      steps {
+        // Configure this SSH key with write access to the environment repo only.
+        // Agent known_hosts must contain the verified Git host key.
+        sshagent(credentials: ['environment-git-ssh']) {
+          sh '''
+            set -eu
+            git clone --branch main --single-branch -- "$ENV_REPO_URL" output/environment
+            python3 scripts/render_release.py --image "$(cat output/image.txt)" --commit "$COMMIT_SHA" --output output/environment/environments/dev
+            git -C output/environment config user.name release-ci
+            git -C output/environment config user.email release-ci@localhost
+            git -C output/environment add environments/dev
+            git -C output/environment diff --cached --quiet && exit 0
+            git -C output/environment commit -m "Release $COMMIT_SHA build $BUILD_NUMBER ($DEMO_MODE)"
+            git -C output/environment push origin HEAD:main
+          '''
+        }
+      }
+    }
+  }
+  post {
+    always { archiveArtifacts artifacts: 'output/*.json,output/image.txt', allowEmptyArchive: true }
+    cleanup { deleteDir() }
+  }
+}
