@@ -1,0 +1,6 @@
+*
+!demo/
+!demo/app.py
+!demo/__init__.py
+**/__pycache__/
+**/*.py[cod]

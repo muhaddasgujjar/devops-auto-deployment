@@ -1,0 +1,3 @@
+# Optional developer tooling only; application and HTTP tests need no dependencies.
+PyYAML==6.0.3
+jsonschema==4.26.0
