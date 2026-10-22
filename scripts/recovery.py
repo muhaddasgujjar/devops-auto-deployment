@@ -45,9 +45,9 @@ def observation(state, head):
     response, fresh = {}, False
     try:
         response = json.loads(kube('get', '--raw', '/api/v1/namespaces/demo-dev/services/demo-stable:80/proxy/'))
-        expression = ('count(up{job="demo-pods",namespace="demo-dev",revision="' + str(serving)
-                      + '"} == 1) == 2 and on() (max(time() - timestamp(up{job="demo-pods",namespace="demo-dev",revision="'
-                      + str(serving) + '"})) <= 15)')
+        selector = 'up{job="demo-pods",namespace="demo-dev",revision="' + str(serving) + '"}'
+        expression = (f'count({selector}) == 2 and on() (min({selector}) == 1) '
+                      f'and on() (max(time() - timestamp({selector})) <= 15)')
         metrics = json.loads(kube('get', '--raw', '/api/v1/namespaces/monitoring/services/prometheus:9090/proxy/api/v1/query?'
                                   + urlencode({'query': expression})))
         fresh = metrics.get('status') == 'success' and len(metrics.get('data', {}).get('result', [])) == 1
@@ -59,6 +59,7 @@ def observation(state, head):
                and sync.get('status') == 'Synced' and sync.get('revision') == head
                and response.get('revision') == target_revision and fresh)
     return {'matches': matches, 'healthy': healthy, 'phase': status.get('phase'),
+            'invalid_spec': any(c.get('type') == 'InvalidSpec' and c.get('status') == 'True' for c in status.get('conditions', [])),
             'abort': bool(status.get('abort')), 'pre': analysis('PrePromotion'), 'post': analysis('PostPromotion'),
             'serving_hash': serving, 'candidate_hash': current, 'response': response, 'fresh_telemetry': fresh}
 
@@ -143,7 +144,11 @@ class Reconciler:
             cached = self.status()
             if cached.get('blocked_head') == head and not retry:
                 return cached  # An operator must explicitly retry a failed write.
-            state.setdefault('deployment_commit', head)
+            control_commit = git(directory, 'log', '-1', '--format=%H', '--', CONTROL).stdout.strip()
+            state.setdefault('deployment_commit', control_commit)
+            if state['phase'] in ('deploying', 'recovering') and head != control_commit and not retry:
+                return self.save({**state, 'phase': 'recovery_failed', 'head': head, 'blocked_head': head,
+                                  'error': 'Environment changed outside the active release lease; operator review required'})
             if retry:
                 if cached.get('blocked_head') != head and state['phase'] != 'recovery_failed':
                     raise ValueError('Only an explicitly failed recovery can be retried')

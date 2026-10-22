@@ -23,12 +23,21 @@ def write_control(directory, state):
     (Path(directory) / CONTROL).write_text(json.dumps(state, indent=2, sort_keys=True) + '\n', newline='\n')
 
 
+def validate_rollout_policy(spec):
+    blue_green = spec.get('strategy', {}).get('blueGreen', {})
+    if blue_green.get('scaleDownDelayRevisionLimit', 0) > spec.get('revisionHistoryLimit', 10):
+        raise ValueError('Scale-down revision limit cannot exceed revision history limit')
+    if ('postPromotionAnalysis' in blue_green and 'scaleDownDelaySeconds' in blue_green
+            and blue_green['scaleDownDelaySeconds'] < 150):
+        raise ValueError('Retention must cover the 120-second post gate plus recovery margin')
+
+
 def decide(state, observation, current_time=None):
     """Pure, bounded state decisions; never equate traffic rollback with recovery."""
     phase = state['phase']
     expired = (current_time or now()) >= datetime.fromisoformat(state['deadline'])
     if phase == 'deploying':
-        if observation.get('matches') and observation.get('abort'):
+        if observation.get('matches') and (observation.get('abort') or observation.get('invalid_spec')):
             return 'restore'
         if (observation.get('matches') and observation.get('healthy')
                 and observation.get('pre') == observation.get('post') == 'Successful'):

@@ -8,8 +8,9 @@ apart after a 60-second warmup. Preview traffic is excluded from serving metrics
 Empty/NaN serving results fail the post gate; query transport errors reach the
 configured error limit. Missing evidence never certifies the release.
 
-The old revision is retained for 600 seconds, with at most one retired revision
-waiting for scale-down. This exceeds the normal 120-second post-analysis window.
+The old revision is retained for 600 seconds. This exceeds the normal 120-second
+post-analysis window. `scaleDownDelayRevisionLimit` is omitted because the native
+controller rejects a positive limit with the history-limit-zero workaround.
 An explicitly configured scale-down delay can cancel a running post-analysis,
 so the reconciler also requires all five successful measurements for both metrics.
 Native [Rollouts blue/green behavior](https://argoproj.github.io/argo-rollouts/features/bluegreen/)
@@ -89,3 +90,17 @@ durable local state, not off-machine backups. The post-promotion gate is a finit
 window; it does not provide indefinite SLO monitoring or recover from loss of the
 only cluster/host. First-ever deployment without a previous good revision still
 requires independent baseline verification.
+
+This one-application profile sets Argo CD reconciliation to 30 seconds with no
+jitter, including Git revision cache expiry. Both Argo components are restarted
+when that setting changes, as required by the [pinned configuration documentation](https://github.com/argoproj/argo-cd/blob/v3.5.5/docs/operator-manual/argocd-cm.yaml).
+This reduces desired-state recovery delay without using per-release manual refresh.
+
+## Validation notes
+
+The first live policy pilot exposed a controller semantic constraint absent from
+the upstream structural schema: a scale-down revision limit of 1 is invalid with
+history limit 0. The field was removed, and validation now checks that relation
+and retention duration. The pilot is retained as failed; the observer restored
+the previous known-good Git manifests and verified three healthy observations.
+Subsequent healthy/post-error acceptance results are recorded separately.

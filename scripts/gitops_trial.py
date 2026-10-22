@@ -231,6 +231,16 @@ def main():
         rows = [json.loads(line) for line in (folder / 'stable.jsonl').read_text().splitlines()] if (folder / 'stable.jsonl').exists() else []
         summary.update(stable_requests=len(rows), stable_non_200=sum(row.get('status') != 200 for row in rows),
                        finished=datetime.now(timezone.utc).isoformat())
+        if args.scenario == 'post-error':
+            failed = [i for i, row in enumerate(rows) if row.get('status') != 200]
+            if failed:
+                restored = next((row for row in rows[failed[-1] + 1:] if row.get('status') == 200), None)
+                summary['first_failed_response'] = rows[failed[0]]['timestamp']
+                summary['last_failed_response'] = rows[failed[-1]]['timestamp']
+                if restored:
+                    summary['first_restored_response'] = restored['timestamp']
+                    summary['observed_failure_window_seconds'] = round((datetime.fromisoformat(restored['timestamp'])
+                        - datetime.fromisoformat(rows[failed[0]]['timestamp'])).total_seconds(), 3)
         (folder / 'summary.json').write_text(json.dumps(summary, indent=2))
         from scripts.evidence import finalize_archive
         finalize_archive(folder)

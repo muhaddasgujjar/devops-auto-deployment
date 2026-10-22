@@ -12,6 +12,20 @@ from scripts.live_trial import kube
 from scripts.render_release import ROOT
 
 
+def configure_reconciliation():
+    if kube('config', 'current-context').strip() != 'k3d-release-lab':
+        raise ValueError('Only the dedicated lab may be tuned')
+    cm = json.loads(kube('get', 'configmap', 'argocd-cm', '-n', 'argocd', '-o', 'json'))
+    desired = {'timeout.reconciliation': '30s', 'timeout.reconciliation.jitter': '0s'}
+    if all(cm.get('data', {}).get(k) == v for k, v in desired.items()):
+        return
+    kube('patch', 'configmap', 'argocd-cm', '-n', 'argocd', '--type=merge', '-p', json.dumps({'data': desired}))
+    for target in ('deployment/argocd-repo-server', 'statefulset/argocd-application-controller'):
+        kube('rollout', 'restart', target, '-n', 'argocd')
+        kube('rollout', 'status', target, '-n', 'argocd', '--timeout=120s')
+    print('Lab Git reconciliation/cache interval set to 30 seconds', flush=True)
+
+
 def main():
     os.environ['KUBECONFIG'] = str(ROOT / 'output/lab.kubeconfig')
     if kube('config', 'current-context').strip() != 'k3d-release-lab':
@@ -61,6 +75,7 @@ def main():
             print(f'Waiting for {name}; image pull/startup attempt {attempt + 1}/6', flush=True)
         else:
             raise SystemExit(f'{name} did not become ready; inspect namespace argocd events')
+    configure_reconciliation()
 
 
 if __name__ == '__main__':

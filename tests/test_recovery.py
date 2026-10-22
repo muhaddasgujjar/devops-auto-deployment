@@ -1,4 +1,5 @@
 import json
+import re
 import subprocess
 import tempfile
 import unittest
@@ -7,10 +8,21 @@ from pathlib import Path
 
 from scripts.publish_environment import publish
 from scripts.recovery import Reconciler
-from scripts.release_control import decide, deadline, now, read_control, write_control
+from scripts.release_control import decide, deadline, now, read_control, write_control, validate_rollout_policy
+from scripts.render_release import ROOT
 
 
 class RecoveryTests(unittest.TestCase):
+    def test_retention_and_history_constraints_including_the_actual_template(self):
+        with self.assertRaises(ValueError):
+            validate_rollout_policy({'revisionHistoryLimit': 0, 'strategy': {'blueGreen': {'scaleDownDelayRevisionLimit': 1}}})
+        with self.assertRaises(ValueError):
+            validate_rollout_policy({'strategy': {'blueGreen': {'postPromotionAnalysis': {}, 'scaleDownDelaySeconds': 120}}})
+        content = (ROOT / 'templates/release/rollout.yaml').read_text()
+        fields = {k: int(v) for k, v in re.findall(r'^\s*(revisionHistoryLimit|scaleDownDelaySeconds|scaleDownDelayRevisionLimit): (\d+)', content, re.M)}
+        validate_rollout_policy({'revisionHistoryLimit': fields['revisionHistoryLimit'], 'strategy': {
+            'blueGreen': {'postPromotionAnalysis': {}, **{k: v for k, v in fields.items() if k != 'revisionHistoryLimit'}}}})
+
     def test_promotion_requires_both_complete_analyses_and_live_health(self):
         state = {'phase': 'deploying', 'deadline': deadline(100)}
         good = {'matches': True, 'healthy': True, 'pre': 'Successful', 'post': 'Successful'}
@@ -18,6 +30,7 @@ class RecoveryTests(unittest.TestCase):
         for key, value in [('post', 'Running'), ('post', 'Incomplete'), ('healthy', False), ('matches', False)]:
             self.assertEqual(decide(state, {**good, key: value}), 'wait')
         self.assertEqual(decide(state, {'matches': True, 'abort': True}), 'restore')
+        self.assertEqual(decide(state, {'matches': True, 'invalid_spec': True}), 'restore')
 
     def test_recovery_needs_three_verified_samples_and_has_a_deadline(self):
         state = {'phase': 'recovering', 'deadline': deadline(100)}
@@ -82,3 +95,17 @@ class RecoveryTests(unittest.TestCase):
             self.assertEqual(result['phase'], 'recovery_failed')
             remote_state = json.loads(self.git('--git-dir', remote, 'show', 'main:release-control.json'))
             self.assertEqual(remote_state['phase'], 'recovery_failed')
+
+    def test_environment_edit_outside_active_lease_is_not_overwritten(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base, remote, seed, _ = self.fixture(directory)
+            self.git('-C', seed, 'pull', '--ff-only')
+            (seed / 'README.md').write_text('Independent operator edit\n')
+            self.git('-C', seed, 'add', '.')
+            self.git('-C', seed, 'commit', '-m', 'Operator edit during release')
+            self.git('-C', seed, 'push', 'origin', 'main')
+            expected = self.git('--git-dir', remote, 'rev-parse', 'main').strip()
+            result = Reconciler(str(remote), base / 'state', observe=lambda *_: {}, capture=False).tick()
+            self.assertEqual(result['phase'], 'recovery_failed')
+            self.assertEqual(result['blocked_head'], expected)
+            self.assertEqual(self.git('--git-dir', remote, 'rev-parse', 'main').strip(), expected)

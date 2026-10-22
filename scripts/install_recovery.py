@@ -1,10 +1,14 @@
 """Install the bounded local recovery observer under systemd."""
 import subprocess
+import os
 from pathlib import Path
 from scripts.render_release import ROOT
 
 
 def main():
+    os.environ['KUBECONFIG'] = str(ROOT / 'output/lab.kubeconfig')
+    from scripts.install_gitops import configure_reconciliation
+    configure_reconciliation()
     unit = Path('/etc/systemd/system/release-lab-recovery.service')
     unit.write_text('[Unit]\nDescription=Release lab GitOps recovery observer\nAfter=docker.service\n'
                     '[Service]\nType=simple\nWorkingDirectory=' + str(ROOT).replace('%', '%%') + '\n'

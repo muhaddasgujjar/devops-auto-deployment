@@ -8,6 +8,7 @@ import jsonschema
 import yaml
 
 from scripts.render_release import ROOT, render
+from scripts.release_control import validate_rollout_policy
 
 CACHE = ROOT / ".tools" / "schemas"
 
@@ -84,6 +85,8 @@ def main():
                  ROOT / "platform/monitoring.yaml", ROOT / "platform/storage.yaml", ROOT / "platform/argocd/application.yaml"]
         for path in paths:
             for doc in yaml.safe_load_all(path.read_text(encoding="utf-8")):
+                if doc['kind'] == 'Rollout':
+                    validate_rollout_policy(doc['spec'])
                 if doc["kind"] == "Deployment" and doc["metadata"]["name"] == "prometheus":
                     if doc["spec"]["template"]["spec"]["containers"][0]["image"] != versions["prometheus_image"]:
                         raise ValueError("Prometheus image does not match versions.json")

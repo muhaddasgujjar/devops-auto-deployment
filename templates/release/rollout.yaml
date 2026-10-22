@@ -20,7 +20,6 @@ spec:
       autoPromotionEnabled: true
       # Longer than both analysis windows; never cancel post analysis to retire old pods.
       scaleDownDelaySeconds: 600
-      scaleDownDelayRevisionLimit: 1
       abortScaleDownDelaySeconds: 30
       prePromotionAnalysis:
         templates:
