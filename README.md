@@ -10,8 +10,12 @@ This implementation supplies a dependency-free demo service, HTTP integration te
 a non-root container, a Jenkins pipeline, a rolling-update baseline, blue/green
 templates, candidate-specific Prometheus analysis, and a lean k3d lab.
 The lean cluster is installed on Ubuntu/WSL 2 and has been exercised with real
-images and controller trials. Jenkins/Argo CD integration and formal benchmarks
-remain separate gates. See [live validation](docs/live-validation.md).
+images and controller trials. A bounded local Jenkins/Argo CD integration profile
+is available; see [CI and GitOps setup](docs/ci-gitops.md) for its acceptance evidence
+and remaining remote-host requirements. See [engine validation](docs/live-validation.md)
+for the earlier controlled trials. Formal repeated benchmarks remain pending.
+Persistent monitoring, immutable release evidence and backup/restore verification
+are described in [the persistence runbook](docs/persistence.md).
 
 ```powershell
 python -m venv .venv
@@ -49,7 +53,8 @@ For a repeatable acceptance walkthrough, follow [testing the current lab](docs/t
 
 No subscription or cloud account is required for the lab. Docker/k3d need a Linux
 container runtime. The current Windows host has about 8 GiB RAM: start with the lean
-single-node profile and run Jenkins on a separate Linux build host. PostgreSQL,
+single-node profile. The current local Jenkins controller and trusted agent have
+bounded memory; a separate build host remains the team deployment target. PostgreSQL,
 the portal, and full monitoring are later milestones.
 
 The installed Windows lab can be managed from PowerShell:

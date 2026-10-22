@@ -1,0 +1,48 @@
+// Local integration proof: trusted source snapshot; no kubeconfig or Kubernetes CLI.
+pipeline {
+  agent { label 'trusted-linux-docker' }
+  options { disableConcurrentBuilds(); timeout(time: 20, unit: 'MINUTES'); timestamps(); skipDefaultCheckout(true) }
+  parameters { choice(name: 'DEMO_MODE', choices: ['healthy', 'error', 'latency', 'startup'], description: 'Candidate fault mode') }
+  environment { TRIVY_DB_REPOSITORY = 'ghcr.io/aquasecurity/trivy-db:2' }
+  stages {
+    stage('Trusted local source') {
+      steps {
+        sh 'cp -R /opt/release-source/. .'
+        script { env.COMMIT_SHA = sh(script: 'git rev-parse HEAD', returnStdout: true).trim() }
+      }
+    }
+    stage('Tests') { steps { sh 'python3 -m unittest discover -s tests -v' } }
+    stage('Build and scan') {
+      steps {
+        sh '''
+          set -eu
+          mkdir -p output
+          image="localhost:5001/release-demo:$COMMIT_SHA-jenkins-$BUILD_NUMBER"
+          docker build -f demo/Dockerfile --build-arg DEMO_MODE="$DEMO_MODE" --build-arg APP_REVISION="$COMMIT_SHA-jenkins-$BUILD_NUMBER" -t "$image" .
+          trivy image --quiet --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --output output/scan.json "$image"
+          cp "${TRIVY_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/trivy}/db/metadata.json" output/trivy-db-metadata.json
+          trivy image --quiet --format cyclonedx --output output/sbom.json "$image"
+          docker push "$image"
+          docker pull "$image"
+          docker image inspect "$image" > output/image-inspect.json
+          python3 -c 'import json; from pathlib import Path; refs=json.load(open("output/image-inspect.json"))[0]["RepoDigests"]; ref=next(r for r in refs if r.startswith("localhost:5001/release-demo@sha256:")); Path("output/image.txt").write_text(ref)'
+        '''
+      }
+    }
+    stage('Publish desired state to Git') {
+      steps {
+        sshagent(credentials: ['environment-git-ssh']) {
+          sh '''
+            set -eu
+            export GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/etc/release-known-hosts"
+            python3 -m scripts.publish_environment --repository "$ENV_REPO_URL" --image "$(cat output/image.txt)" --commit "$COMMIT_SHA" --release-id "jenkins-$BUILD_NUMBER" --evidence output/environment-commit.json
+          '''
+        }
+      }
+    }
+  }
+  post {
+    always { archiveArtifacts artifacts: 'output/*.json,output/image.txt', allowEmptyArchive: true }
+    cleanup { deleteDir() }
+  }
+}

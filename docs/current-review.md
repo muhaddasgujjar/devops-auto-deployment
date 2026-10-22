@@ -1,4 +1,18 @@
-# Running review and gaps — 20 October 2026
+# Running review and gaps — updated 22 October 2026
+
+The current lab includes authenticated Jenkins, its separate trusted local
+agent, a dedicated SSH environment Git repository and Argo CD Core. Snapshot
+build 5 published a scanned artifact and environment commit; fresh analysis
+promoted it after recovery from an interrupted observer, with 734 stable requests
+and zero failures. This required operator abort/retry and does not yet prove an
+uninterrupted GitHub polling delivery. See [CI acceptance](ci-gitops.md).
+
+Prometheus now has retained storage; historical samples survived pod replacement
+and an independent TSDB restore. The evidence catalogue holds 20 runs and its
+backup/restore verified 278 file references. All 20 tests passed on Windows and
+Linux; all 20 manifests/config documents passed schema checks. See
+[persistence acceptance](persistence.md). The earlier review below remains the
+record of the 20 October engine trials.
 
 The existing Kubernetes lab is running for inspection. These interfaces show real
 local workloads; the application itself is the small JSON demonstration service.
@@ -50,14 +64,15 @@ for this review.
 
 | Priority | Gap | Next acceptance evidence |
 |---|---|---|
-| 1 | Jenkins and Argo CD are templates, not a connected delivery pipeline | Trusted Linux build host, separate environment Git repository and restricted credentials, TLS registry; a commit builds/scans/pushes and reconciles automatically |
-| 2 | Evidence and telemetry are local and ephemeral | Durable release/evidence storage, persistent metrics, backup and restart recovery checks |
+| 1 | Local snapshot delivery passed with operator recovery; GitHub polling is unverified | Publish reviewed CI, verify uninterrupted healthy delivery and Jenkins-driven fault rejection |
+| 2 | Telemetry and evidence persist locally; backups remain on one machine | Independent-host storage and coverage for Git, Jenkins, registry, secrets and control plane |
 | 3 | Native-history workaround limits retained rollback history | Retest controller upgrade or upstream fix; post-promotion checks and an explicit recovery failure path |
 | 4 | Custom API, database, portal, roles, callbacks and notifications are pending | Backend data model and authenticated release lifecycle after the engines are integrated |
 | 5 | Current runs are finite local checks | Repeated fault trials, concurrency controls, fresh-machine reproduction and measured distributions |
 
-The current 8 GiB Windows host is constrained. The review adds a CLI dashboard and
-forwarding processes; it does not add Jenkins, PostgreSQL, or a full monitoring
-stack. The next integration milestone needs the intended build host and repository
-details. This running lab is suitable for demonstrating candidate analysis and
-promotion; it does not yet demonstrate end-to-end GitOps or a finished product UI.
+The current 8 GiB Windows host is constrained. Jenkins and Argo CD use bounded
+local profiles; PostgreSQL and a full monitoring stack remain pending. The next
+acceptance work is source polling and automatic delivery/fault trials, followed
+by post-promotion recovery and the product backend. A separate build host and
+TLS registry remain requirements for a team installation. The current browser
+dashboard is the native Rollouts interface; the product portal is still pending.

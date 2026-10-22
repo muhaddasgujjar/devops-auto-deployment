@@ -156,7 +156,8 @@ Review real scan output; no ignored vulnerability policy is supplied by default.
 
 Store JSONL, controller YAML, source/environment Git commits, image digest, component
 pins, hardware, cache state and trial times together. Results are not an SLO.
-Prometheus samples are ephemeral. Protect evidence before teardown.
+Prometheus uses retained local storage. See [persistence](persistence.md) for
+backup/restore checks and the limits of protection during cluster teardown.
 
 To remove this disposable lab explicitly: `k3d cluster delete release-lab`.
 This removes lab workloads and cluster storage; export needed data first.

@@ -45,8 +45,10 @@ creation: establish and independently verify a healthy baseline first.
 
 This milestone covers rejecting a candidate **before** traffic switches. Retaining
 the old revision alone does not enable post-promotion recovery. Post-promotion
-analysis, recovery evidence reconciliation, missing-target completeness, and
+analysis, recovery evidence reconciliation, and
 stable dependency failure handling remain explicit backlog items.
+Pre-promotion metrics now require both expected targets with samples no older
+than 15 seconds; this addresses missing-target completeness for the fixed lab replica count.
 
 ## Resource profile and limits
 
@@ -60,9 +62,10 @@ lab; it is not the proposed multi-VM resilience experiment or production HA.
 Use a Linux build machine separate from the cluster for privileged Docker builds.
 The registry is loopback-bound HTTP for the local lab only. A remote CI agent
 needs a mutually reachable TLS registry and matching Kubernetes pull credentials.
-The lean Prometheus instance has bounded ephemeral storage and loses its samples
-on pod recreation; export evidence before experiments or install persistent
-monitoring in the next milestone. No GitHub webhook is assumed to reach localhost.
+Prometheus now uses a retained local PVC with bounded sample retention. Release
+evidence has a separate SQLite catalogue and SHA-256 object store outside the
+checkout. See [persistence and restore verification](persistence.md) for scope and
+single-host limitations. No GitHub webhook is assumed to reach localhost.
 
 ## Source references
 

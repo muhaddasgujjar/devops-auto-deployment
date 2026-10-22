@@ -27,31 +27,42 @@ See [the validation report](live-validation.md) for actual results and failed pi
 runs. These checks are a local experiment; repeated benchmark conditions and
 formal availability/recovery distributions are still pending.
 
-## Next gate: CI and GitOps integration
+## Local CI and GitOps integration
 
-- Prepare a dedicated trusted Linux build host and pin Jenkins LTS/plugin versions.
-- Ensure the SCM branch contains this implementation before configuring its Jenkinsfile.
-- Configure the separate environment repository, restricted bot credentials,
-  verified SSH host keys, branch policy, and a mutually reachable TLS registry.
-- Run the actual Jenkins test/scan/publish/promotion job and failure paths.
-- Install Argo CD and delegate the environment directory to it; stop manual applies
-  to workloads after that ownership handoff.
-- Verify good and faulty releases through Git commits and reconciliation, including
-  restart behavior and the distinction between desired candidate and serving stable.
+The local implementation now supplies a bounded Jenkins controller and separate
+trusted agent, a dedicated SSH environment repository with read/write keys, and
+Argo CD Core reconciliation. Plugin versions/checksums, source polling, controlled
+ownership handoff and GitOps trial evidence capture are implemented. See
+[the integration runbook and acceptance record](ci-gitops.md).
 
-## Following milestones from the assessment
+Jenkins snapshot build 5 passed tests/scan/publish; Argo CD reconciled its separate
+environment commit. After an interrupted observer caused inconclusive analysis,
+explicit abort/retry recovery passed fresh analysis and promoted with 734 stable
+observations and zero failures. This is local snapshot acceptance, not yet a
+GitHub-polling or uninterrupted delivery acceptance run.
 
-1. Reproducible Ubuntu/k3s provisioning, TLS registry, least-privilege namespaces,
-   staging environment, checksums/digests for infrastructure dependencies.
-2. Post-promotion analysis/retention semantics and explicit failed recovery handling.
-3. FastAPI + PostgreSQL migrations for projects, environments, builds, artifacts,
-   releases, analysis, recovery, and audit evidence.
-4. Signed callbacks, durable deduplication, server-side roles, promotion serialization,
-   optimistic concurrency, restart reconciliation, bounded notification retries.
-5. React onboarding, release history, and recovery evidence screens.
-6. Persistent Prometheus/Grafana/Alertmanager, local notification receiver, backup/restore.
-7. Repeated failure experiments and fresh-machine reproduction; publish measured
-   p50/p95 timings, trial counts, false positives, availability, and resource use.
+## Current milestone: durable monitoring and evidence
+
+Retained Prometheus PVCs, an immutable SQLite/SHA-256 evidence store, automatic
+trial archival, and isolated backup/restore verification are implemented. See
+[the persistence runbook](persistence.md) for live acceptance and storage scope.
+The store is an operations CLI; it does not replace the planned PostgreSQL/API.
+
+## Next acceptance gates
+
+1. Publish the reviewed CI implementation to GitHub main and verify `release-main`
+   polling, uninterrupted healthy delivery and Jenkins-driven faulty candidates.
+   Use a fresh Trivy database; rebuild controller/agent from the complete locks.
+2. Add post-promotion analysis and explicit failed recovery handling. Extend
+   serialization across both jobs and the complete release lifetime.
+3. Build the FastAPI/PostgreSQL release model, migrations and durable event/audit
+   processing, then roles, signed callbacks, idempotency and restart reconciliation.
+4. Add React onboarding, release history and recovery evidence views.
+5. Provision a separate Linux build host, TLS registry, staging environment,
+   infrastructure digest locks, independent backups, Grafana/Alertmanager and
+   notification delivery. These remain team deployment requirements.
+6. Repeat fault experiments and reproduce on a fresh machine; report measured
+   recovery distributions and resource use.
 
 Five user interviews, team capacity confirmation, a second-user pilot, and the
 supervisor's acceptance of blue/green as an extension require human participation.

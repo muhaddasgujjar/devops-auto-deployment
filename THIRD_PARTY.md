@@ -21,3 +21,8 @@ Exact tags do not constitute immutable checksums. Infrastructure image digests,
 download checksums, full transitive attribution and installation compatibility are
 pending live installation. Application release manifests require OCI SHA-256 digests.
 No licence is selected for project-authored code; choose one before distribution.
+
+The local CI profile additionally pins the Jenkins base-image digest and all 59
+installed plugin versions/archive checksums in `ci/plugins.lock.*` and
+`ci/plugins.sha256`. Argo CD Core's upstream manifest checksum is enforced by
+its installer. This does not complete the remaining infrastructure-image digest lock.

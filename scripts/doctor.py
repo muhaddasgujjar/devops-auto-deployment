@@ -41,6 +41,20 @@ def inspect():
             return desired > 0 and status.get("availableReplicas", 0) >= desired and status.get("observedGeneration") == obj["metadata"]["generation"], status
         check(name, deployment)
 
+    def storage():
+        obj = json.loads(kube('get', 'deployment', 'prometheus', '-n', 'monitoring', '-o', 'json'))
+        volumes = obj['spec']['template']['spec'].get('volumes', [])
+        claim_name = next((v.get('persistentVolumeClaim', {}).get('claimName')
+                           for v in volumes if v['name'] == 'data'), None)
+        if claim_name != 'prometheus-data':
+            return False, {'error': 'Prometheus is not using the expected persistent claim'}
+        claim = json.loads(kube('get', 'pvc', claim_name, '-n', 'monitoring', '-o', 'json'))
+        volume = json.loads(kube('get', 'pv', claim['spec']['volumeName'], '-o', 'json'))
+        detail = {'claim': claim_name, 'phase': claim.get('status', {}).get('phase'),
+                  'volume': volume['metadata']['name'], 'reclaim_policy': volume['spec']['persistentVolumeReclaimPolicy']}
+        return detail['phase'] == 'Bound' and detail['reclaim_policy'] == 'Retain', detail
+    check('prometheus_storage', storage)
+
     def release():
         obj = resource("rollout", "release-demo")
         stable = resource("service", "demo-stable")["spec"]["selector"].get("rollouts-pod-template-hash")
@@ -68,6 +82,16 @@ def inspect():
                   and all(0 <= float(t["value"][1]) <= 15 for t in samples))
         return passed, {"targets": targets, "sample_age_seconds": samples}
     check("serving_revision_telemetry", telemetry)
+    if kube('get', 'crd', 'applications.argoproj.io', '--ignore-not-found', '-o', 'name').strip():
+        raw = kube('get', 'application', 'release-demo-dev', '-n', 'argocd', '--ignore-not-found', '-o', 'json')
+        if raw.strip():
+            app = json.loads(raw)
+            def gitops():
+                sync = app.get('status', {}).get('sync', {})
+                detail = {'sync': sync, 'health': app.get('status', {}).get('health'),
+                          'conditions': app.get('status', {}).get('conditions', [])}
+                return sync.get('status') == 'Synced' and bool(sync.get('revision')), detail
+            check('gitops_sync', gitops)
     info = dict(line.split(":", 1) for line in Path("/proc/meminfo").read_text().splitlines())
     report["linux_memory_available_mib"] = round(int(info["MemAvailable"].split()[0]) / 1024, 1)
     report["ok"] = all(c["ok"] for c in report["checks"].values())

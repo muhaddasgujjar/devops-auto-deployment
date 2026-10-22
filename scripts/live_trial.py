@@ -223,6 +223,8 @@ def main():
             if summary["stable_non_200"]:
                 summary["availability_verdict"] = "failed-requests-observed"
         (folder / "summary.json").write_text(json.dumps(summary, indent=2))
+        from scripts.evidence import finalize_archive
+        finalize_archive(folder)
     print(json.dumps(summary), flush=True)
     if summary.get("stable_non_200"):
         raise AssertionError("Stable requests failed; inspect summary.json and stable.jsonl")

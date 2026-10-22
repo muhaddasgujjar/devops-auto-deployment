@@ -10,8 +10,9 @@ pipeline {
   parameters {
     choice(name: 'DEMO_MODE', choices: ['healthy', 'error', 'latency', 'startup'], description: 'Controlled lab artifact')
     string(name: 'IMAGE_REPOSITORY', defaultValue: 'localhost:5001/release-demo', description: 'Reachable registry/repository')
-    string(name: 'ENV_REPO_URL', defaultValue: '', description: 'Separate environment Git repository, SSH URL')
+    string(name: 'ENV_REPO_URL', defaultValue: env.RELEASE_ENV_REPO_URL ?: '', description: 'Separate environment Git repository, SSH URL')
   }
+  environment { TRIVY_DB_REPOSITORY = 'ghcr.io/aquasecurity/trivy-db:2' }
   stages {
     stage('Checkout trusted main') {
       steps {
@@ -33,10 +34,11 @@ pipeline {
         sh '''
           set -eu
           mkdir -p output
-          docker build -f demo/Dockerfile --build-arg DEMO_MODE="$DEMO_MODE" --build-arg APP_REVISION="$COMMIT_SHA" -t "$IMAGE_REPOSITORY:$COMMIT_SHA-$BUILD_NUMBER" .
+          docker build -f demo/Dockerfile --build-arg DEMO_MODE="$DEMO_MODE" --build-arg APP_REVISION="$COMMIT_SHA-jenkins-$BUILD_NUMBER" -t "$IMAGE_REPOSITORY:$COMMIT_SHA-$BUILD_NUMBER" .
           expected=$(python3 -c 'import json; print(json.load(open("versions.json"))["trivy"])')
           trivy --version | head -n 1 | grep -Fx "Version: $expected"
           trivy image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --output output/scan.json "$IMAGE_REPOSITORY:$COMMIT_SHA-$BUILD_NUMBER"
+          cp "${TRIVY_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/trivy}/db/metadata.json" output/trivy-db-metadata.json
           trivy image --format cyclonedx --output output/sbom.json "$IMAGE_REPOSITORY:$COMMIT_SHA-$BUILD_NUMBER"
         '''
       }
@@ -59,14 +61,10 @@ pipeline {
         sshagent(credentials: ['environment-git-ssh']) {
           sh '''
             set -eu
-            git clone --branch main --single-branch -- "$ENV_REPO_URL" output/environment
-            python3 scripts/render_release.py --image "$(cat output/image.txt)" --commit "$COMMIT_SHA" --output output/environment/environments/dev
-            git -C output/environment config user.name release-ci
-            git -C output/environment config user.email release-ci@localhost
-            git -C output/environment add environments/dev
-            git -C output/environment diff --cached --quiet && exit 0
-            git -C output/environment commit -m "Release $COMMIT_SHA build $BUILD_NUMBER ($DEMO_MODE)"
-            git -C output/environment push origin HEAD:main
+            if test -f /etc/release-known-hosts; then
+              export GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/etc/release-known-hosts"
+            fi
+            python3 -m scripts.publish_environment --repository "$ENV_REPO_URL" --image "$(cat output/image.txt)" --commit "$COMMIT_SHA" --release-id "jenkins-$BUILD_NUMBER" --evidence output/environment-commit.json
           '''
         }
       }

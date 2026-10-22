@@ -11,5 +11,7 @@
   "containerd_apt": "2.4.2-2~ubuntu.24.04~noble",
   "docker_buildx_apt": "0.38.0-1~ubuntu.24.04~noble",
   "selection_date": "2026-10-20",
-  "validation": "Docker/k3d/k3s/Rollouts/Prometheus/Trivy installed and exercised locally. Application base digest pinned and high/critical scan passed. Jenkins and Argo CD integration is pending; infrastructure images still need a complete enforced digest lock."
+  "validation": "Local Jenkins snapshot build passed tests/scan/publish; Argo CD reconciled the environment commit and fresh analysis promoted after operator abort/retry recovery. GitHub polling, uninterrupted delivery, complete infrastructure digest locks and fresh-machine reproduction remain unverified.",
+  "argo_cd_core_sha256": "0d5cf7e6fb9123cd0ac74678cad514ec5b9881dd55cdf5149a1a55d40f1689fb",
+  "jenkins_image": "jenkins/jenkins:2.580.1-jdk21@sha256:a660310e39ade10631f774bacd5219de767dfd08947ea5c32a739b5e5bb382c1"
 }
