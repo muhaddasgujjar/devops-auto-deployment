@@ -3,6 +3,8 @@
 This profile uses the existing WSL host because no separate Linux host or cloud
 account is available. It is a trusted local experiment. A remote host and mutually
 reachable TLS registry remain the deployment target for a team installation.
+The [GitHub-source acceptance record](scm-validation.md) now verifies scheduled
+SCM builds, automatic healthy promotion and controlled HTTP-error rejection.
 
 ## Ownership and boundaries
 
@@ -156,10 +158,12 @@ Its `operator_analysis_retry: true` explicitly distinguishes this recovery from
 an uninterrupted automatic run. The failed retry pilot retained 1,985 stable
 observations with zero non-200s and is archived as `trial-failed`.
 
-This proves the local snapshot build/publish/reconcile/promotion path with
+This initial record proves the local snapshot build/publish/reconcile/promotion path with
 operator recovery. GitHub polling through `release-main`, uninterrupted healthy
 delivery, Jenkins-driven fault rejection, a fresh controller rebuild from all
-plugin locks, and fresh-machine reproduction still need acceptance runs. The
+plugin locks, and fresh-machine reproduction were unverified at that point.
+The later [SCM acceptance](scm-validation.md) completes healthy automatic delivery
+and HTTP-error rejection; the other listed acceptance gaps remain explicit. The
 scanner database used by build 5 was current on 21 October; new builds must fetch
 a fresh database rather than reuse expired metadata.
 

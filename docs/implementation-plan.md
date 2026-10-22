@@ -41,7 +41,14 @@ explicit abort/retry recovery passed fresh analysis and promoted with 734 stable
 observations and zero failures. This is local snapshot acceptance, not yet a
 GitHub-polling or uninterrupted delivery acceptance run.
 
-## Current milestone: durable monitoring and evidence
+The subsequent `release-main` gate passed: build 1 was started by scheduled SCM
+polling of GitHub main, passed tests/scan/publication and promoted automatically
+with 2,845 stable observations and zero failures. Controlled error build 2 was
+rejected by analysis with 754 stable observations and zero failures. See
+[the GitHub-source acceptance record](scm-validation.md) for exact commits,
+artifacts, causes and the remaining fault matrix.
+
+## Completed local milestone: durable monitoring and evidence
 
 Retained Prometheus PVCs, an immutable SQLite/SHA-256 evidence store, automatic
 trial archival, and isolated backup/restore verification are implemented. See
@@ -50,11 +57,11 @@ The store is an operations CLI; it does not replace the planned PostgreSQL/API.
 
 ## Next acceptance gates
 
-1. Publish the reviewed CI implementation to GitHub main and verify `release-main`
-   polling, uninterrupted healthy delivery and Jenkins-driven faulty candidates.
-   Use a fresh Trivy database; rebuild controller/agent from the complete locks.
-2. Add post-promotion analysis and explicit failed recovery handling. Extend
+1. Add post-promotion analysis and explicit failed recovery handling. Extend
    serialization across both jobs and the complete release lifetime.
+2. Complete Jenkins-driven latency/readiness/missing-traffic/telemetry-outage
+   acceptance and rebuild controller/agent from the complete locks. The earlier
+   engine-only tests do not substitute for this GitOps matrix.
 3. Build the FastAPI/PostgreSQL release model, migrations and durable event/audit
    processing, then roles, signed callbacks, idempotency and restart reconciliation.
 4. Add React onboarding, release history and recovery evidence views.

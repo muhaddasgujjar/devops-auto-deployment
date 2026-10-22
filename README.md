@@ -16,6 +16,9 @@ and remaining remote-host requirements. See [engine validation](docs/live-valida
 for the earlier controlled trials. Formal repeated benchmarks remain pending.
 Persistent monitoring, immutable release evidence and backup/restore verification
 are described in [the persistence runbook](docs/persistence.md).
+Scheduled GitHub-source delivery and HTTP-error rejection now pass through the
+real pipeline; see [the acceptance record](docs/scm-validation.md) for measured
+observations and remaining limits.
 
 ```powershell
 python -m venv .venv

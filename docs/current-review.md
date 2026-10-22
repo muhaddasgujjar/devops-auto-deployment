@@ -5,11 +5,15 @@ agent, a dedicated SSH environment Git repository and Argo CD Core. Snapshot
 build 5 published a scanned artifact and environment commit; fresh analysis
 promoted it after recovery from an interrupted observer, with 734 stable requests
 and zero failures. This required operator abort/retry and does not yet prove an
-uninterrupted GitHub polling delivery. See [CI acceptance](ci-gitops.md).
+uninterrupted GitHub polling delivery by itself. The later scheduled GitHub-source
+build did promote automatically with 2,845 stable requests and zero failures;
+controlled HTTP-error build 2 was rejected with all 754 stable requests successful.
+See [SCM acceptance](scm-validation.md) and [CI setup](ci-gitops.md).
 
 Prometheus now has retained storage; historical samples survived pod replacement
-and an independent TSDB restore. The evidence catalogue holds 20 runs and its
-backup/restore verified 278 file references. All 20 tests passed on Windows and
+and an independent TSDB restore. The persistence milestone's 20-run evidence
+backup/restore verified 278 file references; subsequent CI runs are also archived.
+All 20 tests passed on Windows and
 Linux; all 20 manifests/config documents passed schema checks. See
 [persistence acceptance](persistence.md). The earlier review below remains the
 record of the 20 October engine trials.
@@ -64,7 +68,7 @@ for this review.
 
 | Priority | Gap | Next acceptance evidence |
 |---|---|---|
-| 1 | Local snapshot delivery passed with operator recovery; GitHub polling is unverified | Publish reviewed CI, verify uninterrupted healthy delivery and Jenkins-driven fault rejection |
+| 1 | Scheduled GitHub delivery and HTTP-error rejection passed | Remaining Jenkins fault matrix, rebuild from locks and full-lifetime release serialization |
 | 2 | Telemetry and evidence persist locally; backups remain on one machine | Independent-host storage and coverage for Git, Jenkins, registry, secrets and control plane |
 | 3 | Native-history workaround limits retained rollback history | Retest controller upgrade or upstream fix; post-promotion checks and an explicit recovery failure path |
 | 4 | Custom API, database, portal, roles, callbacks and notifications are pending | Backend data model and authenticated release lifecycle after the engines are integrated |
@@ -72,7 +76,7 @@ for this review.
 
 The current 8 GiB Windows host is constrained. Jenkins and Argo CD use bounded
 local profiles; PostgreSQL and a full monitoring stack remain pending. The next
-acceptance work is source polling and automatic delivery/fault trials, followed
-by post-promotion recovery and the product backend. A separate build host and
+work is post-promotion recovery, the remaining fault matrix and the product backend.
+A separate build host and
 TLS registry remain requirements for a team installation. The current browser
 dashboard is the native Rollouts interface; the product portal is still pending.
