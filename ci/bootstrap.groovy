@@ -12,6 +12,7 @@ import org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition
 import org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty
 import hudson.plugins.git.GitSCM
 import hudson.plugins.git.BranchSpec
+import hudson.plugins.git.UserRemoteConfig
 import hudson.triggers.SCMTrigger
 
 def j = Jenkins.get()
@@ -50,12 +51,13 @@ if (true) {
   job.setDefinition(new CpsFlowDefinition(new File('/opt/release-source/ci/Jenkinsfile.local').text, true))
   job.save()
 }
-{
+if (true) {
   def job = j.getItem('release-main') ?: j.createProject(WorkflowJob, 'release-main')
   // Repair a partially-created job after an interrupted initial setup as well.
   if (job.getDefinition() == null) { job.setDisabled(true) }
-  def scm = new GitSCM('https://github.com/muhaddasgujjar/devops-auto-deployment.git')
-  scm.setBranches([new BranchSpec('*/main')])
+  def scm = new GitSCM(
+    [new UserRemoteConfig('https://github.com/muhaddasgujjar/devops-auto-deployment.git', null, null, null)],
+    [new BranchSpec('*/main')], null, null, [])
   job.setDefinition(new CpsScmFlowDefinition(scm, 'ci/Jenkinsfile'))
   job.addProperty(new ParametersDefinitionProperty(
     new ChoiceParameterDefinition('DEMO_MODE', 'healthy\nerror\nlatency\nstartup', 'Candidate mode'),
