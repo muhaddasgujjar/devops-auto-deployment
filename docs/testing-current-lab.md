@@ -13,7 +13,7 @@ action is only for an isolated lab before Argo CD owns the workload.
 .\.venv\Scripts\python.exe -m scripts.validate_manifests
 ```
 
-Expected: 20 tests pass and 20 resource/config documents validate. Schema checking
+Expected: 28 tests pass and 21 resource/config documents validate. Schema checking
 can take a few minutes. These checks do not deploy or change the running lab.
 
 ## 2. Check the running system
@@ -51,7 +51,7 @@ and a new stable/active revision. Refresh the application page to see its revisi
 .\scripts\lab.ps1 -Action gitops-trial -Scenario error
 ```
 
-Expected: `verdict: candidate-rejected-through-gitops`, `stable_non_200: 0`, failed candidate
+Expected: `verdict: candidate-rejected-and-restored-through-gitops`, `stable_non_200: 0`, failed candidate
 analysis, and the previous healthy revision still serving the application URL.
 A degraded candidate is the intended outcome of this experiment, even when
 Kubernetes probes pass. Do not manually promote it in the dashboard.

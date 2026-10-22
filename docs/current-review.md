@@ -1,4 +1,12 @@
-# Running review and gaps — updated 22 October 2026
+# Running review and gaps — updated 23 October 2026
+
+Post-promotion monitoring and Git desired-state recovery now pass live checks.
+Healthy build 5 passed both windows with all 1,903 requests successful. Serving
+fault build 6 triggered automatic recovery after 278 injected 500s over a
+63.658-second observed error window. A separate denied-write fixture verified
+native rollback, a persistent failed recovery across restart, and successful
+explicit retry attempt 2. See [recovery acceptance](post-promotion.md). The
+current suite has 28 tests and 21 validated resource/config documents.
 
 The current lab includes authenticated Jenkins, its separate trusted local
 agent, a dedicated SSH environment Git repository and Argo CD Core. Snapshot
@@ -70,13 +78,13 @@ for this review.
 |---|---|---|
 | 1 | Scheduled GitHub delivery and HTTP-error rejection passed | Remaining Jenkins fault matrix, rebuild from locks and full-lifetime release serialization |
 | 2 | Telemetry and evidence persist locally; backups remain on one machine | Independent-host storage and coverage for Git, Jenkins, registry, secrets and control plane |
-| 3 | Native-history workaround limits retained rollback history | Retest controller upgrade or upstream fix; post-promotion checks and an explicit recovery failure path |
+| 3 | Native-history workaround limits retained rollback history | Retest controller upgrade or upstream fix; post-analysis, durable recovery and denied-write retry are now verified locally |
 | 4 | Custom API, database, portal, roles, callbacks and notifications are pending | Backend data model and authenticated release lifecycle after the engines are integrated |
 | 5 | Current runs are finite local checks | Repeated fault trials, concurrency controls, fresh-machine reproduction and measured distributions |
 
 The current 8 GiB Windows host is constrained. Jenkins and Argo CD use bounded
 local profiles; PostgreSQL and a full monitoring stack remain pending. The next
-work is post-promotion recovery, the remaining fault matrix and the product backend.
+work is the remaining fault matrix and the product backend.
 A separate build host and
 TLS registry remain requirements for a team installation. The current browser
 dashboard is the native Rollouts interface; the product portal is still pending.

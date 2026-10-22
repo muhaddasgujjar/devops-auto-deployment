@@ -19,6 +19,9 @@ are described in [the persistence runbook](docs/persistence.md).
 Scheduled GitHub-source delivery and HTTP-error rejection now pass through the
 real pipeline; see [the acceptance record](docs/scm-validation.md) for measured
 observations and remaining limits.
+Post-promotion serving analysis and durable desired-state recovery are now
+implemented; see [the recovery runbook](docs/post-promotion.md) for fault tests,
+measured recovery evidence and explicit failed-recovery handling.
 
 ```powershell
 python -m venv .venv

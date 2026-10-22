@@ -164,6 +164,9 @@ def main():
             recovery_path = Path('/var/lib/release-lab/recovery/status.json')
             recovery = json.loads(recovery_path.read_text()) if recovery_path.exists() else {}
             controlled = recovery.get('deployment_commit') == evidence['environment_commit']
+            if controlled and recovery.get('phase') in ('healthy', 'recovered', 'recovery_failed'):
+                (folder / 'recovery.json').write_text(json.dumps(recovery, indent=2))
+                summary['release_control'] = recovery
             if controlled and recovery.get('phase') == 'recovery_failed':
                 raise RuntimeError('Recovery failed; inspect recovery-status before retrying')
             if (controlled and recovery.get('phase') == 'recovered'

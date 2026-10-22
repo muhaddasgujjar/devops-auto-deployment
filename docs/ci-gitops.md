@@ -58,12 +58,13 @@ Use the GitOps trial instead:
 ```
 
 Run one trial at a time. Expected verdicts are
-`candidate-promoted-through-gitops` and `candidate-rejected-through-gitops`, with
+`candidate-promoted-through-gitops` and `candidate-rejected-and-restored-through-gitops`, with
 zero failed stable observations. `latency` and `startup` are also supported.
 Healthy restore uses a new Git commit; Argo continues owning the workload.
 Evidence is retained in timestamped `output/gitops-SCENARIO-TIMESTAMP` folders.
 Avoid source pushes during a trial: the polling job can publish another candidate.
-Serialization across the complete analysis/release lifetime remains a later milestone.
+The environment-Git lease blocks another publication until full post-analysis
+or verified recovery completes. See [recovery operations](post-promotion.md).
 
 `start` reuses labelled CI containers and starts the dedicated Git SSH service;
 `stop` closes review forwards, stops the agent/controller, then stops the cluster.
@@ -84,11 +85,12 @@ password locally, without committing or sharing it:
 wsl -d Ubuntu-24.04 -u root --exec cat /opt/release-lab/secrets/jenkins-password
 ```
 
-The optional `release-local` acceptance job uses an immutable snapshot of the trusted working checkout stored
+The historical `release-local` acceptance job used an immutable snapshot of the trusted working checkout stored
 on the Linux filesystem. Its snapshot Git SHA is carried into images and release
 evidence. This allows integration code to be exercised before it is published.
-It is a manual local acceptance job, not proof of a GitHub-triggered build. Select
-it explicitly with `-BuildJob release-local`. The default `release-main` job uses
+It was a manual acceptance job, not proof of a GitHub-triggered build. It now
+remains disabled because that frozen publisher predates the durable release lease.
+Use the default `release-main` job, which uses
 `ci/Jenkinsfile` from GitHub main and polls for source changes.
 Both jobs use the same environment publisher and unique release identifiers.
 

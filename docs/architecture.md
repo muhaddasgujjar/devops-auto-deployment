@@ -43,10 +43,14 @@ observer must persist results before cleanup. See live validation for the retest
 The first deployment has no prior stable revision to restore. Argo can skip pre-promotion analysis on initial
 creation: establish and independently verify a healthy baseline first.
 
-This milestone covers rejecting a candidate **before** traffic switches. Retaining
-the old revision alone does not enable post-promotion recovery. Post-promotion
-analysis, recovery evidence reconciliation, and
-stable dependency failure handling remain explicit backlog items.
+The original milestone covered rejection before traffic switched. The local
+policy now adds serving-only post-promotion analysis and 600-second retention.
+Rollouts returns traffic after a failed post gate; a bounded observer commits
+the prior verified desired state to Git and verifies recovery before releasing
+the durable publication lease. Failed Git writes/timeouts require an explicit
+retry. See [post-promotion acceptance](post-promotion.md). Stable dependency
+failures that also affect the fallback, indefinite monitoring and host loss
+remain distinct limits; no release may be called recovered without live proof.
 Pre-promotion metrics now require both expected targets with samples no older
 than 15 seconds; this addresses missing-target completeness for the fixed lab replica count.
 

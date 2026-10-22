@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('install', 'bootstrap', 'status', 'start', 'stop', 'trial', 'review', 'close-review', 'gitops-setup', 'ci-setup', 'gitops-trial', 'storage-check', 'recovery-setup', 'recovery-status', 'recovery-retry')]
+    [ValidateSet('install', 'bootstrap', 'status', 'start', 'stop', 'trial', 'review', 'close-review', 'gitops-setup', 'ci-setup', 'gitops-trial', 'storage-check', 'recovery-setup', 'recovery-status', 'recovery-retry', 'recovery-failure-check')]
     [string]$Action,
     [ValidateSet('initial', 'healthy', 'error', 'latency', 'startup', 'post-error', 'no-traffic', 'telemetry-outage')]
     [string]$Scenario = 'healthy',
@@ -31,7 +31,7 @@ function Enable-LabKeeper {
         @{pid = $keeper.Id; purpose = 'Keep the dedicated WSL lab active between commands'} | ConvertTo-Json | Set-Content -LiteralPath $keeperFile
     }
 }
-$awakeRequested = $Action -in @('install', 'bootstrap', 'start', 'trial', 'gitops-setup', 'ci-setup', 'gitops-trial', 'storage-check')
+$awakeRequested = $Action -in @('install', 'bootstrap', 'start', 'trial', 'gitops-setup', 'ci-setup', 'gitops-trial', 'storage-check', 'recovery-failure-check')
 if ($awakeRequested) {
     if (-not ('ReleaseLab.Power' -as [type])) {
         Add-Type -TypeDefinition @'
@@ -47,7 +47,7 @@ namespace ReleaseLab {
     if ([ReleaseLab.Power]::SetThreadExecutionState([uint32]2147483649) -eq 0) { throw 'Unable to request an awake system for this lab operation' }
 }
 try {
-if ($Action -in @('bootstrap', 'start', 'trial', 'review', 'gitops-setup', 'ci-setup', 'gitops-trial', 'storage-check')) { Enable-LabKeeper }
+if ($Action -in @('bootstrap', 'start', 'trial', 'review', 'gitops-setup', 'ci-setup', 'gitops-trial', 'storage-check', 'recovery-failure-check')) { Enable-LabKeeper }
 switch ($Action) {
     'install' { & wsl @wslArguments bash scripts/install-linux-tools.sh }
     'bootstrap' { & wsl @wslArguments bash scripts/bootstrap-lab.sh }
@@ -100,6 +100,7 @@ switch ($Action) {
     'recovery-setup' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.install_recovery }
     'recovery-status' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.recovery --status }
     'recovery-retry' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.recovery --retry }
+    'recovery-failure-check' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.recovery_failure_check }
     'gitops-trial' {
         $observerArguments = @($Scenario, '--job', $BuildJob)
         if ($ObserveBuild -gt 0) { $observerArguments += @('--observe-build', $ObserveBuild) }

@@ -119,6 +119,7 @@ class Reconciler:
 
     def restore(self, directory, head, state):
         import yaml  # Only the WSL observer needs validation dependencies.
+        state.pop('error', None)
         previous = state['previous_commit']
         for name in FILES:
             content = git(directory, 'show', previous + ':environments/dev/' + name).stdout
@@ -170,6 +171,8 @@ class Reconciler:
                     state['failure_stage'] = 'post-promotion' if observed.get('post') in ('Failed', 'Error', 'Incomplete') else 'pre-promotion-or-timeout'
                     return self.restore(directory, head, state)
                 if action in ('complete', 'fail'):
+                    if action == 'fail':
+                        state['error'] = 'Recovery verification deadline exceeded'
                     state['phase'] = ('recovered' if state['phase'] == 'recovering' else 'healthy') if action == 'complete' else 'recovery_failed'
                     state['finished_at'] = now().isoformat()
                     head = self.commit(directory, state, 'Verify release ' + state['release_id'] + ': ' + state['phase'])

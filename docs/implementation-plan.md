@@ -55,20 +55,31 @@ trial archival, and isolated backup/restore verification are implemented. See
 [the persistence runbook](persistence.md) for live acceptance and storage scope.
 The store is an operations CLI; it does not replace the planned PostgreSQL/API.
 
+## Post-promotion monitoring and recovery
+
+Serving-only post analysis, 600-second retention, a Git-backed release lease and
+bounded recovery observer are implemented. Corrected healthy build 5 completed
+both windows with 1,903 successful serving observations. Serving-fault build 6
+passed preview but failed after promotion; automatic traffic and desired-state
+recovery passed, with 278 expected candidate 500s over a 63.658-second observed
+error window. See [the recovery acceptance record](post-promotion.md).
+The separate denied-write fixture also passed: native rollback worked with the
+Git observer paused, a denied restoration push remained failed across restart,
+and explicit retry attempt 2 verified desired and serving state. New publication
+is blocked throughout analysis/recovery; the legacy snapshot publisher is disabled.
+
 ## Next acceptance gates
 
-1. Add post-promotion analysis and explicit failed recovery handling. Extend
-   serialization across both jobs and the complete release lifetime.
-2. Complete Jenkins-driven latency/readiness/missing-traffic/telemetry-outage
+1. Complete Jenkins-driven latency/readiness/missing-traffic/telemetry-outage
    acceptance and rebuild controller/agent from the complete locks. The earlier
    engine-only tests do not substitute for this GitOps matrix.
-3. Build the FastAPI/PostgreSQL release model, migrations and durable event/audit
+2. Build the FastAPI/PostgreSQL release model, migrations and durable event/audit
    processing, then roles, signed callbacks, idempotency and restart reconciliation.
-4. Add React onboarding, release history and recovery evidence views.
-5. Provision a separate Linux build host, TLS registry, staging environment,
+3. Add React onboarding, release history and recovery evidence views.
+4. Provision a separate Linux build host, TLS registry, staging environment,
    infrastructure digest locks, independent backups, Grafana/Alertmanager and
    notification delivery. These remain team deployment requirements.
-6. Repeat fault experiments and reproduce on a fresh machine; report measured
+5. Repeat fault experiments and reproduce on a fresh machine; report measured
    recovery distributions and resource use.
 
 Five user interviews, team capacity confirmation, a second-user pilot, and the

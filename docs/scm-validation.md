@@ -72,7 +72,8 @@ The database used here was updated at `2026-10-22T13:15:26Z` and expires at
 - Jenkins-driven latency, readiness, missing-traffic and telemetry-outage trials.
 - Full controller/agent rebuild from all locks and fresh-machine reproduction.
 - Serialization covering both jobs and the complete analysis/recovery lifetime.
-- Post-promotion monitoring, automatic recovery and explicit failed-recovery handling.
+- The later [post-promotion milestone](post-promotion.md) now verifies serving
+  analysis, automatic recovery and explicit failed-write/restart/retry handling.
 - Independent build host, verified TLS registry and off-machine backups.
 
 The original engine-only fault evidence remains in [live validation](live-validation.md).

@@ -11,7 +11,7 @@
   "containerd_apt": "2.4.2-2~ubuntu.24.04~noble",
   "docker_buildx_apt": "0.38.0-1~ubuntu.24.04~noble",
   "selection_date": "2026-10-20",
-  "validation": "Scheduled GitHub-main build passed all 20 tests and the scan gate, published an environment commit and promoted automatically through Argo CD/Rollouts. Controlled HTTP-error build was rejected while stable stayed healthy. Complete infrastructure digest locks, fresh controller rebuild and fresh-machine reproduction remain unverified.",
+  "validation": "Scheduled GitHub delivery, complete pre/post-promotion analysis, automatic serving-fault rollback and verified Git recovery passed locally. Denied recovery writes stayed failed across restart and explicit retry succeeded. 28 tests and 21 schema/policy checks pass. Complete infrastructure digest locks, fresh controller rebuild and fresh-machine reproduction remain unverified.",
   "argo_cd_core_sha256": "0d5cf7e6fb9123cd0ac74678cad514ec5b9881dd55cdf5149a1a55d40f1689fb",
   "jenkins_image": "jenkins/jenkins:2.580.1-jdk21@sha256:a660310e39ade10631f774bacd5219de767dfd08947ea5c32a739b5e5bb382c1"
 }

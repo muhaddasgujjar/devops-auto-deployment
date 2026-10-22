@@ -27,8 +27,9 @@ class RecoveryTests(unittest.TestCase):
         state = {'phase': 'deploying', 'deadline': deadline(100)}
         good = {'matches': True, 'healthy': True, 'pre': 'Successful', 'post': 'Successful'}
         self.assertEqual(decide(state, good), 'complete')
-        for key, value in [('post', 'Running'), ('post', 'Incomplete'), ('healthy', False), ('matches', False)]:
+        for key, value in [('post', 'Running'), ('healthy', False), ('matches', False)]:
             self.assertEqual(decide(state, {**good, key: value}), 'wait')
+        self.assertEqual(decide(state, {**good, 'post': 'Incomplete'}), 'restore')
         self.assertEqual(decide(state, {'matches': True, 'abort': True}), 'restore')
         self.assertEqual(decide(state, {'matches': True, 'invalid_spec': True}), 'restore')
 
@@ -95,6 +96,7 @@ class RecoveryTests(unittest.TestCase):
             self.assertEqual(result['phase'], 'recovery_failed')
             remote_state = json.loads(self.git('--git-dir', remote, 'show', 'main:release-control.json'))
             self.assertEqual(remote_state['phase'], 'recovery_failed')
+            self.assertIn('deadline exceeded', remote_state['error'])
 
     def test_environment_edit_outside_active_lease_is_not_overwritten(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -37,7 +37,8 @@ def decide(state, observation, current_time=None):
     phase = state['phase']
     expired = (current_time or now()) >= datetime.fromisoformat(state['deadline'])
     if phase == 'deploying':
-        if observation.get('matches') and (observation.get('abort') or observation.get('invalid_spec')):
+        terminal_failure = any(observation.get(k) in ('Failed', 'Error', 'Incomplete', 'Inconclusive') for k in ('pre', 'post'))
+        if observation.get('matches') and (observation.get('abort') or observation.get('invalid_spec') or terminal_failure):
             return 'restore'
         if (observation.get('matches') and observation.get('healthy')
                 and observation.get('pre') == observation.get('post') == 'Successful'):

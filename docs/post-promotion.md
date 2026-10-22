@@ -57,6 +57,7 @@ From the project root in PowerShell:
 .\scripts\lab.ps1 -Action recovery-status
 .\scripts\lab.ps1 -Action gitops-trial -Scenario healthy
 .\scripts\lab.ps1 -Action gitops-trial -Scenario post-error
+.\scripts\lab.ps1 -Action recovery-failure-check
 ```
 
 `post-error` is a controlled application fixture: preview requests carry
@@ -71,6 +72,14 @@ HTTP 500s before detection and rollback. Its expected verdict is
 `post-promotion-recovered-through-gitops`, with failed requests attributed only
 to the bad candidate, followed by the previous healthy revision serving again.
 Do not call it zero-downtime recovery.
+
+`recovery-failure-check` is a separate fault experiment. It pauses only the local
+recovery observer, submits another serving-only fault, confirms native traffic
+rollback, and attempts the Git restoration with the read-only key. It requires
+an explicit failed state, persistence across restart without a hidden retry,
+and then a new successful attempt using the write key. The ordinary observer
+must report that denied-write trial as failed; the enclosing failure-check
+report records whether the expected failure and operator retry were verified.
 
 After fixing the reported cause of a failed recovery:
 
@@ -104,3 +113,46 @@ history limit 0. The field was removed, and validation now checks that relation
 and retention duration. The pilot is retained as failed; the observer restored
 the previous known-good Git manifests and verified three healthy observations.
 Subsequent healthy/post-error acceptance results are recorded separately.
+
+On 23 October 2026 (local time), corrected healthy build 5 passed both complete
+analysis windows, followed by verified Git acknowledgement. All 1,903 stable
+observations returned HTTP 200. Its source was
+`f73e1b5420ce99970d41e0c555a92456d9a6d07b`; evidence is
+`output/gitops-healthy-20261022T193915Z` (UTC timestamp).
+
+Serving-fault build 6 passed preview, switched active traffic, failed post
+analysis, and returned traffic to build 5 automatically. The independent client
+recorded 1,548 requests, including 278 injected candidate 500s, with an observed
+error window of 63.658 seconds. The observer restored the known-good manifests
+in Git, verified healthy responses and telemetry three times, and Argo CD
+reported the final acknowledgement Synced. No operator recovery or manual
+promotion was used. Evidence: `output/gitops-post-error-20261022T194720Z`.
+
+Bad deployment commit: `ffc9101e4985af63fc2ab9d58777007c393e4065`.
+Verified recovery acknowledgement: `a0c02ebf3aef180a458d6d5e656dd84770088b41`.
+The archived recovery resource snapshot preserves the failed PostPromotion run
+before subsequent native history cleanup.
+
+The actual Git transport refused a second publisher during the active release
+without changing HEAD (`output/release-lease-check.json`). A separate sample
+shows the lease still deploying while active traffic had moved and post analysis
+was Running (`output/post-promotion-lease-check.json`). Unit/integration tests
+also cover denied pushes, timeout failure, immutable failed status across
+process restart, and independent environment edits during an active lease.
+
+The live denied-write fixture also passed:
+`output/recovery-write-check-20261022T195406Z` records
+`denied-write-restart-and-retry-verified`. Build 7 passed preview, failed post
+analysis and rolled traffic back while the Git observer was stopped. The read
+key's restoration push was denied, the failed state and unchanged Git HEAD
+survived observer restart, and explicit retry attempt 2 restored desired state.
+The final recovery acknowledgement was
+`39396e645b65e4afb22f6f6b7dca78f79302f07f`, verified Synced and Healthy with
+three fresh observations. Its ordinary fault trial remains `trial-failed` as
+expected (`output/gitops-post-error-20261022T195407Z`): 1,100 observations,
+including 271 injected candidate 500s and no unrelated failure responses.
+
+All 28 unit/HTTP/Git integration tests passed on Windows and Linux; all 21
+resource/config documents passed pinned schema and local policy validation.
+These are finite local trials; they do not establish recovery percentiles,
+production HA or a false-positive rate.
