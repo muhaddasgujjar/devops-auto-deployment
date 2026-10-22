@@ -54,6 +54,15 @@ def inspect():
                   'volume': volume['metadata']['name'], 'reclaim_policy': volume['spec']['persistentVolumeReclaimPolicy']}
         return detail['phase'] == 'Bound' and detail['reclaim_policy'] == 'Retain', detail
     check('prometheus_storage', storage)
+    recovery_path = Path('/var/lib/release-lab/recovery/status.json')
+    if recovery_path.exists():
+        def recovery():
+            state = json.loads(recovery_path.read_text())
+            age = (datetime.now(timezone.utc) - datetime.fromisoformat(state['updated_at'])).total_seconds()
+            return state.get('phase') != 'recovery_failed' and age <= 60, {
+                'phase': state.get('phase'), 'age_seconds': round(age, 1),
+                'deployment_commit': state.get('deployment_commit'), 'error': state.get('error')}
+        check('release_recovery', recovery)
 
     def release():
         obj = resource("rollout", "release-demo")

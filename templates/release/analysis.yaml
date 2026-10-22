@@ -49,3 +49,55 @@ spec:
             and on() (min(up{job="demo-pods",namespace="demo-dev",revision="{{args.revision}}"}) == 1)
             and on() (count(up{job="demo-pods",namespace="demo-dev",revision="{{args.revision}}"}) == {{args.expected-pods}})
             and on() (max(time() - timestamp(up{job="demo-pods",namespace="demo-dev",revision="{{args.revision}}"})) <= 15)
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: serving-health
+  namespace: demo-dev
+spec:
+  args:
+    - name: revision
+    - name: expected-pods
+      value: "2"
+  metrics:
+    - name: serving-error-ratio
+      initialDelay: 60s
+      interval: 15s
+      count: 5
+      failureLimit: 0
+      inconclusiveLimit: 2
+      consecutiveErrorLimit: 2
+      successCondition: len(result) == 1 && !isNaN(result[0]) && result[0] <= 0.05
+      failureCondition: len(result) != 1 || isNaN(result[0]) || result[0] > 0.05
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            (
+              sum(increase(demo_serving_requests_total{namespace="demo-dev",revision="{{args.revision}}",status="500"}[60s]))
+              /
+              sum(increase(demo_serving_requests_total{namespace="demo-dev",revision="{{args.revision}}"}[60s]))
+            )
+            and on() (sum(increase(demo_serving_requests_total{namespace="demo-dev",revision="{{args.revision}}"}[60s])) >= 100)
+            and on() (min(up{job="demo-pods",namespace="demo-dev",revision="{{args.revision}}"}) == 1)
+            and on() (count(up{job="demo-pods",namespace="demo-dev",revision="{{args.revision}}"}) == {{args.expected-pods}})
+            and on() (max(time() - timestamp(up{job="demo-pods",namespace="demo-dev",revision="{{args.revision}}"})) <= 15)
+    - name: serving-p95-latency
+      initialDelay: 60s
+      interval: 15s
+      count: 5
+      failureLimit: 0
+      inconclusiveLimit: 2
+      consecutiveErrorLimit: 2
+      successCondition: len(result) == 1 && !isNaN(result[0]) && result[0] <= 0.5
+      failureCondition: len(result) != 1 || isNaN(result[0]) || result[0] > 0.5
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring.svc.cluster.local:9090
+          query: |
+            histogram_quantile(0.95, sum by (le) (rate(demo_serving_request_duration_seconds_bucket{namespace="demo-dev",revision="{{args.revision}}"}[60s])))
+            and on() (sum(increase(demo_serving_requests_total{namespace="demo-dev",revision="{{args.revision}}"}[60s])) >= 100)
+            and on() (min(up{job="demo-pods",namespace="demo-dev",revision="{{args.revision}}"}) == 1)
+            and on() (count(up{job="demo-pods",namespace="demo-dev",revision="{{args.revision}}"}) == {{args.expected-pods}})
+            and on() (max(time() - timestamp(up{job="demo-pods",namespace="demo-dev",revision="{{args.revision}}"})) <= 15)

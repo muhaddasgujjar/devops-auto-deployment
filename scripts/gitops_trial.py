@@ -46,7 +46,7 @@ class Jenkins:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('scenario', choices=['healthy', 'error', 'latency', 'startup'])
+    parser.add_argument('scenario', choices=['healthy', 'error', 'latency', 'startup', 'post-error'])
     parser.add_argument('--job', choices=['release-local', 'release-main'], default='release-main')
     parser.add_argument('--observe-build', type=int, help='Observe an existing build without triggering another')
     parser.add_argument('--retry-analysis', action='store_true', help='Retry an interrupted inconclusive candidate after starting traffic')
@@ -70,7 +70,7 @@ def main():
     def traffic(service, filename):
         with (folder / filename).open('a') as stream:
             while not stop.is_set():
-                stream.write(json.dumps(sample(root + service + ':80/proxy/')) + '\n')
+                stream.write(json.dumps(sample(root + service + ':80/proxy/', preview=service == 'demo-preview')) + '\n')
                 stream.flush()
                 stop.wait(0.2)
 
@@ -150,7 +150,7 @@ def main():
                     raise TimeoutError('Inconclusive candidate did not abort before retry')
             subprocess.run(['kubectl', 'argo', 'rollouts', 'retry', 'rollout', 'release-demo', '-n', 'demo-dev'], check=True)
             summary['operator_analysis_retry'] = True
-        deadline = time.monotonic() + 420
+        deadline = time.monotonic() + 1800
         while time.monotonic() < deadline:
             rollout = resource('rollout', 'release-demo')
             env = rollout['spec']['template']['spec']['containers'][0]['env']
@@ -161,16 +161,34 @@ def main():
             synced = application.get('status', {}).get('sync', {})
             runs = [r for r in resource('analysisrun').get('items', []) if r['metadata'].get('labels', {}).get('rollouts-pod-template-hash') == candidate]
             phases = [r.get('status', {}).get('phase') for r in runs]
+            recovery_path = Path('/var/lib/release-lab/recovery/status.json')
+            recovery = json.loads(recovery_path.read_text()) if recovery_path.exists() else {}
+            controlled = recovery.get('deployment_commit') == evidence['environment_commit']
+            if controlled and recovery.get('phase') == 'recovery_failed':
+                raise RuntimeError('Recovery failed; inspect recovery-status before retrying')
+            if (controlled and recovery.get('phase') == 'recovered'
+                    and synced.get('status') == 'Synced' and synced.get('revision') == recovery.get('head')):
+                (folder / 'recovery.json').write_text(json.dumps(recovery, indent=2))
+                summary['recovery'] = recovery
+                summary['verdict'] = ('post-promotion-recovered-through-gitops' if args.scenario == 'post-error'
+                                      else 'candidate-rejected-and-restored-through-gitops')
+                break
             observed = str(state.get('observedGeneration')) == str(rollout['metadata']['generation'])
             if (observed and current_revision == expected_revision and candidate != old_hash
-                    and synced.get('revision') == evidence['environment_commit'] and synced.get('status') == 'Synced'):
-                if args.scenario == 'healthy' and 'Successful' in phases and service_hash() == candidate:
+                    and synced.get('revision') == (recovery.get('head') if controlled and recovery.get('phase') == 'healthy'
+                                                   else evidence['environment_commit']) and synced.get('status') == 'Synced'):
+                if (args.scenario == 'healthy' and state.get('phase') == 'Healthy' and 'Successful' in phases
+                        and service_hash() == candidate and (not recovery_path.exists() or (controlled and recovery.get('phase') == 'healthy'))):
                     summary['verdict'] = 'candidate-promoted-through-gitops'
                 elif args.scenario in ('error', 'latency') and 'Failed' in phases and state.get('abort'):
                     summary['verdict'] = 'candidate-rejected-through-gitops'
                 elif args.scenario == 'startup' and state.get('abort'):
                     summary['verdict'] = 'readiness-aborted-through-gitops'
                 if 'verdict' in summary:
+                    if recovery_path.exists() and recovery.get('phase') not in ('healthy', 'recovered'):
+                        summary.pop('verdict')
+                        time.sleep(3)
+                        continue
                     if args.scenario != 'healthy' and service_hash() != old_hash:
                         raise AssertionError('Faulty candidate changed stable service')
                     break
@@ -182,6 +200,10 @@ def main():
             raise AssertionError('Stable response unhealthy')
         if args.scenario == 'healthy' and final['response']['revision'] != expected_revision:
             raise AssertionError('Serving revision does not match Jenkins artifact')
+        if args.scenario == 'post-error':
+            if (summary.get('recovery', {}).get('failure_stage') != 'post-promotion'
+                    or service_hash() != old_hash):
+                raise AssertionError('Post-promotion failure did not restore the previous healthy service')
         summary.update(final_response=final, serving_hash=service_hash())
     except Exception as exc:
         summary.update(verdict='trial-failed', error=str(exc))
@@ -213,7 +235,11 @@ def main():
         from scripts.evidence import finalize_archive
         finalize_archive(folder)
     print(json.dumps(summary), flush=True)
-    if summary['stable_non_200']:
+    if args.scenario == 'post-error':
+        errors = [row for row in rows if row.get('status') != 200]
+        if not errors or any(row.get('status') != 500 or row.get('response', {}).get('revision') != expected_revision for row in errors):
+            raise AssertionError('Fault trial must record candidate 500s only, followed by verified recovery')
+    elif summary['stable_non_200']:
         raise AssertionError('Stable failures were observed; inspect retained evidence')
 
 

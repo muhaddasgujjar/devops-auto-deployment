@@ -12,7 +12,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 
 from scripts.render_release import ROOT, render
 
@@ -43,14 +43,18 @@ def now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def sample(url):
+def sample(url, preview=False):
     start = time.monotonic()
     result = {"timestamp": now()}
     try:
-        with urlopen(url, timeout=3) as response:
+        with urlopen(Request(url, headers={'X-Release-Preview': 'true'} if preview else {}), timeout=3) as response:
             result.update(status=response.status, response=json.loads(response.read()))
     except HTTPError as exc:
         result["status"] = exc.code
+        try:
+            result['response'] = json.loads(exc.read())
+        except (ValueError, OSError):
+            pass
         exc.close()
     except (URLError, TimeoutError, OSError, ValueError) as exc:
         result.update(status=0, error=type(exc).__name__)
@@ -115,7 +119,7 @@ def main():
     def traffic(service, filename):
         with (folder / filename).open("a") as stream:
             while not stop.is_set():
-                row = sample(proxy_root + service + ":80/proxy/")
+                row = sample(proxy_root + service + ":80/proxy/", preview=service == 'demo-preview')
                 stream.write(json.dumps(row) + "\n")
                 stream.flush()
                 stop.wait(0.2)
@@ -153,7 +157,7 @@ def main():
                 thread = threading.Thread(target=traffic, args=("demo-preview", f"preview-{i}.jsonl"), daemon=True)
                 thread.start()
                 threads.append(thread)
-        deadline = time.monotonic() + 300
+        deadline = time.monotonic() + 900
         verdict = None
         while time.monotonic() < deadline:
             obj = resource("rollout", "release-demo")
@@ -166,7 +170,7 @@ def main():
             if observed and candidate and candidate != old_hash:
                 if args.scenario == "initial" and status.get("phase") == "Healthy":
                     verdict = "baseline-established"
-                elif args.scenario == "healthy" and "Successful" in phases and service_hash() == candidate:
+                elif args.scenario == "healthy" and status.get('phase') == 'Healthy' and "Successful" in phases and service_hash() == candidate:
                     verdict = "candidate-promoted"
                 elif args.scenario in {"error", "latency"} and "Failed" in phases and status.get("abort"):
                     verdict = "candidate-rejected"

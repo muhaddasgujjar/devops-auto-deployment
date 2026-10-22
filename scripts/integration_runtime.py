@@ -11,6 +11,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['start', 'stop', 'status'])
     args = parser.parse_args()
+    recovery_unit = Path('/etc/systemd/system/release-lab-recovery.service')
+    if args.action == 'stop' and recovery_unit.exists():
+        subprocess.run(['systemctl', 'stop', recovery_unit.name], check=True)
     names = ('release-jenkins', 'release-agent') if args.action != 'stop' else ('release-agent', 'release-jenkins')
     if args.action == 'start' and Path('/opt/release-lab/secrets/sshd_config').exists():
         subprocess.run(['bash', str(ROOT / 'scripts/setup-local-git.sh')], check=True)
@@ -28,6 +31,8 @@ def main():
         elif args.action == 'stop' and running:
             subprocess.run(['docker', 'stop', '--time', '30', name], check=True)
         report[name] = {'was_running': running, 'action': args.action}
+    if args.action == 'start' and recovery_unit.exists():
+        subprocess.run(['systemctl', 'start', recovery_unit.name], check=True)
     print(json.dumps(report))
 
 

@@ -1,8 +1,8 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('install', 'bootstrap', 'status', 'start', 'stop', 'trial', 'review', 'close-review', 'gitops-setup', 'ci-setup', 'gitops-trial', 'storage-check')]
+    [ValidateSet('install', 'bootstrap', 'status', 'start', 'stop', 'trial', 'review', 'close-review', 'gitops-setup', 'ci-setup', 'gitops-trial', 'storage-check', 'recovery-setup', 'recovery-status', 'recovery-retry')]
     [string]$Action,
-    [ValidateSet('initial', 'healthy', 'error', 'latency', 'startup', 'no-traffic', 'telemetry-outage')]
+    [ValidateSet('initial', 'healthy', 'error', 'latency', 'startup', 'post-error', 'no-traffic', 'telemetry-outage')]
     [string]$Scenario = 'healthy',
     [ValidateSet('release-main', 'release-local')]
     [string]$BuildJob = 'release-main',
@@ -97,6 +97,9 @@ switch ($Action) {
     }
     'ci-setup' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.setup_jenkins }
     'storage-check' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.storage_check }
+    'recovery-setup' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.install_recovery }
+    'recovery-status' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.recovery --status }
+    'recovery-retry' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.recovery --retry }
     'gitops-trial' {
         $observerArguments = @($Scenario, '--job', $BuildJob)
         if ($ObserveBuild -gt 0) { $observerArguments += @('--observe-build', $ObserveBuild) }

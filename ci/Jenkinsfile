@@ -8,7 +8,7 @@ pipeline {
     skipDefaultCheckout(true)
   }
   parameters {
-    choice(name: 'DEMO_MODE', choices: ['healthy', 'error', 'latency', 'startup'], description: 'Controlled lab artifact')
+    choice(name: 'DEMO_MODE', choices: ['healthy', 'error', 'latency', 'startup', 'post-error'], description: 'Controlled lab artifact')
     string(name: 'IMAGE_REPOSITORY', defaultValue: 'localhost:5001/release-demo', description: 'Reachable registry/repository')
     string(name: 'ENV_REPO_URL', defaultValue: env.RELEASE_ENV_REPO_URL ?: '', description: 'Separate environment Git repository, SSH URL')
   }

@@ -6,6 +6,7 @@ from pathlib import Path
 
 from scripts.git_ssh_command import allowed_command, REPOSITORY
 from scripts.publish_environment import publish
+from scripts.release_control import write_control, read_control
 
 
 class GitOpsTests(unittest.TestCase):
@@ -42,6 +43,15 @@ class GitOpsTests(unittest.TestCase):
             second = publish(str(remote), image, sha, 'jenkins-1', evidence)
             self.assertFalse(second['changed'])
             self.assertEqual(first['environment_commit'], second['environment_commit'])
+            with self.assertRaisesRegex(RuntimeError, 'lease'):
+                publish(str(remote), image, sha, 'jenkins-2', evidence)
+            git('-C', seed, 'pull', '--ff-only')
+            state = read_control(seed)
+            state['phase'] = 'healthy'
+            write_control(seed, state)
+            git('-C', seed, 'add', 'release-control.json')
+            git('-C', seed, 'commit', '-m', 'Verify previous release')
+            git('-C', seed, 'push', 'origin', 'main')
             third = publish(str(remote), image, sha, 'jenkins-2', evidence)
             self.assertNotEqual(first['environment_commit'], third['environment_commit'])
             self.assertEqual(json.loads(evidence.read_text())['release_id'], 'jenkins-2')

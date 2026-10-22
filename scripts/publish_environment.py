@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from scripts.render_release import IMAGE, COMMIT, render
+from scripts.release_control import CONTROL, read_control, write_control, deadline, now
 
 
 def git(directory, *args, check=True):
@@ -32,13 +33,28 @@ def publish(repository, image, commit, release_id, evidence):
             raise ValueError('Pass credentials through a credential provider, not a repository URL')
     with tempfile.TemporaryDirectory(prefix='release-env-') as directory:
         git(directory, 'clone', '--branch', 'main', '--single-branch', '--', repository, directory)
+        previous = git(directory, 'rev-parse', 'HEAD').stdout.strip()
+        control = read_control(directory)
+        same = control and all(control.get(k) == v for k, v in
+                               [('image', image), ('source_commit', commit), ('release_id', release_id)])
+        if control and control.get('phase') not in ('healthy', 'recovered') and not same:
+            raise RuntimeError('Release lease is busy or recovery failed; reconcile it before publishing')
+        if same:
+            result = {'source_commit': commit, 'image': image, 'release_id': release_id,
+                      'environment_commit': control.get('deployment_commit', previous), 'changed': False}
+            Path(evidence).parent.mkdir(parents=True, exist_ok=True)
+            Path(evidence).write_text(json.dumps(result, indent=2))
+            return result
         target = Path(directory) / 'environments/dev'
         render(image, commit, target)
         rollout = target / 'rollout.yaml'
         rollout.write_text(rollout.read_text().replace(f'value: "{commit}"', f'value: "{commit}-{release_id}"'), newline='\n')
         git(directory, 'config', 'user.name', 'release-ci')
         git(directory, 'config', 'user.email', 'release-ci@localhost')
-        git(directory, 'add', '--', 'environments/dev')
+        write_control(directory, {'phase': 'deploying', 'release_id': release_id, 'source_commit': commit,
+                                 'image': image, 'previous_commit': previous, 'started_at': now().isoformat(),
+                                 'deadline': deadline(1200), 'attempt': 1})
+        git(directory, 'add', '--', 'environments/dev', CONTROL)
         changed = git(directory, 'diff', '--cached', '--quiet', check=False)
         if changed.returncode not in (0, 1):
             raise RuntimeError('Unable to inspect staged release')

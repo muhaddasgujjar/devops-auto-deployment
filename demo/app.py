@@ -8,7 +8,7 @@ from collections import Counter
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlsplit
 
-MODES = {"healthy", "error", "latency", "startup"}
+MODES = {"healthy", "error", "latency", "startup", "post-error"}
 BUCKETS = (0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0)
 
 
@@ -27,7 +27,7 @@ class Metrics:
                 if seconds <= bound:
                     self.buckets[bound] += 1
 
-    def render(self):
+    def render(self, prefix="demo"):
         with self.lock:
             count = sum(self.statuses.values())
             lines = ["# HELP demo_requests_total Application requests excluding probes and metrics.",
@@ -39,7 +39,7 @@ class Metrics:
             lines += [f'demo_request_duration_seconds_bucket{{le="+Inf"}} {count}',
                       f"demo_request_duration_seconds_sum {self.total_seconds}",
                       f"demo_request_duration_seconds_count {count}"]
-            return ("\n".join(lines) + "\n").encode()
+            return ("\n".join(lines).replace('demo_', prefix + '_') + "\n").encode()
 
 
 def create_server(host="127.0.0.1", port=8080, mode="healthy", revision="local", latency=0.8):
@@ -48,12 +48,13 @@ def create_server(host="127.0.0.1", port=8080, mode="healthy", revision="local",
     if not 0 <= latency <= 10:
         raise ValueError("latency must be between 0 and 10 seconds")
     metrics = Metrics()
+    serving_metrics = Metrics()
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self):
             path = urlsplit(self.path).path
             if path == "/metrics":
-                self.respond(200, metrics.render(), "text/plain; version=0.0.4")
+                self.respond(200, metrics.render() + serving_metrics.render('demo_serving'), "text/plain; version=0.0.4")
                 return
             if path in {"/healthz", "/readyz"}:
                 status = 503 if path == "/readyz" and mode == "startup" else 200
@@ -65,9 +66,13 @@ def create_server(host="127.0.0.1", port=8080, mode="healthy", revision="local",
             start = time.monotonic()
             if mode == "latency":
                 time.sleep(latency)
-            status = 500 if mode == "error" else 200
+            preview = self.headers.get('X-Release-Preview') == 'true'
+            # Controlled fixture: preview passes, ordinary serving traffic fails.
+            status = 500 if mode == "error" or (mode == 'post-error' and not preview) else 200
             body = json.dumps({"service": "release-demo", "revision": revision, "mode": mode}).encode()
             metrics.observe(status, time.monotonic() - start)
+            if not preview:
+                serving_metrics.observe(status, time.monotonic() - start)
             self.respond(status, body)
 
         def respond(self, status, body, content_type="application/json"):

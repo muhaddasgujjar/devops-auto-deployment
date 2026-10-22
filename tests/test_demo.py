@@ -7,7 +7,7 @@ import unittest
 from contextlib import contextmanager
 from pathlib import Path
 from urllib.error import HTTPError
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 
 from demo.app import create_server
 from scripts.load import run
@@ -36,6 +36,16 @@ def request(url):
 
 
 class DemoTests(unittest.TestCase):
+    def test_post_promotion_fault_passes_preview_and_excludes_preview_from_serving_metrics(self):
+        with serving(mode='post-error', revision='post-test') as base:
+            self.assertEqual(request(Request(base + '/', headers={'X-Release-Preview': 'true'}))[0], 200)
+            self.assertIn('demo_serving_request_duration_seconds_count 0\n', request(base + '/metrics')[1])
+            status, body = request(base + '/')
+            self.assertEqual(status, 500)
+            self.assertEqual(json.loads(body)['revision'], 'post-test')
+            self.assertEqual(request(base + '/readyz')[0], 200)
+            self.assertIn('demo_serving_requests_total{status="500"} 1\n', request(base + '/metrics')[1])
+
     def test_healthy_response_and_revision(self):
         with serving(revision="abc123") as base:
             status, body = request(base + "/")

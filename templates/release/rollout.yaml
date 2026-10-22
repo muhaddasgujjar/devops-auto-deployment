@@ -9,7 +9,7 @@ spec:
   # records. Retained zero-replica scale-down markers can suppress deadline checks
   # in the selected controller. Stable and candidate sets remain controller-owned.
   revisionHistoryLimit: 0
-  progressDeadlineSeconds: 180
+  progressDeadlineSeconds: 600
   progressDeadlineAbort: true
   selector:
     matchLabels: {app: release-demo}
@@ -18,11 +18,20 @@ spec:
       activeService: demo-stable
       previewService: demo-preview
       autoPromotionEnabled: true
-      scaleDownDelaySeconds: 120
+      # Longer than both analysis windows; never cancel post analysis to retire old pods.
+      scaleDownDelaySeconds: 600
+      scaleDownDelayRevisionLimit: 1
       abortScaleDownDelaySeconds: 30
       prePromotionAnalysis:
         templates:
           - templateName: candidate-health
+        args:
+          - name: revision
+            valueFrom:
+              podTemplateHashValue: Latest
+      postPromotionAnalysis:
+        templates:
+          - templateName: serving-health
         args:
           - name: revision
             valueFrom:

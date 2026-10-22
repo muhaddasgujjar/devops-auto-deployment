@@ -47,6 +47,8 @@ if (node == null) {
 // Local acceptance uses a read-only snapshot of this checkout. Production uses SCM.
 if (true) {
   def job = j.getItem('release-local') ?: j.createProject(WorkflowJob, 'release-local')
+  // Frozen legacy snapshots do not participate in the durable release lease.
+  job.setDisabled(true)
   job.addProperty(new ParametersDefinitionProperty(new ChoiceParameterDefinition('DEMO_MODE', 'healthy\nerror\nlatency\nstartup', 'Candidate mode')))
   job.setDefinition(new CpsFlowDefinition(new File('/opt/release-source/ci/Jenkinsfile.local').text, true))
   job.save()
@@ -60,7 +62,7 @@ if (true) {
     [new BranchSpec('*/main')], null, null, [])
   job.setDefinition(new CpsScmFlowDefinition(scm, 'ci/Jenkinsfile'))
   job.addProperty(new ParametersDefinitionProperty(
-    new ChoiceParameterDefinition('DEMO_MODE', 'healthy\nerror\nlatency\nstartup', 'Candidate mode'),
+    new ChoiceParameterDefinition('DEMO_MODE', 'healthy\nerror\nlatency\nstartup\npost-error', 'Candidate mode'),
     new StringParameterDefinition('IMAGE_REPOSITORY', 'localhost:5001/release-demo'),
     new StringParameterDefinition('ENV_REPO_URL', repoUrl)))
   job.addProperty(new PipelineTriggersJobProperty([new SCMTrigger('H/2 * * * *')]))
