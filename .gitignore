@@ -9,3 +9,4 @@ output/
 *.kubeconfig
 *.pem
 *.key
+.kube/

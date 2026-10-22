@@ -25,7 +25,7 @@ def command(*args, timeout=180):
 
 
 def kube(*args):
-    return command("kubectl", "--request-timeout=15s", *args)
+    return command("kubectl", "--cache-dir=/var/cache/release-lab/kubectl", "--request-timeout=15s", *args)
 
 
 def resource(kind, name=None):
