@@ -50,7 +50,10 @@ def main():
         build = client.json(f'job/{job}/api/json').get('lastBuild')
         if build and client.json(f'job/{job}/{build["number"]}/api/json')['building']:
             raise SystemExit('Wait for all builds before importing the database')
-    subprocess.run(['docker', 'cp', str(archive), 'release-agent:/tmp/release-db.tar.gz'], check=True, capture_output=True)
+    copied = subprocess.run(['docker', 'cp', str(archive), 'release-agent:/tmp/release-db.tar.gz'], text=True, capture_output=True)
+    if copied.returncode:
+        raise SystemExit('Database copy failed: ' + copied.stderr[-2000:]
+                         + '\nOn Windows, use fetch_trivy_db --stage-in-wsl and import its Linux archive path.')
     result = subprocess.run(['docker', 'exec', '-i', '--user', 'root', 'release-agent', 'python3', '-'],
                             input=IMPORT.replace('__DIGEST__', repr(expected)), text=True, capture_output=True, check=True)
     evidence['database'] = json.loads(result.stdout)

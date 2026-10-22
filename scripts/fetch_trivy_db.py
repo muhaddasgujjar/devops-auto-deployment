@@ -2,8 +2,44 @@
 import argparse
 import hashlib
 import json
+import os
+import shutil
+import subprocess
 from pathlib import Path
 from urllib.request import Request, urlopen
+
+
+def stage_in_wsl(archive):
+    """Stream from Windows to Linux, avoiding large reads through the WSL mount."""
+    if os.name != 'nt':
+        raise ValueError('WSL staging is a Windows-only option')
+    archive = Path(archive)
+    metadata = json.loads(archive.with_suffix('.json').read_text())
+    if 'sha256:' + hashlib.file_digest(archive.open('rb'), 'sha256').hexdigest() != metadata['layer_digest']:
+        raise ValueError('Refusing to stage a database with a mismatched checksum')
+    destination = '/opt/release-lab/cache/trivy-db-current.tar.gz'
+    code = '''import hashlib,json,pathlib,shutil,sys
+p=pathlib.Path(sys.argv[1]); p.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
+part=p.with_suffix('.part')
+with part.open('wb') as target: shutil.copyfileobj(sys.stdin.buffer,target,65536)
+metadata=json.loads(sys.argv[2])
+with part.open('rb') as source: actual='sha256:'+hashlib.file_digest(source,'sha256').hexdigest()
+if actual!=metadata['layer_digest']: raise SystemExit('WSL transfer checksum mismatch')
+part.replace(p); p.with_suffix('.json').write_text(json.dumps(metadata))
+'''
+    process = subprocess.Popen(['wsl', '--distribution', 'Ubuntu-24.04', '--user', 'root', '--exec',
+                                'python3', '-c', code, destination, json.dumps(metadata)], stdin=subprocess.PIPE)
+    try:
+        with archive.open('rb') as source:
+            shutil.copyfileobj(source, process.stdin, 65536)
+        process.stdin.close()
+        if process.wait(timeout=120):
+            raise RuntimeError('WSL database staging failed')
+    finally:
+        if process.poll() is None:
+            process.kill()
+            process.wait()
+    return destination
 
 
 def fetch(archive):
@@ -42,4 +78,9 @@ def fetch(archive):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--archive', type=Path, required=True)
-    print(json.dumps(fetch(parser.parse_args().archive)))
+    parser.add_argument('--stage-in-wsl', action='store_true', help='Stream verified data to the Linux filesystem on low-memory Windows hosts')
+    args = parser.parse_args()
+    result = fetch(args.archive)
+    if args.stage_in_wsl:
+        result['linux_archive'] = stage_in_wsl(args.archive)
+    print(json.dumps(result))

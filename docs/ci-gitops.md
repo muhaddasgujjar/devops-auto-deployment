@@ -105,8 +105,8 @@ agent. The importer rejects expired databases and unexpected archive members.
 
 ```powershell
 $dbArchive = Join-Path (Get-Location) 'output\gitops\trivy-db.tar.gz'
-.\.venv\Scripts\python.exe -m scripts.fetch_trivy_db --archive $dbArchive
-$linuxArchive = (wsl -d Ubuntu-24.04 -u root --exec wslpath -a $dbArchive).Trim()
+.\.venv\Scripts\python.exe -m scripts.fetch_trivy_db --archive $dbArchive --stage-in-wsl
+$linuxArchive = '/opt/release-lab/cache/trivy-db-current.tar.gz'
 wsl -d Ubuntu-24.04 -u root --exec /opt/release-lab/venv/bin/python -m scripts.import_trivy_db --archive $linuxArchive
 ```
 
@@ -115,6 +115,9 @@ records layer digest and vendor timestamps under `output/gitops/`. It does not
 change the vendor's UpdatedAt/NextUpdate dates, skip scanning, or disable future
 updates. It records the actual local import time in DownloadedAt, matching Trivy's
 normal installer behavior.
+The optional WSL staging streams bytes from Windows and verifies the digest
+again on Linux. This avoids large reads through the Windows mount, which failed
+with `Cannot allocate memory` on this constrained host despite free Linux cache.
 
 ## Remote transition still required
 

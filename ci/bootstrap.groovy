@@ -50,9 +50,10 @@ if (true) {
   job.setDefinition(new CpsFlowDefinition(new File('/opt/release-source/ci/Jenkinsfile.local').text, true))
   job.save()
 }
-if (j.getItem('release-main') == null) {
-  def job = j.createProject(WorkflowJob, 'release-main')
-  job.setDisabled(true)
+{
+  def job = j.getItem('release-main') ?: j.createProject(WorkflowJob, 'release-main')
+  // Repair a partially-created job after an interrupted initial setup as well.
+  if (job.getDefinition() == null) { job.setDisabled(true) }
   def scm = new GitSCM('https://github.com/muhaddasgujjar/devops-auto-deployment.git')
   scm.setBranches([new BranchSpec('*/main')])
   job.setDefinition(new CpsScmFlowDefinition(scm, 'ci/Jenkinsfile'))
