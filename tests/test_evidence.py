@@ -45,6 +45,24 @@ class EvidenceTests(unittest.TestCase):
             finally:
                 store.close()
 
+    def test_fault_snapshots_are_archived_but_console_logs_are_excluded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            source, run = self.fixture(base)
+            (run / 'analysis-observed.json').write_text('{"items":[]}')
+            (run / 'telemetry-fixture.json').write_text('{"replicas":1}')
+            (run / 'jenkins-console.txt').write_text('excluded')
+            store = EvidenceStore(base / 'store')
+            try:
+                self.assertEqual(store.archive(run, source)['files'], 4)
+                names = {row[0] for row in store.db.execute('SELECT name FROM files')}
+                self.assertIn('analysis-observed.json', names)
+                self.assertIn('telemetry-fixture.json', names)
+                self.assertNotIn('jenkins-console.txt', names)
+                self.assertEqual(store.verify()['verified_files'], 4)
+            finally:
+                store.close()
+
     def test_backup_restore_and_corruption_detection(self):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)

@@ -1,0 +1,19 @@
+{
+  "report_date": "2026-10-24",
+  "branch": "codex/supervisor-review-2026-10-24",
+  "core_tests": 35,
+  "postgresql_api_tests": 8,
+  "configuration_documents": 21,
+  "frontend_build": "passed",
+  "lab_health": true,
+  "health_checked_at": "2026-10-23T23:09:04.638586+00:00",
+  "pdf_pages": 10,
+  "pdf_sha256": "8d01c74e0000db0de9bde1d55cc9e08207a9665076f4895d4ec45f58921e8567",
+  "raw_logs_committed": false,
+  "local_log_sha256": {
+    "core": "212e188811110bea0a63d9d9245454f986bc0c62875e9474e94c2593e8bd4679",
+    "api": "d2fa2735168afe8440f7e9d98675950d665289684d8768c4872b2faeec169359",
+    "configuration": "0ece7310e23fc7ef171b6279fcc3df51bcaa1e10d91c40db06f946bab82accc8",
+    "frontend": "2a000b8d4f4da96ff463190af59518880372374101c5826325d40dff9c44cd77"
+  }
+}

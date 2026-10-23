@@ -1,5 +1,10 @@
 # Test the current lab
 
+The serial CI/GitOps failure suite is described in
+[the fault-matrix runbook](gitops-fault-matrix.md). It includes controlled missing
+traffic and monitoring outages, plus explicit retry after a shared dependency
+prevents recovery verification.
+
 Run these commands in PowerShell from the project root. The existing lab already
 has a stable release; do not bootstrap it again or run the `initial` scenario.
 Run trials one at a time and let each command finish before starting another.

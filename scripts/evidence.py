@@ -21,6 +21,7 @@ NAMES = {'summary.json', 'source.json', 'image.json', 'scan.json', 'sbom.json',
          'application.json', 'jenkins-build.json', 'environment-commit.json', 'trivy-db-metadata.json'}
 NAMES.update({'prometheus-before.json', 'prometheus-after.json', 'storage.json', 'prometheus-backup.tar.gz'})
 NAMES.add('recovery.json')
+NAMES.update({'analysis-observed.json', 'telemetry-fixture.json'})
 
 
 def digest(path):

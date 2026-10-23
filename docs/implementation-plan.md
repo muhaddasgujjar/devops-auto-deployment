@@ -70,12 +70,19 @@ is blocked throughout analysis/recovery; the legacy snapshot publisher is disabl
 
 ## Next acceptance gates
 
+The [Releaseboard product foundation](product-portal.md) now supplies FastAPI,
+PostgreSQL migrations, durable reconciliation/audit/inbox/outbox records, signed
+deduplicated integration receipts, and a React operations UI. It is a read-only
+local profile. The incomplete engine fault matrix remains an independent gate;
+the portal preserves those failed/incomplete reports rather than relabelling them.
+
 1. Complete Jenkins-driven latency/readiness/missing-traffic/telemetry-outage
    acceptance and rebuild controller/agent from the complete locks. The earlier
    engine-only tests do not substitute for this GitOps matrix.
-2. Build the FastAPI/PostgreSQL release model, migrations and durable event/audit
-   processing, then roles, signed callbacks, idempotency and restart reconciliation.
-3. Add React onboarding, release history and recovery evidence views.
+2. Extend the delivered FastAPI/PostgreSQL foundation with user roles, optimistic
+   concurrency and authorized/idempotent promotion APIs. Wire product tests into CI.
+3. Extend the React release history/evidence UI with authenticated project
+   onboarding and operator actions, then bounded external notification delivery.
 4. Provision a separate Linux build host, TLS registry, staging environment,
    infrastructure digest locks, independent backups, Grafana/Alertmanager and
    notification delivery. These remain team deployment requirements.
