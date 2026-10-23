@@ -1,5 +1,14 @@
 # Running review and gaps — updated 23 October 2026
 
+The new [Releaseboard portal](product-portal.md) runs at http://localhost:8083/.
+It provides live release/build/analysis visibility, searchable archived evidence,
+verified downloads and an activity timeline, backed by FastAPI/PostgreSQL.
+This is a read-only local product slice; onboarding, user roles, promotion APIs
+and external delivery remain pending. Engine acceptance is tracked separately:
+latency rejection passed, the readiness pilot recovered but failed its original
+evidence parser, and the next attempt stopped on a Jenkins GitHub fetch timeout.
+The complete new CI/GitOps fault matrix is not yet accepted.
+
 Post-promotion monitoring and Git desired-state recovery now pass live checks.
 Healthy build 5 passed both windows with all 1,903 requests successful. Serving
 fault build 6 triggered automatic recovery after 278 injected 500s over a
@@ -79,7 +88,7 @@ for this review.
 | 1 | Scheduled GitHub delivery and HTTP-error rejection passed | Remaining Jenkins fault matrix, rebuild from locks and full-lifetime release serialization |
 | 2 | Telemetry and evidence persist locally; backups remain on one machine | Independent-host storage and coverage for Git, Jenkins, registry, secrets and control plane |
 | 3 | Native-history workaround limits retained rollback history | Retest controller upgrade or upstream fix; post-analysis, durable recovery and denied-write retry are now verified locally |
-| 4 | Custom API, database, portal, roles, callbacks and notifications are pending | Backend data model and authenticated release lifecycle after the engines are integrated |
+| 4 | Read-only FastAPI/PostgreSQL/React foundation delivered; user roles, onboarding and operator actions pending | Authenticated release lifecycle, product CI, promotion concurrency and external notification delivery |
 | 5 | Current runs are finite local checks | Repeated fault trials, concurrency controls, fresh-machine reproduction and measured distributions |
 
 The current 8 GiB Windows host is constrained. Jenkins and Argo CD use bounded
@@ -87,4 +96,4 @@ local profiles; PostgreSQL and a full monitoring stack remain pending. The next
 work is the remaining fault matrix and the product backend.
 A separate build host and
 TLS registry remain requirements for a team installation. The current browser
-dashboard is the native Rollouts interface; the product portal is still pending.
+dashboard at port 3100 is the native Rollouts interface; the product portal is at port 8083.

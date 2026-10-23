@@ -6,3 +6,5 @@ Jenkinsfile.* text eol=lf
 *.sha256 text eol=lf
 ci/plugins*.txt text eol=lf
 *.yaml text eol=lf
+*.pdf binary
+*.png binary

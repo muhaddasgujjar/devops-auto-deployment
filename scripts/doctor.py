@@ -102,6 +102,18 @@ def inspect():
                 return sync.get('status') == 'Synced' and bool(sync.get('revision')), detail
             check('gitops_sync', gitops)
     info = dict(line.split(":", 1) for line in Path("/proc/meminfo").read_text().splitlines())
+    if (ROOT / 'output/portal-installed.json').exists():
+        def portal():
+            from urllib.request import urlopen
+            with urlopen('http://127.0.0.1:8083/readyz', timeout=5) as response:
+                ready = json.load(response).get('status') == 'ready'
+            with urlopen('http://127.0.0.1:8083/api/overview', timeout=5) as response:
+                view = json.load(response)
+            age = (datetime.now(timezone.utc) - datetime.fromisoformat(view['collected_at'])).total_seconds()
+            return ready and age <= 60 and not view.get('observer_error') and not view.get('errors'), {
+                'url': 'http://localhost:8083/', 'observation_age_seconds': round(age, 1),
+                'source_errors': sorted(view.get('errors', {}))}
+        check('product_portal', portal)
     report["linux_memory_available_mib"] = round(int(info["MemAvailable"].split()[0]) / 1024, 1)
     report["ok"] = all(c["ok"] for c in report["checks"].values())
     return report

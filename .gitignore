@@ -10,3 +10,6 @@ output/
 *.pem
 *.key
 .kube/
+node_modules/
+apps/web/dist/
+tmp/pdfs/

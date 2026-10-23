@@ -12,6 +12,9 @@ def main():
     parser.add_argument('action', choices=['start', 'stop', 'status'])
     args = parser.parse_args()
     recovery_unit = Path('/etc/systemd/system/release-lab-recovery.service')
+    portal_unit = Path('/etc/systemd/system/release-lab-portal.service')
+    if args.action == 'stop' and portal_unit.exists():
+        subprocess.run(['/opt/release-lab/venv/bin/python', '-m', 'scripts.portal', 'stop'], cwd=ROOT, check=True)
     if args.action == 'stop' and recovery_unit.exists():
         subprocess.run(['systemctl', 'stop', recovery_unit.name], check=True)
     names = ('release-jenkins', 'release-agent') if args.action != 'stop' else ('release-agent', 'release-jenkins')
@@ -33,6 +36,8 @@ def main():
         report[name] = {'was_running': running, 'action': args.action}
     if args.action == 'start' and recovery_unit.exists():
         subprocess.run(['systemctl', 'start', recovery_unit.name], check=True)
+    if args.action == 'start' and portal_unit.exists():
+        subprocess.run(['/opt/release-lab/venv/bin/python', '-m', 'scripts.portal', 'start'], cwd=ROOT, check=True)
     print(json.dumps(report))
 
 

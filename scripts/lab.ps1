@@ -1,8 +1,8 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('install', 'bootstrap', 'status', 'start', 'stop', 'trial', 'review', 'close-review', 'gitops-setup', 'ci-setup', 'gitops-trial', 'storage-check', 'recovery-setup', 'recovery-status', 'recovery-retry', 'recovery-failure-check')]
+    [ValidateSet('install', 'bootstrap', 'status', 'start', 'stop', 'trial', 'review', 'close-review', 'gitops-setup', 'ci-setup', 'gitops-trial', 'gitops-fault-matrix', 'storage-check', 'recovery-setup', 'recovery-status', 'recovery-retry', 'recovery-failure-check', 'portal-setup', 'portal-start', 'portal-stop', 'portal-status')]
     [string]$Action,
-    [ValidateSet('initial', 'healthy', 'error', 'latency', 'startup', 'post-error', 'no-traffic', 'telemetry-outage')]
+    [ValidateSet('initial', 'healthy', 'error', 'latency', 'startup', 'post-error', 'no-traffic', 'telemetry-outage', 'shared-telemetry-outage')]
     [string]$Scenario = 'healthy',
     [ValidateSet('release-main', 'release-local')]
     [string]$BuildJob = 'release-main',
@@ -31,7 +31,7 @@ function Enable-LabKeeper {
         @{pid = $keeper.Id; purpose = 'Keep the dedicated WSL lab active between commands'} | ConvertTo-Json | Set-Content -LiteralPath $keeperFile
     }
 }
-$awakeRequested = $Action -in @('install', 'bootstrap', 'start', 'trial', 'gitops-setup', 'ci-setup', 'gitops-trial', 'storage-check', 'recovery-failure-check')
+$awakeRequested = $Action -in @('install', 'bootstrap', 'start', 'trial', 'gitops-setup', 'ci-setup', 'gitops-trial', 'gitops-fault-matrix', 'storage-check', 'recovery-failure-check')
 if ($awakeRequested) {
     if (-not ('ReleaseLab.Power' -as [type])) {
         Add-Type -TypeDefinition @'
@@ -47,7 +47,7 @@ namespace ReleaseLab {
     if ([ReleaseLab.Power]::SetThreadExecutionState([uint32]2147483649) -eq 0) { throw 'Unable to request an awake system for this lab operation' }
 }
 try {
-if ($Action -in @('bootstrap', 'start', 'trial', 'review', 'gitops-setup', 'ci-setup', 'gitops-trial', 'storage-check', 'recovery-failure-check')) { Enable-LabKeeper }
+if ($Action -in @('bootstrap', 'start', 'trial', 'review', 'gitops-setup', 'ci-setup', 'gitops-trial', 'gitops-fault-matrix', 'storage-check', 'recovery-failure-check')) { Enable-LabKeeper }
 switch ($Action) {
     'install' { & wsl @wslArguments bash scripts/install-linux-tools.sh }
     'bootstrap' { & wsl @wslArguments bash scripts/bootstrap-lab.sh }
@@ -78,7 +78,9 @@ switch ($Action) {
             $launchArguments = @('--distribution', 'Ubuntu-24.04', '--user', 'root', '--cd', ('"' + $projectPath + '"'), '--exec', '/opt/release-lab/venv/bin/python', '-m', 'scripts.review')
             Start-Process -FilePath (Join-Path $env:WINDIR 'System32\wsl.exe') -ArgumentList $launchArguments -WindowStyle Hidden -RedirectStandardOutput (Join-Path $projectPath 'output/review-supervisor.log') -RedirectStandardError (Join-Path $projectPath 'output/review-supervisor-error.log') | Out-Null
         }
-        foreach ($url in @('http://localhost:8081/', 'http://localhost:9090/-/ready', 'http://localhost:3100/rollouts/')) {
+        $reviewUrls = @('http://localhost:8081/', 'http://localhost:9090/-/ready', 'http://localhost:3100/rollouts/')
+        if (Test-Path -LiteralPath (Join-Path $projectPath 'output/portal-installed.json')) { $reviewUrls += 'http://localhost:8083/readyz' }
+        foreach ($url in $reviewUrls) {
             $ready = $false
             for ($attempt = 0; $attempt -lt 15; $attempt++) {
                 try { $null = Invoke-WebRequest -Uri $url -TimeoutSec 3 -UseBasicParsing; $ready = $true; break } catch { Start-Sleep -Seconds 1 }
@@ -101,6 +103,11 @@ switch ($Action) {
     'recovery-status' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.recovery --status }
     'recovery-retry' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.recovery --retry }
     'recovery-failure-check' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.recovery_failure_check }
+    'portal-setup' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.portal setup }
+    'portal-start' { Enable-LabKeeper; & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.portal start }
+    'portal-stop' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.portal stop }
+    'portal-status' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.portal status }
+    'gitops-fault-matrix' { & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.gitops_fault_matrix }
     'gitops-trial' {
         $observerArguments = @($Scenario, '--job', $BuildJob)
         if ($ObserveBuild -gt 0) { $observerArguments += @('--observe-build', $ObserveBuild) }
