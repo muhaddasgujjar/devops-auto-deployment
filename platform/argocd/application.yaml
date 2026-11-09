@@ -1,0 +1,47 @@
+# Replace __ENV_REPO_URL__ with your separate environment Git repository URL.
+# Apply only after Argo CD is installed and repository credentials are configured.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: release-demo
+  namespace: argocd
+spec:
+  sourceRepos: ["__ENV_REPO_URL__"]
+  destinations:
+    - namespace: demo-dev
+      server: https://kubernetes.default.svc
+  namespaceResourceWhitelist:
+    - {group: "", kind: Service}
+    - {group: argoproj.io, kind: Rollout}
+    - {group: argoproj.io, kind: AnalysisTemplate}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: release-demo-dev
+  namespace: argocd
+spec:
+  project: release-demo
+  source:
+    repoURL: "__ENV_REPO_URL__"
+    targetRevision: main
+    path: environments/dev
+    directory:
+      exclude: namespace.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: demo-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions: [RespectIgnoreDifferences=true]
+  ignoreDifferences:
+    - group: ""
+      kind: Service
+      name: demo-stable
+      jsonPointers: [/spec/selector/rollouts-pod-template-hash]
+    - group: ""
+      kind: Service
+      name: demo-preview
+      jsonPointers: [/spec/selector/rollouts-pod-template-hash]

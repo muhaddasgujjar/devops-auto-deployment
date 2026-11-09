@@ -18,11 +18,14 @@ def digest(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--snapshot", required=True, type=Path)
+    parser.add_argument("--foundation-ref", default="76057b1", help="Historical foundation Git commit")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     snapshot = args.snapshot.resolve(strict=True)
     current_manifest = json.loads((root / "docs/evidence/source-sha256.json").read_text())
-    foundation = {p: digest(root / p) == h for p, h in current_manifest.items()}
+    foundation = {p: hashlib.sha256(subprocess.check_output(
+        ["git", "-C", str(root), "show", args.foundation_ref + ":" + p])).hexdigest() == h
+        for p, h in current_manifest.items()}
     runtime = {p: matched for p, matched in foundation.items() if p != "README.md"}
     # Only tracked application/config source is inventoried; never inspect lab secret directories.
     permitted = {"demo", "ci", "templates", "platform", "scripts", "docs"}
@@ -41,13 +44,14 @@ def main():
     report = {
         "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
         "snapshot_commit": git(snapshot, "rev-parse", "HEAD"),
+        "foundation_reference": git(root, "rev-parse", args.foundation_ref),
         "snapshot_clean": not bool(git(snapshot, "status", "--porcelain")),
         "foundation_hashes": foundation,
         "foundation_matches_recorded_evidence": all(foundation.values()),
         "foundation_runtime_matches_recorded_evidence": all(runtime.values()),
         "legacy_tracked_source": entries,
-        "scope": "Read-only provenance inventory; no pipeline execution or compatibility validation",
-        "decision": "Current Windows repository is authoritative for new work. Preserve the legacy snapshot; port reviewed components through explicit contract changes, never overlay its directories.",
+        "scope": "Historical foundation commit and legacy snapshot provenance; current merged runtime is validated separately",
+        "decision": "One merged source repository; canonical runtime demo/app.py, retained foundation example under examples/foundation.",
     }
     destination = root / "docs/evidence/source-reconciliation.json"
     destination.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

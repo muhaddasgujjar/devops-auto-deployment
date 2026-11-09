@@ -1,12 +1,16 @@
 # Foundation workload runbook
 
+This is the retained isolated foundation fixture. The main project uses `demo/app.py`
+and [the canonical lab runbook](../lab.md). Foundation application and manifest paths
+in this guide now live under `examples/foundation/`.
+
 ## Native Windows execution
 
 ```powershell
 python scripts/validate.py
 $env:APP_REVISION = 'healthy-1'
 $env:DEMO_MODE = 'healthy'
-python demo/app/server.py
+python examples/foundation/app/server.py
 ```
 
 Use a second shell for `curl.exe http://127.0.0.1:8080/api/work`. Stop the server with Ctrl+C. Set `DEMO_MODE` to `errors`, `unready`, or `latency` before restarting for a controlled fault. The service has no runtime fault mutation endpoint. `DEMO_LATENCY_SECONDS` defaults to 0.25 and must be between zero and five seconds. Unready mode represents a failed readiness check, not process failure.
@@ -18,8 +22,8 @@ The Python standard-library server is deliberately a small trusted-lab workload.
 From this checkout in WSL (typically `/mnt/c/Users/hasnat/OneDrive/Documents/ChatGPT/Deveops`):
 
 ```bash
-PYTHON_IMAGE=$(python3 -c 'import json; print(json.load(open("versions.json"))["python_image"])')
-docker build --build-arg "PYTHON_IMAGE=$PYTHON_IMAGE" -t release-foundation:milestone-1 demo/app
+PYTHON_IMAGE=$(python3 -c 'import json; print(json.load(open("versions.json"))["foundation_python_image"])')
+docker build --build-arg "PYTHON_IMAGE=$PYTHON_IMAGE" -t release-foundation:milestone-1 examples/foundation/app
 python3 scripts/verify_container.py
 ```
 
@@ -38,8 +42,8 @@ mkdir -p tmp
 k3d kubeconfig get release-lab > tmp/foundation.kubeconfig
 export KUBECONFIG="$PWD/tmp/foundation.kubeconfig"
 k3d image import release-foundation:milestone-1 --cluster release-lab
-kubectl apply -f demo/k8s/namespace.yaml
-kubectl apply -f demo/k8s/deployment.yaml
+kubectl apply -f examples/foundation/k8s/namespace.yaml
+kubectl apply -f examples/foundation/k8s/deployment.yaml
 kubectl rollout status deployment/release-demo -n release-foundation --timeout=120s
 kubectl port-forward -n release-foundation service/release-demo 8085:80 --address=127.0.0.1
 ```

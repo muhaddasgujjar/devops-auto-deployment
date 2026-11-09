@@ -1,5 +1,10 @@
 # Source baseline and reuse decision
 
+Superseded by the actual history-preserving merge described in
+[merged project status](merged-project-status.md). The older implementation is now
+canonical; the foundation sample was relocated under `examples/foundation`.
+The table below records the pre-merge differences, not outstanding duplicate projects.
+
 Audit date: 9 November 2026.
 
 ## Authoritative source

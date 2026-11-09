@@ -1,5 +1,9 @@
 # Overall progress and early-stage completion plan
 
+Superseded after the user confirmed both chats are one project. See
+[merged project status](merged-project-status.md) for the combined estimate and
+one-week solo plan. This document preserves the earlier checkout-only assessment.
+
 Assessment date: 9 November 2026. **Approximately 20% of the full MVP is delivered with traceable evidence.** This is a weighted engineering estimate, not a measurement of hours spent, a production-readiness rating, or a claim that 20% of the original calendar has elapsed.
 
 ## Scoring basis

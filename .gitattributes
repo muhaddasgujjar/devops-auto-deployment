@@ -1,2 +1,1 @@
-# Keep source hashes and Linux scripts stable across Windows/WSL checkouts.
 * text=auto eol=lf

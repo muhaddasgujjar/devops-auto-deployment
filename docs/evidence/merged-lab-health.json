@@ -1,0 +1,137 @@
+{
+  "checked_at": "2026-11-09T18:50:40.481869+00:00",
+  "checks": {
+    "nodes": {
+      "ok": true,
+      "detail": [
+        {
+          "name": "k3d-release-lab-server-0",
+          "conditions": {
+            "MemoryPressure": "False",
+            "DiskPressure": "False",
+            "PIDPressure": "False",
+            "Ready": "True"
+          }
+        }
+      ]
+    },
+    "argo-rollouts": {
+      "ok": false,
+      "detail": {
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-10-20T11:18:49Z",
+            "lastUpdateTime": "2026-10-20T11:19:10Z",
+            "message": "ReplicaSet \"argo-rollouts-64f7fbd656\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          },
+          {
+            "lastTransitionTime": "2026-11-09T18:41:12Z",
+            "lastUpdateTime": "2026-11-09T18:41:12Z",
+            "message": "Deployment does not have minimum availability.",
+            "reason": "MinimumReplicasUnavailable",
+            "status": "False",
+            "type": "Available"
+          }
+        ],
+        "observedGeneration": 1,
+        "replicas": 1,
+        "terminatingReplicas": 0,
+        "unavailableReplicas": 1,
+        "updatedReplicas": 1
+      }
+    },
+    "prometheus": {
+      "ok": false,
+      "detail": {
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-10-20T11:19:11Z",
+            "lastUpdateTime": "2026-10-22T18:39:14Z",
+            "message": "ReplicaSet \"prometheus-6944955d9d\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          },
+          {
+            "lastTransitionTime": "2026-11-09T18:41:14Z",
+            "lastUpdateTime": "2026-11-09T18:41:14Z",
+            "message": "Deployment does not have minimum availability.",
+            "reason": "MinimumReplicasUnavailable",
+            "status": "False",
+            "type": "Available"
+          }
+        ],
+        "observedGeneration": 8,
+        "replicas": 1,
+        "terminatingReplicas": 0,
+        "unavailableReplicas": 1,
+        "updatedReplicas": 1
+      }
+    },
+    "stable_service": {
+      "ok": false,
+      "detail": "kubectl ('--request-timeout=15s', 'get') failed: Error from server (ServiceUnavailable): no endpoints available for service \"demo-stable\"\n"
+    },
+    "serving_revision_telemetry": {
+      "ok": false,
+      "detail": "kubectl ('--request-timeout=15s', 'get') failed: Error from server (ServiceUnavailable): no endpoints available for service \"prometheus\"\n"
+    },
+    "gitops_sync": {
+      "ok": false,
+      "detail": {
+        "sync": {
+          "comparedTo": {
+            "destination": {
+              "namespace": "demo-dev",
+              "server": "https://kubernetes.default.svc"
+            },
+            "ignoreDifferences": [
+              {
+                "jsonPointers": [
+                  "/spec/selector/rollouts-pod-template-hash"
+                ],
+                "kind": "Service",
+                "name": "demo-stable"
+              },
+              {
+                "jsonPointers": [
+                  "/spec/selector/rollouts-pod-template-hash"
+                ],
+                "kind": "Service",
+                "name": "demo-preview"
+              }
+            ],
+            "source": {
+              "directory": {
+                "exclude": "namespace.yaml"
+              },
+              "path": "environments/dev",
+              "repoURL": "ssh://release-git@172.18.0.1:2222/var/lib/release-lab/git/environment.git",
+              "targetRevision": "main"
+            }
+          },
+          "revision": "main",
+          "status": "Unknown"
+        },
+        "health": {
+          "lastTransitionTime": "2026-10-23T22:05:42Z",
+          "status": "Healthy"
+        },
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-11-03T11:31:27Z",
+            "message": "Failed to load target state: failed to generate manifest for source 1 of 1: rpc error: code = Unknown desc = failed to list refs: dial tcp 172.18.0.1:2222: connect: connection refused",
+            "type": "ComparisonError"
+          }
+        ]
+      }
+    }
+  },
+  "attention": [],
+  "context": "k3d-release-lab",
+  "linux_memory_available_mib": 2030.1,
+  "ok": false
+}

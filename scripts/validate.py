@@ -1,4 +1,4 @@
-"""Run the native sample contract tests and save actual results."""
+"""Run the unified project tests and retain a new merge-specific receipt."""
 import json
 import platform
 import sys
@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(root))
 suite = unittest.defaultTestLoader.discover(str(root / "tests"), pattern="test_*.py")
 start = time.perf_counter()
 result = unittest.TextTestRunner(verbosity=2).run(suite)
@@ -21,10 +22,10 @@ report = {
     "skipped": len(result.skipped),
     "duration_seconds": round(time.perf_counter() - start, 3),
     "passed": result.wasSuccessful(),
-    "scope": "Temporary native HTTP servers; not container, Kubernetes, or recovery validation",
+    "scope": "Canonical and foundation HTTP, manifest renderer and local temporary Git publication tests; not live CI or recovery validation",
     "cases": [str(test) for test, _ in result.failures + result.errors],
 }
-destination = root / "docs/evidence/native-validation.json"
+destination = root / "docs/evidence/merge-validation.json"
 destination.parent.mkdir(parents=True, exist_ok=True)
 destination.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 sys.exit(0 if result.wasSuccessful() else 1)

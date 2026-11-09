@@ -1,29 +1,78 @@
-# Self-hosted release platform
+# DevOps auto-deployment
 
-Milestone 1 establishes the scope, a controlled sample workload, measurable acceptance criteria, and environment evidence. The platform design uses Jenkins -> OCI registry -> environment Git -> Argo CD -> Argo Rollouts, with Prometheus analysis. The custom product API and UI are later milestones.
+The old-chat implementation and the newer foundation have been merged into this
+single Git project, preserving both histories. The canonical application is
+`demo/app.py`; `examples/foundation/` is an isolated earlier test fixture, not a
+second product. See [merged status and the solo one-week plan](docs/merged-project-status.md).
+The earlier 20% assessment is superseded by the combined-work estimate there.
 
-Current overall assessment: approximately **20% of the full MVP**, using a weighted evidence rubric. See [progress and prioritized next steps](docs/progress-and-next-plan.md) and [source reconciliation](docs/source-reconciliation.md). The local source baseline and historical lab are separate lineages; integrate them through reviewed contract changes.
+Run all 25 tests using `python scripts/validate.py` in an environment with
+`requirements-validation.txt` installed. Results go to `docs/evidence/merge-validation.json`.
+The merged source passed tests/schema checks on November 9, but the live lab health
+check failed. Restore runtime health before claiming the delivery pipeline works.
 
-Start with [milestone status](docs/milestones/01-foundation.md), [scope and acceptance criteria](docs/mvp-scope.md), and [lab runbook](docs/runbooks/local-demo.md). The original [assessment](DevOps_Product_Assessment_and_Build_Plan.md) remains design background.
+A self-hosted Kubernetes release platform under development. Jenkins owns builds;
+Git owns desired configuration; Argo CD owns synchronization; Argo Rollouts owns
+candidate promotion. The custom API and UI follow a measured recovery experiment.
 
-## Run without containers
+## Current milestone
 
-Python 3.11 or newer is sufficient; no third-party Python dependencies are required for this sample.
+This implementation supplies a dependency-free demo service, HTTP integration tests,
+a non-root container, a Jenkins pipeline, a rolling-update baseline, blue/green
+templates, candidate-specific Prometheus analysis, and a lean k3d lab.
+The lean cluster is installed on Ubuntu/WSL 2 and has been exercised with real
+images and controller trials. Jenkins/Argo CD integration and formal benchmarks
+remain separate gates. See [live validation](docs/live-validation.md).
 
 ```powershell
-python demo/app/server.py
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-validation.txt
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+.\.venv\Scripts\python.exe -m demo.app
+# Another terminal: curl.exe http://127.0.0.1:8080/
 ```
 
-Open <http://127.0.0.1:8080/api/work>. The service defaults to loopback and healthy behavior. Stop it with Ctrl+C. This is a controlled test workload, not the production platform API.
+Create the environment once and reuse it. A project-local `.venv` is recommended
+for dependency isolation; it adds negligible RAM overhead. Activation is optional:
+`.\.venv\Scripts\Activate.ps1` enables plain `python` commands in PowerShell.
+On Linux create it with `python3 -m venv .venv` and use `.venv/bin/python`.
+Docker, kubectl, k3d, Jenkins, and Trivy are separate system tools, not pip packages.
 
-## Validate
+`/healthz` and `/readyz` expose probe status; `/metrics`
+exposes Prometheus metrics. `DEMO_MODE=error` returns HTTP 500 while probes remain
+healthy; `latency` delays application requests; `startup` fails readiness.
+Faults are selected at startup with no public mutation API.
+
+Start with [the lab runbook](docs/lab.md). See [architecture decisions](docs/architecture.md),
+[the delivery backlog](docs/implementation-plan.md), and [validation evidence](docs/validation.md).
+Windows users can follow [WSL runtime setup and automated trials](docs/windows-runtime.md).
+For a repeatable acceptance walkthrough, follow [testing the current lab](docs/testing-current-lab.md).
+
+| Path | Purpose |
+|---|---|
+| `demo/` | Controlled good/faulty application and Dockerfile |
+| `ci/Jenkinsfile` | Test, build, scan, push, resolve digest, update environment Git |
+| `platform/` | Lightweight monitoring and Argo CD application template |
+| `templates/` | GitOps release resources and rolling baseline |
+| `scripts/` | Lab bootstrap, digest-only rendering, load/evidence client |
+| `tests/` | HTTP behavior, fault isolation, rendering validation |
+| `versions.json` | Component pins; compatibility needs live validation |
+
+No subscription or cloud account is required for the lab. Docker/k3d need a Linux
+container runtime. The current Windows host has about 8 GiB RAM: start with the lean
+single-node profile and run Jenkins on a separate Linux build host. PostgreSQL,
+the portal, and full monitoring are later milestones.
+
+The installed Windows lab can be managed from PowerShell:
 
 ```powershell
-python scripts/validate.py
+.\scripts\lab.ps1 -Action start
+.\scripts\lab.ps1 -Action review
+.\scripts\lab.ps1 -Action status
+.\scripts\lab.ps1 -Action stop
 ```
 
-This launches temporary loopback servers, exercises healthy and faulty releases, checks instrumentation, and writes `docs/evidence/native-validation.json`. It closes those servers when finished. Container/cluster evidence is separate.
-
-## Build/deploy
-
-See the runbook for Docker and Kubernetes steps. The Docker base digest is tracked in `versions.json`; a built sample image has its own digest. Do not mistake the base digest for the sample artifact digest. No hosted services, public repositories, or paid resources are provisioned by these files.
+Use `bootstrap` only on a fresh lab; it deliberately refuses to replace an existing
+cluster. Start/stop preserve the existing cluster and manage a WSL keepalive helper.
+`review` opens loopback access to the sample app (8081), native Rollouts dashboard
+(3100/rollouts/), and Prometheus (9090). See [the current review and gap list](docs/current-review.md).

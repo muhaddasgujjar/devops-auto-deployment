@@ -4,8 +4,11 @@ __pycache__/
 .env
 .env.*
 !.env.example
+output/
+.tools/
 tmp/
-*.log
+*.kubeconfig
+kubeconfig*
 *.pem
 *.key
-kubeconfig*
+*.log
