@@ -1,0 +1,13 @@
+{
+  "demo/app/.dockerignore": "5b6afa682516d6952f6ec95e390c450a7bf7aaea4213b86a67bc6758e7177bcf",
+  "demo/app/Dockerfile": "ea8133de829f6791d6b63badee3f86394a340d4c75acfb13c1b4a8ee0226c51e",
+  "demo/app/server.py": "bf9eac98579365bf9402af67a6a80129844c59838d023b794ce1c4faf2d549d9",
+  "demo/k8s/deployment.yaml": "5c6b7b7bc4db5ed1de790fdec9370378e453c6d7fffdb8dc6f20ec7f22e92f01",
+  "demo/k8s/namespace.yaml": "39ed14a00bd4a36f1b58794ad913f6a09fd1ca3317fe28a6fedaa0371d77df60",
+  "README.md": "d896a5408e06abaab6015b25442c61805a653133986388904a5d7c7f0b26ffe9",
+  "scripts/validate.py": "806b490095163c13f37431b059e269091db594f15909d7edced464f8336e4e83",
+  "scripts/verify_container.py": "26d2df9c760ce857863ff012a518f2e91e6b5a52512c2da4d6847e13975239df",
+  "scripts/verify_kubernetes.py": "32bafe4c8b136a66c5de151635b441ddbda83a8f17378898c1243ead35231280",
+  "tests/test_demo.py": "25d597d1e494c06526465c2721d91825252aaa12c6893ffa2fcc698037a92c7d",
+  "versions.json": "7b8851d769f03b6237ff8e816b1070cab825d70805d798b488a847bd3697b6ea"
+}

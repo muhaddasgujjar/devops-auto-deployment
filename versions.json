@@ -1,0 +1,8 @@
+{
+  "selection_date": "2026-11-03",
+  "sample_python_minimum": "3.11",
+  "python_image": "python:3.13-slim@sha256:ae14d4ce8771606477a81446e7ef429edd6762305fc50c84507c1041fa8285d1",
+  "python_image_source": "https://registry-1.docker.io/v2/library/python/manifests/3.13-slim",
+  "sample_image": "release-foundation:milestone-1",
+  "scope": "The base manifest-list digest was resolved from Docker's official registry. No security scan or full platform compatibility claim. Remaining platform pins belong to later provisioning/integration work."
+}

@@ -1,0 +1,13 @@
+{
+  "recorded_at_utc": "2026-11-03T11:21:52.651895+00:00",
+  "python": "3.14.3",
+  "platform": "Windows",
+  "tests_run": 8,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "duration_seconds": 0.767,
+  "passed": true,
+  "scope": "Temporary native HTTP servers; not container, Kubernetes, or recovery validation",
+  "cases": []
+}

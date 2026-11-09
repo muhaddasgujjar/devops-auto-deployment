@@ -1,0 +1,35 @@
+{
+  "recorded_at_utc": "2026-11-03T11:31:11.327773+00:00",
+  "context": "k3d-release-lab",
+  "namespace": "release-foundation",
+  "passed": true,
+  "ready_pods": 2,
+  "responses": {
+    "/healthz": {
+      "status": 200,
+      "body": "{\"alive\": true}"
+    },
+    "/readyz": {
+      "status": 200,
+      "body": "{\"ready\": true}"
+    },
+    "/api/work": {
+      "status": 200,
+      "body": "{\"revision\": \"milestone-1\", \"ok\": true}"
+    },
+    "/version": {
+      "status": 200,
+      "body": "{\"app\": \"release-demo\", \"revision\": \"milestone-1\", \"mode\": \"healthy\"}"
+    },
+    "/metrics": {
+      "status": 200,
+      "body": "# HELP demo_work_requests_total Completed work requests by revision and status.\n# TYPE demo_work_requests_total counter\ndemo_work_requests_total{app=\"release-demo\",revision=\"milestone-1\",status=\"200\"} 1\ndemo_work_requests_total{app=\"release-demo\",revision=\"milestone-1\",status=\"500\"} 0\n# HELP demo_work_duration_seconds Work handler duration, excluding network transfer.\n# TYPE demo_work_duration_seconds histogram\ndemo_work_duration_seconds_bucket{app=\"release-demo\",revision=\"milestone-1\",le=\"0.01\"} 1\ndemo_work_duration_seconds_bucket{app=\"release-demo\",revision=\"milestone-1\",le=\"0.1\"} 1\ndemo_work_duration_seconds_bucket{app=\"release-demo\",revision=\"milestone-1\",le=\"0.5\"} 1\ndemo_work_duration_seconds_bucket{app=\"release-demo\",revision=\"milestone-1\",le=\"1.0\"} 1\ndemo_work_duration_seconds_bucket{app=\"release-demo\",revision=\"milestone-1\",le=\"5.0\"} 1\ndemo_work_duration_seconds_bucket{app=\"release-demo\",revision=\"milestone-1\",le=\"+Inf\"} 1\ndemo_work_duration_seconds_sum{app=\"release-demo\",revision=\"milestone-1\"} 1.9010000187336118e-06\ndemo_work_duration_seconds_count{app=\"release-demo\",revision=\"milestone-1\"} 1\n"
+    }
+  },
+  "image_ids": [
+    "sha256:3a09fb7d7459df1f5771fa09a9021ec004a75fe90888744df11f5bbeaf21be0d",
+    "sha256:3a09fb7d7459df1f5771fa09a9021ec004a75fe90888744df11f5bbeaf21be0d"
+  ],
+  "scope": "Manual healthy rolling baseline; no fault recovery or automated GitOps claim",
+  "temporary_namespace_removed": true
+}

@@ -1,0 +1,43 @@
+{
+  "observed_on": "2026-11-03",
+  "host": {
+    "os": "Windows 11 Pro",
+    "total_ram_gib": 7.8,
+    "initial_free_ram_gib": 0.7,
+    "logical_cpus": 8,
+    "initial_free_disk_gib": 52.7
+  },
+  "windows_path": {
+    "python": "3.14.3",
+    "docker": false,
+    "kubectl": false,
+    "helm": false
+  },
+  "wsl": {
+    "distribution": "Ubuntu-24.04",
+    "execution_verified": true,
+    "docker_server": "29.9.1",
+    "docker_memory_bytes": 3049902080,
+    "kubectl_present": true,
+    "k3d": "5.9.0",
+    "existing_cluster": "release-lab",
+    "default_kubecontext": null
+  },
+  "existing_state": {
+    "source_snapshot": "/opt/release-lab/source-snapshot",
+    "snapshot_commit": "492d52d",
+    "observed_components": [
+      "k3d release-lab",
+      "local registry",
+      "stopped Jenkins/agent",
+      "portal database container"
+    ],
+    "ownership": "Pre-existing state, not produced by this milestone. Source snapshot documentation describes CI/GitOps work; its historical results were not revalidated here."
+  },
+  "decision": "Use lightweight native and isolated container checks; do not install a second full stack or modify existing demo-dev workloads. Namespace release-foundation is reserved for this manual baseline.",
+  "limitations": [
+    "Host has approximately 8 GB RAM; full concurrent platform needs a separate lab host or reduced services.",
+    "Win32 processor reported virtualization firmware false, but actual WSL Linux and Docker execution succeeded; do not use that flag as a runtime gate.",
+    "No customer interviews, external Git credentials, or team capacity were validated."
+  ]
+}

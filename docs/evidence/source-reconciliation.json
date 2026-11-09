@@ -1,0 +1,264 @@
+{
+  "recorded_at_utc": "2026-11-09T18:43:32.892517+00:00",
+  "snapshot_commit": "492d52d79097486646cfaa3fba135b6515e77259",
+  "snapshot_clean": true,
+  "foundation_hashes": {
+    "demo/app/.dockerignore": true,
+    "demo/app/Dockerfile": true,
+    "demo/app/server.py": true,
+    "demo/k8s/deployment.yaml": true,
+    "demo/k8s/namespace.yaml": true,
+    "README.md": false,
+    "scripts/validate.py": true,
+    "scripts/verify_container.py": true,
+    "scripts/verify_kubernetes.py": true,
+    "tests/test_demo.py": true,
+    "versions.json": true
+  },
+  "foundation_matches_recorded_evidence": false,
+  "foundation_runtime_matches_recorded_evidence": true,
+  "legacy_tracked_source": [
+    {
+      "path": "ci/Jenkinsfile",
+      "sha256": "df858d8728193b617398e8a853e9970f6f6b45ae86bdfa23b0ca5b58ab0a3a34",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "ci/Jenkinsfile.local",
+      "sha256": "b766698b36a7c1ceac69f7e3e6bfa378230cd87311b2b72e7e466a2c1c19159f",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "ci/agent.Dockerfile",
+      "sha256": "e4ec471753a67663ffc87df1ac7533f2f699e2e606fd33a91176493dfd63b7cd",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "ci/bootstrap.groovy",
+      "sha256": "0b6c8330b88507e2e37bc95387f7ad6787ccc3237778f49f22e09eec4cf31c3e",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "ci/controller.Dockerfile",
+      "sha256": "08fd9c883b39e96275bad812b74fbf2ff5e021babd6abe8416aacb0385f08dbc",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "ci/plugins.txt",
+      "sha256": "8fe088f6d72757312810937d88e18da5d43f06f63e89f1c61b48a78fd23b1e00",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "demo/Dockerfile",
+      "sha256": "8e7b9c8593e3f54a2f9481e88d88e9ba96f91488c16d7ced29faddc50b4fc86d",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "demo/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "demo/app.py",
+      "sha256": "da5ced329ecf5c8a93c3406780e642aaab365b09f367c77c8b9752c7fb36ea39",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "docs/architecture.md",
+      "sha256": "b6d220be3fd68a1bf7b979feaf800ec641afaab3af48f30fa1133e289be52b3a",
+      "current_checkout": "different"
+    },
+    {
+      "path": "docs/ci-gitops.md",
+      "sha256": "5e2b627d6ec414c0a8314fa03314af0fc707ae095c7554673ab4f6a14a86747d",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "docs/current-review.md",
+      "sha256": "d70032f521c47705e5b931a24f5d6757c95258f22c2d8d82d2f34a58c3377e9e",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "docs/implementation-plan.md",
+      "sha256": "2bccddefc40531f153ad381d9bcd91698fcd3aeaa7fb31240de2eabf9bce34c8",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "docs/lab.md",
+      "sha256": "7039d155edd0f0f38c29f3ee695742759d59d2845687a6f1153288859edd0b70",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "docs/live-validation.md",
+      "sha256": "1f1bbc9a17076e5932028c4c393b4613d43432357e412a2ecfd282bc374abb5e",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "docs/testing-current-lab.md",
+      "sha256": "0034bc5b2968da92c9a1771f362296381ec1ba13e315540a623735e24c8c9aa9",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "docs/validation.md",
+      "sha256": "edf433b6318079e0857faec1e2dfb529fe16ce79b622570cc777f9907ae4567d",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "docs/windows-runtime.md",
+      "sha256": "df5682ca0bc7e887bfff2fe12e36d0844b3a0e3403892a6a0f1d7136cb7669d2",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "platform/argocd/application.yaml",
+      "sha256": "f1f4dec347c6147b7c7d749447e0ec96044c28c7182355d2d3ff04639193cfbc",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "platform/k3d.yaml",
+      "sha256": "6ceab9ed2fd1108a8739ab0ea10fb0e27e131780eb1bc0729b55d551123a73f6",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "platform/monitoring.yaml",
+      "sha256": "4575cefc32b6c1bfd2d805744f1a1249ccfc2507a434f81c1ed774f54e2c8ad6",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/adopt_gitops.py",
+      "sha256": "2e23a3e19d1285de3a9ab0595e65546488480434add08889f88bd6c3471a8c5e",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/bootstrap-lab.sh",
+      "sha256": "aecb52a8cb0f975a3785f13b9596511270cba24fad629c39cc60d921e98df4e1",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/compare_baseline.py",
+      "sha256": "b2af45bc5fbd311dd3518a4f1af8a5f0cc883c5cd021735e811b186070cef0ff",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/configure_jenkins.py",
+      "sha256": "1e2d7e5e2554395c62713f24e791cc4c6d26ac09310decc71b2f2093e5883569",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/doctor.py",
+      "sha256": "ee514904e6ce9125d6211c17742368e4a506ab8a76201a157dc2f0e5bba59166",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/git_ssh_command.py",
+      "sha256": "e67f8c803c118fc9197e75cc60b33f2c2b4523cd843a177e32c1b372c0c596bc",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/gitops_trial.py",
+      "sha256": "546c723a65f40a61f4f8988d386ab9916dce1eacbf5729b8421877cba799da22",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/install-linux-tools.sh",
+      "sha256": "7642d233c1fd7039f0c23307b20ab95fa2ec8e5c3a60cf2c255711b5a4c9e630",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/install-review-tools.sh",
+      "sha256": "e6456b5076d9fb321e3131a44a4232054382b46c7a793c97b68e8a5266233cb1",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/install_gitops.py",
+      "sha256": "05919ba62fc4c9b4b4035d936d3524bbd65058d572b59f489f7bd1f2e8517ea5",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/integration_runtime.py",
+      "sha256": "8422d1888777a6dbc9edd7d97f647e688e6aa32ee8fafb33a19d54a3522ee331",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/lab.ps1",
+      "sha256": "8710dfc2bbf52a12f728daef2f0d88316d2f531bb7603f0d6cd927ff3c9c9e3f",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/live_trial.py",
+      "sha256": "f3b0f48fd94e4e1c3f6972063d1aaa1979f7157787c457cdc26cbc38e17fe8fe",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/load.py",
+      "sha256": "a9756739870bfc7db0ffc066d60fcaf0ca5f17545d72bdea32d33c72de306903",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/publish_environment.py",
+      "sha256": "d36edbcf3a5cb63290ce1f1e3556417eba09aba360fc8a6f47197c9508e447be",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/render_release.py",
+      "sha256": "115c48bfe2084f3873a01605e827ed717cfdf39c94e6ef49c9aa348d19e0c641",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/review.py",
+      "sha256": "93daa43190250c326c5cad2eb85bc6340aa51338d2a492ac8a024fdc141cb843",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/setup-local-git.sh",
+      "sha256": "e5baa0ac1a65e0c0a9792a7602da134840808181a9862aa9e84bd4fe614282c9",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/setup_jenkins.py",
+      "sha256": "9ddd8e3fec21af60accd03eff2fcdf420f0ebf24437d3f3b99c5b1f2a5ade1c5",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "scripts/validate_manifests.py",
+      "sha256": "b26a579ce0708c250f38bbf9ab58d9f0717866002fcfcf51a203171971647450",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "templates/baseline/deployment.yaml",
+      "sha256": "09a3363d105cb745d27ab4df7bc79818c61b0dd98851287b4ff2fb25adbcf24c",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "templates/release/analysis.yaml",
+      "sha256": "241766c7357d1febb85fa1a79210f65ee2adae74c3fab0ffcb49596d2664a166",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "templates/release/namespace.yaml",
+      "sha256": "4f190a78f68cd1c6803aa7e8fafa795410f16ffd361bf0f208c99552407c9a54",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "templates/release/rollout.yaml",
+      "sha256": "219f30a28a7910ffc78b485f4fd68def99548559c0fbc4f516e9bfd9a9f7005a",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "templates/release/services.yaml",
+      "sha256": "dd3722623ac67ca4a369b960134a5fff2c84c4f88c68f3abdafded5d414ee0b4",
+      "current_checkout": "absent"
+    },
+    {
+      "path": "versions.json",
+      "sha256": "5e1522423e14387817fe469e5b615053b378d2dbde19002fe21602595a54359a",
+      "current_checkout": "different"
+    }
+  ],
+  "scope": "Read-only provenance inventory; no pipeline execution or compatibility validation",
+  "decision": "Current Windows repository is authoritative for new work. Preserve the legacy snapshot; port reviewed components through explicit contract changes, never overlay its directories."
+}

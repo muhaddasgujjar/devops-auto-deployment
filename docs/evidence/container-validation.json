@@ -1,0 +1,37 @@
+{
+  "recorded_at_utc": "2026-11-03T11:30:24.433619+00:00",
+  "image": "release-foundation:milestone-1",
+  "image_id": "sha256:d1190ef73c5498903f9105578dd3f1900dd55b9cf6e21243c03b7c6dd839ca03",
+  "docker_server": "29.9.1",
+  "results": [
+    {
+      "mode": "healthy",
+      "expected_work_status": 200,
+      "expected_readiness": 200,
+      "non_root": true,
+      "read_only_root": true,
+      "sigterm_exit_code": 0,
+      "passed": true
+    },
+    {
+      "mode": "errors",
+      "expected_work_status": 500,
+      "expected_readiness": 200,
+      "non_root": true,
+      "read_only_root": true,
+      "sigterm_exit_code": 0,
+      "passed": true
+    },
+    {
+      "mode": "unready",
+      "expected_work_status": 200,
+      "expected_readiness": 503,
+      "non_root": true,
+      "read_only_root": true,
+      "sigterm_exit_code": 0,
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "scope": "Real isolated local containers; no Kubernetes recovery or image scan assertion"
+}
