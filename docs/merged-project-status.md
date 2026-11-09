@@ -1,5 +1,9 @@
 # One project: merged status and solo delivery plan
 
+Update, 10 November: the later laptop session restored live core health and GitOps
+connectivity and added lean startup. See [laptop-first work](laptop-first.md).
+The failure observations below remain the dated merge-time evidence.
+
 Date: 9 November 2026. User confirmed the old and new chats describe the same project and will work on it solo for a full week.
 
 ## Completion estimate

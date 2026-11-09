@@ -1,0 +1,215 @@
+{
+  "checked_at": "2026-11-09T19:03:08.902243+00:00",
+  "checks": {
+    "nodes": {
+      "ok": true,
+      "detail": [
+        {
+          "name": "k3d-release-lab-server-0",
+          "conditions": {
+            "MemoryPressure": "False",
+            "DiskPressure": "False",
+            "PIDPressure": "False",
+            "Ready": "True"
+          }
+        }
+      ]
+    },
+    "argo-rollouts": {
+      "ok": true,
+      "detail": {
+        "availableReplicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-10-20T11:18:49Z",
+            "lastUpdateTime": "2026-10-20T11:19:10Z",
+            "message": "ReplicaSet \"argo-rollouts-64f7fbd656\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          },
+          {
+            "lastTransitionTime": "2026-11-09T19:01:30Z",
+            "lastUpdateTime": "2026-11-09T19:01:30Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          }
+        ],
+        "observedGeneration": 1,
+        "readyReplicas": 1,
+        "replicas": 1,
+        "terminatingReplicas": 0,
+        "updatedReplicas": 1
+      }
+    },
+    "prometheus": {
+      "ok": true,
+      "detail": {
+        "availableReplicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-10-20T11:19:11Z",
+            "lastUpdateTime": "2026-10-22T18:39:14Z",
+            "message": "ReplicaSet \"prometheus-6944955d9d\" has successfully progressed.",
+            "reason": "NewReplicaSetAvailable",
+            "status": "True",
+            "type": "Progressing"
+          },
+          {
+            "lastTransitionTime": "2026-11-09T19:01:33Z",
+            "lastUpdateTime": "2026-11-09T19:01:33Z",
+            "message": "Deployment has minimum availability.",
+            "reason": "MinimumReplicasAvailable",
+            "status": "True",
+            "type": "Available"
+          }
+        ],
+        "observedGeneration": 8,
+        "readyReplicas": 1,
+        "replicas": 1,
+        "terminatingReplicas": 0,
+        "updatedReplicas": 1
+      }
+    },
+    "stable_service": {
+      "ok": true,
+      "detail": {
+        "phase": "Healthy",
+        "candidate_hash": "5d44d84f66",
+        "serving_hash": "5d44d84f66",
+        "expected_pods": 2,
+        "response": {
+          "service": "release-demo",
+          "revision": "cac36ec4ba2cd557150c66a8049523b3ab0f26eb-jenkins-8",
+          "mode": "healthy"
+        },
+        "desired_image": "localhost:5001/release-demo@sha256:6d2fae5dc4730e7f21b828e7204ea50bb38ed86d5e7dc708609f65424c324c3a"
+      }
+    },
+    "serving_revision_telemetry": {
+      "ok": true,
+      "detail": {
+        "targets": [
+          {
+            "metric": {
+              "__name__": "up",
+              "instance": "10.42.0.213:8080",
+              "job": "demo-pods",
+              "namespace": "demo-dev",
+              "pod": "release-demo-5d44d84f66-rzs8k",
+              "revision": "5d44d84f66"
+            },
+            "value": [
+              1794250992.028,
+              "1"
+            ]
+          },
+          {
+            "metric": {
+              "__name__": "up",
+              "instance": "10.42.0.211:8080",
+              "job": "demo-pods",
+              "namespace": "demo-dev",
+              "pod": "release-demo-5d44d84f66-frnwg",
+              "revision": "5d44d84f66"
+            },
+            "value": [
+              1794250992.028,
+              "1"
+            ]
+          }
+        ],
+        "sample_age_seconds": [
+          {
+            "metric": {
+              "instance": "10.42.0.213:8080",
+              "job": "demo-pods",
+              "namespace": "demo-dev",
+              "pod": "release-demo-5d44d84f66-rzs8k",
+              "revision": "5d44d84f66"
+            },
+            "value": [
+              1794250992.383,
+              "2.434999942779541"
+            ]
+          },
+          {
+            "metric": {
+              "instance": "10.42.0.211:8080",
+              "job": "demo-pods",
+              "namespace": "demo-dev",
+              "pod": "release-demo-5d44d84f66-frnwg",
+              "revision": "5d44d84f66"
+            },
+            "value": [
+              1794250992.383,
+              "4.66100001335144"
+            ]
+          }
+        ]
+      }
+    },
+    "gitops_sync": {
+      "ok": true,
+      "detail": {
+        "sync": {
+          "comparedTo": {
+            "destination": {
+              "namespace": "demo-dev",
+              "server": "https://kubernetes.default.svc"
+            },
+            "ignoreDifferences": [
+              {
+                "jsonPointers": [
+                  "/spec/selector/rollouts-pod-template-hash"
+                ],
+                "kind": "Service",
+                "name": "demo-stable"
+              },
+              {
+                "jsonPointers": [
+                  "/spec/selector/rollouts-pod-template-hash"
+                ],
+                "kind": "Service",
+                "name": "demo-preview"
+              }
+            ],
+            "source": {
+              "directory": {
+                "exclude": "namespace.yaml"
+              },
+              "path": "environments/dev",
+              "repoURL": "ssh://release-git@172.18.0.1:2222/var/lib/release-lab/git/environment.git",
+              "targetRevision": "main"
+            }
+          },
+          "revision": "0401e6ceb244020af09c5c915241e038d64011bd",
+          "status": "Synced"
+        },
+        "health": {
+          "lastTransitionTime": "2026-10-23T22:05:42Z",
+          "status": "Healthy"
+        },
+        "conditions": []
+      }
+    }
+  },
+  "attention": [],
+  "context": "k3d-release-lab",
+  "release": {
+    "phase": "Healthy",
+    "candidate_hash": "5d44d84f66",
+    "serving_hash": "5d44d84f66",
+    "expected_pods": 2,
+    "response": {
+      "service": "release-demo",
+      "revision": "cac36ec4ba2cd557150c66a8049523b3ab0f26eb-jenkins-8",
+      "mode": "healthy"
+    },
+    "desired_image": "localhost:5001/release-demo@sha256:6d2fae5dc4730e7f21b828e7204ea50bb38ed86d5e7dc708609f65424c324c3a"
+  },
+  "linux_memory_available_mib": 1544.2,
+  "ok": true
+}

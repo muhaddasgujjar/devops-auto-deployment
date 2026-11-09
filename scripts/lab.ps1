@@ -3,7 +3,9 @@ param(
     [ValidateSet('install', 'bootstrap', 'status', 'start', 'stop', 'trial', 'review', 'close-review', 'gitops-setup', 'ci-setup', 'gitops-trial')]
     [string]$Action,
     [ValidateSet('initial', 'healthy', 'error', 'latency', 'startup', 'no-traffic', 'telemetry-outage')]
-    [string]$Scenario = 'initial'
+    [string]$Scenario = 'initial',
+    [ValidateSet('lean', 'full')]
+    [string]$Profile = 'lean'
 )
 $ErrorActionPreference = 'Stop'
 $projectPath = Split-Path -Parent $PSScriptRoot
@@ -34,13 +36,14 @@ switch ($Action) {
         & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.doctor --output output/current-health.json
     }
     'start' {
-        & wsl @wslArguments k3d cluster start release-lab
+        # Kubernetes health below is authoritative; avoid k3d's unbounded log wait.
+        & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.start_cluster
         if ($LASTEXITCODE -ne 0) { throw 'Cluster start failed' }
         & wsl @wslArguments bash -c 'set -e; mkdir -p output; umask 077; k3d kubeconfig get release-lab > output/lab.kubeconfig'
         if ($LASTEXITCODE -ne 0) { throw 'Could not recover the existing lab kubeconfig into this checkout' }
-        & wsl @wslArguments bash -c 'export KUBECONFIG="$PWD/output/lab.kubeconfig"; set -e; kubectl wait --for=condition=Ready node --all --timeout=120s; kubectl rollout status deployment/argo-rollouts -n argo-rollouts --timeout=120s; kubectl rollout status deployment/prometheus -n monitoring --timeout=120s'
+        & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.wait_lab --stage controllers --output output/startup-health.json
         if ($LASTEXITCODE -ne 0) { throw 'Cluster controllers did not become ready' }
-        & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.integration_runtime start
+        & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.integration_runtime start --profile $Profile
     }
     'stop' {
         & wsl @wslArguments /opt/release-lab/venv/bin/python -m scripts.review --stop

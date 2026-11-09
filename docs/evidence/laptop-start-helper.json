@@ -1,0 +1,6 @@
+{
+  "helper_timed_out": false,
+  "returncode": 1,
+  "post_start_log_wait_failed": true,
+  "diagnostic": "\u001b[31mFATA\u001b[0m[0066] error during post-start cluster preparation: error waiting for log line `cluster dns configmap` from node 'k3d-release-lab-server-0': stopped returning log lines: context deadline exceeded \n"
+}

@@ -6,10 +6,12 @@ single Git project, preserving both histories. The canonical application is
 second product. See [merged status and the solo one-week plan](docs/merged-project-status.md).
 The earlier 20% assessment is superseded by the combined-work estimate there.
 
-Run all 25 tests using `python scripts/validate.py` in an environment with
+Run all 34 tests using `python scripts/validate.py` in an environment with
 `requirements-validation.txt` installed. Results go to `docs/evidence/merge-validation.json`.
-The merged source passed tests/schema checks on November 9, but the live lab health
-check failed. Restore runtime health before claiming the delivery pipeline works.
+The November 9 merge passed tests/schema checks but exposed live lab failures.
+The laptop recovery session restored controllers, serving telemetry and GitOps
+sync, with a lean startup profile. See [laptop work and later migration](docs/laptop-first.md)
+for current evidence and remaining work. This is not a fresh CI build/promotion run.
 
 A self-hosted Kubernetes release platform under development. Jenkins owns builds;
 Git owns desired configuration; Argo CD owns synchronization; Argo Rollouts owns

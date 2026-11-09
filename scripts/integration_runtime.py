@@ -1,4 +1,4 @@
-"""Start/stop only the named, labelled local CI containers."""
+"""Restore local Git transport and optionally manage labelled CI containers."""
 import argparse
 import json
 import subprocess
@@ -10,8 +10,12 @@ from scripts.render_release import ROOT
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['start', 'stop', 'status'])
+    parser.add_argument('--profile', choices=['lean', 'full'], default='full',
+                        help='Lean starts configured Git transport without starting CI containers')
     args = parser.parse_args()
     names = ('release-jenkins', 'release-agent') if args.action != 'stop' else ('release-agent', 'release-jenkins')
+    if args.action == 'start' and args.profile == 'lean':
+        names = ()
     if args.action == 'start' and Path('/opt/release-lab/secrets/sshd_config').exists():
         subprocess.run(['bash', str(ROOT / 'scripts/setup-local-git.sh')], check=True)
     report = {}
