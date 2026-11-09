@@ -3,16 +3,20 @@ import argparse
 import base64
 import json
 import re
+import subprocess
 from urllib.parse import urlencode
 
 from scripts.gitops_trial import Jenkins
 from scripts.render_release import ROOT
 
 
-def configuration(source_sha):
+def configuration(source_sha, pipeline=None):
     if not re.fullmatch(r"[0-9a-f]{40}", source_sha):
         raise ValueError("Use a full trusted source commit")
-    pipeline = (ROOT / "ci/Jenkinsfile.acceptance").read_text().replace("__SOURCE_SHA__", source_sha)
+    if pipeline is None:
+        pipeline = subprocess.check_output(['git', '-C', str(ROOT), 'show',
+                                            source_sha + ':ci/Jenkinsfile.acceptance'], text=True)
+    pipeline = pipeline.replace("__SOURCE_SHA__", source_sha)
     encoded = base64.b64encode(pipeline.encode()).decode()
     return '''
 import jenkins.model.Jenkins

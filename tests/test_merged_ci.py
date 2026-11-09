@@ -3,6 +3,7 @@ import re
 import unittest
 
 from scripts.configure_merged_ci import configuration
+from scripts.render_release import ROOT
 
 
 class MergedConfigurationTests(unittest.TestCase):
@@ -12,7 +13,7 @@ class MergedConfigurationTests(unittest.TestCase):
                 configuration(value)
 
     def test_reviewed_pipeline_and_disabled_legacy_jobs(self):
-        script = configuration('a' * 40)
+        script = configuration('a' * 40, (ROOT / 'ci/Jenkinsfile.acceptance').read_text())
         encoded = re.search(r"new String\('([A-Za-z0-9+/=]+)'\.decodeBase64", script).group(1)
         pipeline = base64.b64decode(encoded).decode()
         self.assertIn("TRUSTED_SOURCE_SHA = '" + 'a' * 40 + "'", pipeline)

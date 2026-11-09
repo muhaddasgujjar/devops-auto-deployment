@@ -1,0 +1,41 @@
+{
+  "negative_gate": {
+    "recorded_at_utc": "2026-11-09T19:28:31.961076+00:00",
+    "passed": true,
+    "job": "release-merged",
+    "build": 1,
+    "result": "FAILURE",
+    "source": {
+      "source_commit": "e2017ac5f3e04e5b2722ef71f7075fe741a45dfe",
+      "trigger": "local-manual-acceptance",
+      "negative_test_requested": true
+    },
+    "environment_before": "0401e6ceb244020af09c5c915241e038d64011bd",
+    "environment_after": "0401e6ceb244020af09c5c915241e038d64011bd",
+    "artifacts": [
+      "output/source.json"
+    ],
+    "scope": "Synthetic failing unittest in local acceptance job; not a failing application-source commit"
+  },
+  "first_healthy_attempt": {
+    "scenario": "healthy",
+    "previous_stable_hash": "5d44d84f66",
+    "started": "2026-11-09T19:29:24.164491+00:00",
+    "jenkins_build": 2,
+    "verdict": "trial-failed",
+    "error": "Jenkins result: FAILURE; inspect retained console",
+    "stable_requests": 0,
+    "stable_non_200": 0,
+    "finished": "2026-11-09T19:35:01.390985+00:00"
+  },
+  "first_healthy_failure_reason": "Trivy database download timeout from mirror.gcr.io; Git publication stage skipped",
+  "raw_evidence": "output/gitops-healthy-20261109T192922Z",
+  "scope": "Failure evidence retained; successful retry will be recorded separately",
+  "rejected_runtime_attempt": {
+    "build": 3,
+    "source_commit": "e2017ac5f3e04e5b2722ef71f7075fe741a45dfe",
+    "result": "FAILURE",
+    "reason": "Fresh scan reported three HIGH package findings; publication skipped",
+    "scan_report": "docs/evidence/ci-rejected-scan.json"
+  }
+}

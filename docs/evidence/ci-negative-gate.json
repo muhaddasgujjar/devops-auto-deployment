@@ -1,0 +1,18 @@
+{
+  "recorded_at_utc": "2026-11-09T19:28:31.961076+00:00",
+  "passed": true,
+  "job": "release-merged",
+  "build": 1,
+  "result": "FAILURE",
+  "source": {
+    "source_commit": "e2017ac5f3e04e5b2722ef71f7075fe741a45dfe",
+    "trigger": "local-manual-acceptance",
+    "negative_test_requested": true
+  },
+  "environment_before": "0401e6ceb244020af09c5c915241e038d64011bd",
+  "environment_after": "0401e6ceb244020af09c5c915241e038d64011bd",
+  "artifacts": [
+    "output/source.json"
+  ],
+  "scope": "Synthetic failing unittest in local acceptance job; not a failing application-source commit"
+}

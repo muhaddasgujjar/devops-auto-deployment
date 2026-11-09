@@ -1,5 +1,5 @@
 {
-  "python_image": "python:3.14.8-alpine3.24@sha256:f6a589d43c42b9e7f7dc67a12d37132491f362859a5d750607710cc56da3bc72",
+  "python_image": "python:3.14-alpine3.24@sha256:a18b20ad69e74df6cf6d2e1b1a260d7a1ecf5380fd83b310f83ba88c461cf894",
   "k3d": "v5.9.0",
   "k3s_image": "rancher/k3s:v1.35.9-k3s1",
   "argo_rollouts": "v1.10.1",
@@ -17,5 +17,6 @@
   "merge_date": "2026-11-09",
   "sample_image": "release-foundation:milestone-1",
   "foundation_python_image": "python:3.13-slim@sha256:ae14d4ce8771606477a81446e7ef429edd6762305fc50c84507c1041fa8285d1",
-  "foundation_python_image_source": "https://registry-1.docker.io/v2/library/python/manifests/3.13-slim"
+  "foundation_python_image_source": "https://registry-1.docker.io/v2/library/python/manifests/3.13-slim",
+  "application_base_updated_on": "2026-11-10"
 }
