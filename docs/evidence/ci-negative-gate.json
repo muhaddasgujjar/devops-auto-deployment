@@ -1,11 +1,11 @@
 {
-  "recorded_at_utc": "2026-11-09T19:28:31.961076+00:00",
+  "recorded_at_utc": "2026-11-09T19:48:30.401494+00:00",
   "passed": true,
   "job": "release-merged",
-  "build": 1,
+  "build": 5,
   "result": "FAILURE",
   "source": {
-    "source_commit": "e2017ac5f3e04e5b2722ef71f7075fe741a45dfe",
+    "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
     "trigger": "local-manual-acceptance",
     "negative_test_requested": true
   },

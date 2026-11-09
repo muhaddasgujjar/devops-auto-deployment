@@ -69,7 +69,9 @@ else
 fi
 hostkey=$(cut -d' ' -f1,2 "$secrets/git-host-key.pub")
 printf '[%s]:2222 %s\n[127.0.0.1]:2222 %s\n' "$gateway" "$hostkey" "$hostkey" > "$secrets/known_hosts"
-chmod 600 "$secrets/known_hosts"
+# Public trust anchors must be readable through the agent's read-only bind mount.
+# Keep root ownership; private keys above remain protected in the 0700 directory.
+chmod 644 "$secrets/known_hosts"
 mkdir -p output/gitops
 printf '{"repository_url":"ssh://release-git@%s:2222%s"}\n' "$gateway" "$home/environment.git" > output/gitops/local-git.json
 echo 'Local environment Git transport ready; private keys remain outside the workspace.'

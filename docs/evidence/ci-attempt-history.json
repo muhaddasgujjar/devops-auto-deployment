@@ -37,5 +37,138 @@
     "result": "FAILURE",
     "reason": "Fresh scan reported three HIGH package findings; publication skipped",
     "scan_report": "docs/evidence/ci-rejected-scan.json"
+  },
+  "healthy_trial_summaries": [
+    {
+      "summary": {
+        "scenario": "healthy",
+        "previous_stable_hash": "5d44d84f66",
+        "started": "2026-11-09T19:29:24.164491+00:00",
+        "jenkins_build": 2,
+        "verdict": "trial-failed",
+        "error": "Jenkins result: FAILURE; inspect retained console",
+        "stable_requests": 0,
+        "stable_non_200": 0,
+        "finished": "2026-11-09T19:35:01.390985+00:00"
+      },
+      "availability_measured": false,
+      "availability_gate_passed": false
+    },
+    {
+      "summary": {
+        "scenario": "healthy",
+        "previous_stable_hash": "5d44d84f66",
+        "started": "2026-11-09T19:44:12.181644+00:00",
+        "jenkins_build": 3,
+        "verdict": "trial-failed",
+        "error": "Jenkins result: FAILURE; inspect retained console",
+        "stable_requests": 0,
+        "stable_non_200": 0,
+        "finished": "2026-11-09T19:44:50.121470+00:00"
+      },
+      "availability_measured": false,
+      "availability_gate_passed": false
+    },
+    {
+      "summary": {
+        "scenario": "healthy",
+        "previous_stable_hash": "5d44d84f66",
+        "started": "2026-11-09T19:48:49.117402+00:00",
+        "jenkins_build": 6,
+        "verdict": "trial-failed",
+        "error": "Jenkins result: FAILURE; inspect retained console",
+        "stable_requests": 0,
+        "stable_non_200": 0,
+        "finished": "2026-11-09T19:50:13.998069+00:00"
+      },
+      "availability_measured": false,
+      "availability_gate_passed": false
+    },
+    {
+      "summary": {
+        "scenario": "healthy",
+        "previous_stable_hash": "5d44d84f66",
+        "started": "2026-11-09T19:51:56.144517+00:00",
+        "jenkins_build": 7,
+        "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+        "image": "localhost:5001/release-demo@sha256:6ce7eb60f5150ef763da4d1cd17ae27069c9347a2721fade0bf543e599f165ef",
+        "release_id": "jenkins-7",
+        "environment_commit": "106d920f3cfe5a7c13c512b81fbacc97519dd3ad",
+        "changed": true,
+        "observation_started": "2026-11-09T19:52:24.979544+00:00",
+        "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+        "verdict": "candidate-promoted-through-gitops",
+        "final_response": {
+          "timestamp": "2026-11-09T19:55:37.014035+00:00",
+          "status": 200,
+          "response": {
+            "service": "release-demo",
+            "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-7",
+            "mode": "healthy"
+          },
+          "duration_seconds": 0.015396
+        },
+        "serving_hash": "799995dbbb",
+        "stable_requests": 746,
+        "stable_non_200": 1,
+        "finished": "2026-11-09T19:55:39.804015+00:00"
+      },
+      "availability_measured": true,
+      "availability_gate_passed": false
+    },
+    {
+      "summary": {
+        "scenario": "healthy",
+        "previous_stable_hash": "799995dbbb",
+        "started": "2026-11-09T19:58:01.662433+00:00",
+        "verdict": "trial-failed",
+        "error": "[Errno 104] Connection reset by peer",
+        "stable_requests": 0,
+        "stable_non_200": 0,
+        "finished": "2026-11-09T19:58:06.316275+00:00"
+      },
+      "availability_measured": false,
+      "availability_gate_passed": false
+    },
+    {
+      "summary": {
+        "scenario": "healthy",
+        "previous_stable_hash": "799995dbbb",
+        "started": "2026-11-09T19:59:00.047173+00:00",
+        "jenkins_build": 8,
+        "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+        "image": "localhost:5001/release-demo@sha256:02c43fb87712b706213ae04282c23801f4d565b0a24e7d988f25c66fafd26799",
+        "release_id": "jenkins-8",
+        "environment_commit": "14b3ae8e2d3c6393047738bc62ee57e683dc0d44",
+        "changed": true,
+        "observation_started": "2026-11-09T20:00:00.117152+00:00",
+        "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+        "verdict": "candidate-promoted-through-gitops",
+        "final_response": {
+          "timestamp": "2026-11-09T20:03:04.477797+00:00",
+          "status": 200,
+          "response": {
+            "service": "release-demo",
+            "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+            "mode": "healthy"
+          },
+          "duration_seconds": 0.012207
+        },
+        "serving_hash": "7d87d56885",
+        "stable_requests": 849,
+        "stable_non_200": 0,
+        "finished": "2026-11-09T20:03:07.680604+00:00"
+      },
+      "availability_measured": true,
+      "availability_gate_passed": true
+    }
+  ],
+  "observer_queue_race": {
+    "build": 4,
+    "reason": "Queue executable was null; observer corrected and regression-tested; build itself failed its intentional test gate"
+  },
+  "ssh_public_trust_file_failure": {
+    "build": 6,
+    "reason": "Image scan passed, but non-root agent could not read root-owned mode-0600 known_hosts; fixed only public trust file to 0644; publication to environment Git did not proceed"
   }
 }

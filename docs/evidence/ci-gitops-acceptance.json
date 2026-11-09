@@ -1,0 +1,37 @@
+{
+  "recorded_at_utc": "2026-11-09T20:06:22.506330+00:00",
+  "passed": true,
+  "trigger": "local-manual-acceptance",
+  "job": "release-merged",
+  "build": 8,
+  "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+  "tests_in_release_snapshot": 36,
+  "ci_duration_ms": 45262,
+  "application_base": "python:3.14-alpine3.24@sha256:a18b20ad69e74df6cf6d2e1b1a260d7a1ecf5380fd83b310f83ba88c461cf894",
+  "scanner_version": "0.76.0",
+  "reported_high_critical": 0,
+  "image_config_id": "sha256:02c43fb87712b706213ae04282c23801f4d565b0a24e7d988f25c66fafd26799",
+  "image": "localhost:5001/release-demo@sha256:02c43fb87712b706213ae04282c23801f4d565b0a24e7d988f25c66fafd26799",
+  "environment_commit": "14b3ae8e2d3c6393047738bc62ee57e683dc0d44",
+  "serving_revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+  "serving_hash": "7d87d56885",
+  "controller_verdict": "candidate-promoted-through-gitops",
+  "stable_requests": 849,
+  "stable_non_200": 0,
+  "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+  "negative_gate_build": 5,
+  "negative_environment_unchanged": true,
+  "raw_trial": "output/gitops-healthy-20261109T195858Z",
+  "artifact_sha256": {
+    "source.json": "f103ad5f0729cad128953956ed8f06209c4658d328b900534fb0768adfc0a49c",
+    "scan.json": "97cd19482ac8ab8cb2c9e03e9bd5451b4da6e941012dc1262f7fded91ad63770",
+    "sbom.json": "84c9d15129e64e139ad8612889bb02aab3dc9d8d1b73e592e9a1a60229d529f3",
+    "image-inspect.json": "1ee170f42ec8b617fff5d059694646445c492760be7717f2785f06bad996bfd4",
+    "summary.json": "13fdb4af30630b6bbf8d142cbd0961287b7d6c078795c90ee2e9b6a0371d7219"
+  },
+  "limitations": [
+    "One passing local manual trial, not an external webhook or production SLO",
+    "Availability excludes CI build, scan and environment publication",
+    "Earlier failed availability/scan/transport attempts are retained separately"
+  ]
+}

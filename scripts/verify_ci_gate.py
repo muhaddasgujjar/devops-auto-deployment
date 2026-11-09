@@ -4,7 +4,7 @@ import subprocess
 import time
 from datetime import datetime, timezone
 
-from scripts.gitops_trial import Jenkins
+from scripts.gitops_trial import Jenkins, queued_build_number
 from scripts.render_release import ROOT
 
 
@@ -23,7 +23,7 @@ def main():
         item = client.json(queue + 'api/json')
         if item.get('cancelled'):
             raise RuntimeError('Negative trial cancelled')
-        number = item.get('executable', {}).get('number')
+        number = queued_build_number(item)
         if number:
             break
         time.sleep(2)

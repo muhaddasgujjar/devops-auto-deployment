@@ -11,9 +11,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, build_opener, HTTPCookieProcessor
+from urllib.error import HTTPError, URLError
 
 from scripts.live_trial import kube, resource, sample, service_hash
 from scripts.render_release import ROOT
+
+
+def queued_build_number(item):
+    return (item.get('executable') or {}).get('number')
 
 
 class Jenkins:
@@ -36,7 +41,23 @@ class Jenkins:
     def json(self, path):
         return json.loads(self.request(path)[0])
 
+    def wait_ready(self, timeout=180):
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            try:
+                result = self.json('crumbIssuer/api/json')
+                if result.get('crumbRequestField') and result.get('crumb'):
+                    return
+            except HTTPError as error:
+                if error.code not in (404, 502, 503, 504):
+                    raise
+            except (URLError, OSError, ValueError):
+                pass
+            time.sleep(2)
+        raise TimeoutError('Authenticated Jenkins/CSRF endpoint did not become ready')
+
     def build(self, mode, job, fail_tests=False):
+        self.wait_ready()
         crumb = self.json('crumbIssuer/api/json')
         parameters = {'DEMO_MODE': mode}
         if job == 'release-merged':
@@ -95,7 +116,7 @@ def main():
             queued = jenkins.json(queue + 'api/json')
             if queued.get('cancelled'):
                 raise RuntimeError('Jenkins queue item cancelled')
-            number = queued.get('executable', {}).get('number')
+            number = queued_build_number(queued)
             if number:
                 break
             time.sleep(2)

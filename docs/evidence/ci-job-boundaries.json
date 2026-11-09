@@ -1,0 +1,11 @@
+{
+  "release-main": {
+    "buildable": false
+  },
+  "release-local": {
+    "buildable": false
+  },
+  "release-merged": {
+    "buildable": true
+  }
+}

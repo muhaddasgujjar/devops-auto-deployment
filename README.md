@@ -5,13 +5,20 @@ single Git project, preserving both histories. The canonical application is
 `demo/app.py`; `examples/foundation/` is an isolated earlier test fixture, not a
 second product. See [merged status and the solo one-week plan](docs/merged-project-status.md).
 The earlier 20% assessment is superseded by the combined-work estimate there.
+After CI/GitOps acceptance, the current weighted MVP estimate is approximately
+**50%**; see [progress after CI](docs/progress-after-ci.md).
 
-Run all 34 tests using `python scripts/validate.py` in an environment with
+Run all 39 tests using `python scripts/validate.py` in an environment with
 `requirements-validation.txt` installed. Results go to `docs/evidence/merge-validation.json`.
 The November 9 merge passed tests/schema checks but exposed live lab failures.
 The laptop recovery session restored controllers, serving telemetry and GitOps
 sync, with a lean startup profile. See [laptop work and later migration](docs/laptop-first.md)
 for current evidence and remaining work. This is not a fresh CI build/promotion run.
+
+The subsequent [CI-to-GitOps milestone](docs/milestones/02-ci-gitops.md) is now complete
+for a local manual acceptance run: Jenkins build 8 delivered the reviewed source,
+passed the updated vulnerability gate and promoted through Argo. The controlled
+passing trial observed 849 HTTP 200 responses. Earlier failed trials are retained.
 
 A self-hosted Kubernetes release platform under development. Jenkins owns builds;
 Git owns desired configuration; Argo CD owns synchronization; Argo Rollouts owns
@@ -22,9 +29,10 @@ candidate promotion. The custom API and UI follow a measured recovery experiment
 This implementation supplies a dependency-free demo service, HTTP integration tests,
 a non-root container, a Jenkins pipeline, a rolling-update baseline, blue/green
 templates, candidate-specific Prometheus analysis, and a lean k3d lab.
-The lean cluster is installed on Ubuntu/WSL 2 and has been exercised with real
-images and controller trials. Jenkins/Argo CD integration and formal benchmarks
-remain separate gates. See [live validation](docs/live-validation.md).
+The lean cluster is installed on Ubuntu/WSL 2. Jenkins/Argo CD local integration
+is now exercised with real images and controller evidence. External SCM triggers,
+fresh-machine reproduction and formal benchmarks remain open. The older
+[live validation](docs/live-validation.md) describes the initial experiments.
 
 ```powershell
 python -m venv .venv

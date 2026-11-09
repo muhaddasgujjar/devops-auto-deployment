@@ -1,6 +1,18 @@
 # Milestone 2: merged-source CI and GitOps acceptance
 
-Started 10 November 2026 (Asia/Karachi). Final results are recorded below after actual execution; job configuration alone is not a completed delivery proof.
+Completed 10 November 2026 (Asia/Karachi): **local, manually triggered CI-to-GitOps acceptance passed**. External SCM triggers and production readiness remain separate gates.
+
+## Accepted result
+
+Jenkins build **8** passed for source `05d553b044d566ce06fca3205db0632fe0328c77`. It ran the 36 tests in that release snapshot, scanned with Trivy 0.76.0 and a freshly downloaded database, generated its SBOM, pushed digest `sha256:02c43fb87712b706213ae04282c23801f4d565b0a24e7d988f25c66fafd26799`, and published environment commit `14b3ae8e2d3c6393047738bc62ee57e683dc0d44`. Argo CD synchronized that exact commit, Rollouts analysis succeeded, and the stable service returned revision `05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8`.
+
+The controlled passing run recorded **849 stable observations, all HTTP 200**. It kept CI idle throughout runtime observation. The earlier build-7 trial's one timeout is retained and is not included as a passing trial. These finite checks through the Kubernetes API proxy do not establish a production availability SLO.
+
+The successful CI run took **45.262 seconds**, after database preparation and with image caches available. The complete observed trial ran from 19:59:00 to 20:03:07 UTC; database maintenance, previous attempts and initial downloads are separate. Do not compare the 45-second CI component alone against a full release-stability deadline.
+
+`docs/evidence/ci-gitops-acceptance.json` cross-checks source identity, actual scanned image/config identity, registry digest, environment commit, Argo synchronization, successful analysis for the serving hash, service selector, final response, and the matching-source negative gate (build 5). The evidence verifier was also run against the failed-availability trial and correctly rejected it. Raw artifacts and failed attempts remain in ignored `output/` directories; sanitized history is committed in `docs/evidence/ci-attempt-history.json`.
+
+The current working-source suite has **39 passing tests**, including observer startup/queue regression cases added after the release snapshot. **18 schema checks** pass. These counts are deliberately distinguished from the 36 tests Jenkins ran in the immutable application release snapshot.
 
 ## Acceptance boundary
 
@@ -42,8 +54,16 @@ Commit reviewed changes first. Start the lab in lean mode and require healthy Gi
 
 Run `python -m scripts.verify_ci_gate` for the negative gate and `python -m scripts.gitops_trial healthy --job release-merged` for the healthy path inside the configured Linux venv. Keep only one trial running. Source and artifact evidence must identify the selected commit, even when later documentation commits exist.
 
-After all Jenkins artifacts have been captured, CI can be stopped to free memory during runtime analysis. Do not stop it while a build or artifact download is in progress. End the full lab session with `scripts/lab.ps1 -Action stop`.
+Keep CI state constant while runtime observations are being collected. Do not stop/start it during a trial. End the full lab session with `scripts/lab.ps1 -Action stop` only after capture completes.
+
+## Additional issues found during execution
+
+- Jenkins can return a queued item with `executable: null`, and its authenticated endpoint can reset connections during startup. The observer now handles that queue state and waits for readiness; authentication errors still fail immediately. Regression tests cover both cases. One early observer exited before collecting build 4's expected intentional failure; build 5 repeats that gate successfully for patched source `05d553b044d566ce06fca3205db0632fe0328c77`.
+- Build 6 passed the scan and registry publication but could not clone environment Git: the root-owned public `known_hosts` file was mode 0600 and unreadable by UID 1000 in the agent. Only that public trust-anchor file was corrected to mode 0644, root-owned and read-only in the container. Private keys and their directory remain restricted. The setup script now reproduces this permission correctly.
+- Build 7 passed CI and promoted the release, but the observer recorded one three-second timeout among 746 stable-service requests. The timeout coincided with CI shutdown; causality was not established. This run fails the strict availability gate and is retained. A controlled repeat leaves CI idle throughout observation, with identical client timeout and acceptance thresholds. Controller success alone is not an availability pass.
 
 ## Remaining scope
 
 External SCM/webhook configuration, a separate build machine, shared TLS registry, fresh-machine installation, repeated availability distributions, post-promotion recovery, product API/UI, and durable evidence ingestion remain separate gates. Do not infer their completion from this acceptance job.
+
+Next local priority: fresh runtime-failure/rejection tests against this integrated path, then durable release/evidence API and restart reconciliation. Keep the other machine migration deferred as requested. The lab is stopped after final verification to release laptop RAM; the accepted release and credentials persist locally.
