@@ -32,11 +32,11 @@ if existing:
 
 subprocess.run(["k3d", "image", "import", "release-foundation:milestone-1",
                 "--cluster", "release-lab"], check=True, timeout=150)
-kubectl("create", "-f", str(root / "demo/k8s/namespace.yaml"))
+kubectl("create", "-f", str(root / "examples/foundation/k8s/namespace.yaml"))
 owned_uid = json.loads(kubectl("get", "namespace", namespace, "-o", "json"))["metadata"]["uid"]
 forward = None
 try:
-    kubectl("apply", "-f", str(root / "demo/k8s/deployment.yaml"))
+    kubectl("apply", "-f", str(root / "examples/foundation/k8s/deployment.yaml"))
     kubectl("rollout", "status", "deployment/release-demo", "-n", namespace, "--timeout=120s")
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))

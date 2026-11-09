@@ -9,7 +9,7 @@ from urllib.error import HTTPError
 from urllib.request import urlopen
 
 spec = importlib.util.spec_from_file_location(
-    "demo", Path(__file__).resolve().parents[1] / "demo/app/server.py"
+    "demo", Path(__file__).resolve().parents[1] / "examples/foundation/app/server.py"
 )
 demo = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(demo)
