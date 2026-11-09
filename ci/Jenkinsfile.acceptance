@@ -1,0 +1,68 @@
+// Commit-addressed local acceptance job; configured by configure_merged_ci.py.
+pipeline {
+  agent { label 'trusted-linux-docker' }
+  options { disableConcurrentBuilds(); timeout(time: 20, unit: 'MINUTES'); timestamps(); skipDefaultCheckout(true) }
+  environment { TRUSTED_SOURCE_SHA = '__SOURCE_SHA__' }
+  parameters {
+    choice(name: 'DEMO_MODE', choices: ['healthy', 'error', 'latency', 'startup'], description: 'Controlled lab candidate')
+    booleanParam(name: 'FAIL_TEST_GATE', defaultValue: false, description: 'Local acceptance only: run an intentionally failing unittest before build')
+  }
+  stages {
+    stage('Merged source provenance') {
+      steps {
+        sh '''
+          set -eu
+          git clone --no-hardlinks "/opt/release-merged-source/$TRUSTED_SOURCE_SHA" .
+          git checkout --detach "$TRUSTED_SOURCE_SHA"
+          test "$(git rev-parse HEAD)" = "$TRUSTED_SOURCE_SHA"
+          mkdir -p output
+          python3 -c 'import json,os; from pathlib import Path; Path("output/source.json").write_text(json.dumps({"source_commit":os.environ["TRUSTED_SOURCE_SHA"],"trigger":"local-manual-acceptance","negative_test_requested":os.environ.get("FAIL_TEST_GATE")=="true"}))'
+        '''
+        script { env.COMMIT_SHA = env.TRUSTED_SOURCE_SHA }
+      }
+    }
+    stage('Tests') {
+      steps {
+        sh '''
+          set -eu
+          python3 -m unittest discover -s tests -v
+          if test "$FAIL_TEST_GATE" = true; then
+            python3 -c 'import unittest; t=unittest.FunctionTestCase(lambda: unittest.TestCase().fail("Intentional negative gate")); r=unittest.TextTestRunner().run(t); raise SystemExit(0 if r.wasSuccessful() else 1)'
+          fi
+        '''
+      }
+    }
+    stage('Build and scan') {
+      steps {
+        sh '''
+          set -eu
+          image="localhost:5001/release-demo:$COMMIT_SHA-jenkins-$BUILD_NUMBER"
+          docker build -f demo/Dockerfile --build-arg DEMO_MODE="$DEMO_MODE" --build-arg APP_REVISION="$COMMIT_SHA-jenkins-$BUILD_NUMBER" -t "$image" .
+          expected=$(python3 -c 'import json; print(json.load(open("versions.json"))["trivy"])')
+          trivy --version | head -n 1 | grep -Fx "Version: $expected"
+          trivy image --quiet --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --output output/scan.json "$image"
+          trivy image --quiet --format cyclonedx --output output/sbom.json "$image"
+          docker push "$image"
+          docker pull "$image"
+          docker image inspect "$image" > output/image-inspect.json
+          python3 -c 'import json; from pathlib import Path; refs=[r for r in json.load(open("output/image-inspect.json"))[0]["RepoDigests"] if r.startswith("localhost:5001/release-demo@sha256:")]; assert len(refs)==1; Path("output/image.txt").write_text(refs[0])'
+        '''
+      }
+    }
+    stage('Publish desired state to Git') {
+      steps {
+        sshagent(credentials: ['environment-git-ssh']) {
+          sh '''
+            set -eu
+            export GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/etc/release-known-hosts"
+            python3 -m scripts.publish_environment --repository "$ENV_REPO_URL" --image "$(cat output/image.txt)" --commit "$COMMIT_SHA" --release-id "jenkins-$BUILD_NUMBER" --evidence output/environment-commit.json
+          '''
+        }
+      }
+    }
+  }
+  post {
+    always { archiveArtifacts artifacts: 'output/*.json,output/image.txt', allowEmptyArchive: true }
+    cleanup { deleteDir() }
+  }
+}

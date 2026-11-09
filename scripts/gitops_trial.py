@@ -36,9 +36,12 @@ class Jenkins:
     def json(self, path):
         return json.loads(self.request(path)[0])
 
-    def build(self, mode, job):
+    def build(self, mode, job, fail_tests=False):
         crumb = self.json('crumbIssuer/api/json')
-        _, headers = self.request(f'job/{job}/buildWithParameters', urlencode({'DEMO_MODE': mode}).encode(),
+        parameters = {'DEMO_MODE': mode}
+        if job == 'release-merged':
+            parameters['FAIL_TEST_GATE'] = 'true' if fail_tests else 'false'
+        _, headers = self.request(f'job/{job}/buildWithParameters', urlencode(parameters).encode(),
                                   {crumb['crumbRequestField']: crumb['crumb'], 'Content-Type': 'application/x-www-form-urlencoded'})
         return headers['Location']
 
@@ -46,7 +49,7 @@ class Jenkins:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('scenario', choices=['healthy', 'error', 'latency', 'startup'])
-    parser.add_argument('--job', choices=['release-local', 'release-main'], default='release-local')
+    parser.add_argument('--job', choices=['release-local', 'release-main', 'release-merged'], default='release-merged')
     args = parser.parse_args()
     os.environ['KUBECONFIG'] = str(ROOT / 'output/lab.kubeconfig')
     if kube('config', 'current-context').strip() != 'k3d-release-lab':
@@ -84,7 +87,6 @@ def main():
             time.sleep(0.5)
         else:
             raise RuntimeError('Stable application was not reachable before the test')
-        start_traffic('demo-stable', 'stable.jsonl')
         jenkins = Jenkins()
         queue = jenkins.build(args.scenario, args.job)
         deadline = time.monotonic() + 1200
@@ -117,6 +119,9 @@ def main():
         for filename in ('scan.json', 'sbom.json', 'environment-commit.json'):
             (folder / filename).write_bytes(jenkins.request(f'job/{args.job}/{number}/artifact/output/{filename}')[0])
         print('Build passed; observing Argo reconciliation and candidate analysis', flush=True)
+        summary['observation_started'] = datetime.now(timezone.utc).isoformat()
+        summary['availability_boundary'] = 'After CI completion; excludes build/scan and Git publication interval'
+        start_traffic('demo-stable', 'stable.jsonl')
         expected_revision = evidence['source_commit'] + '-' + evidence['release_id']
         for i in range(4):
             start_traffic('demo-preview', f'preview-{i}.jsonl')

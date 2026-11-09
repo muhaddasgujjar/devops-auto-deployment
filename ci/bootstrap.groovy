@@ -50,9 +50,10 @@ if (node == null) {
   job.setDefinition(new CpsFlowDefinition(new File('/opt/release-source/ci/Jenkinsfile.local').text, true))
   job.save()
 }
-if (j.getItem('release-main') == null) {
+def sourceRepo = System.getenv('RELEASE_SOURCE_REPO_URL')
+if (sourceRepo && j.getItem('release-main') == null) {
   def job = j.createProject(WorkflowJob, 'release-main')
-  def scm = new GitSCM('https://github.com/muhaddasgujjar/devops-auto-deployment.git')
+  def scm = new GitSCM(sourceRepo)
   scm.setBranches([new BranchSpec('*/main')])
   job.setDefinition(new CpsScmFlowDefinition(scm, 'ci/Jenkinsfile'))
   job.addProperty(new ParametersDefinitionProperty(
