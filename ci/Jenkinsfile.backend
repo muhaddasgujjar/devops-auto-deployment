@@ -1,0 +1,32 @@
+pipeline {
+  agent { label 'trusted-linux-docker' }
+  options { disableConcurrentBuilds(); timeout(time: 20, unit: 'MINUTES'); timestamps(); skipDefaultCheckout(true) }
+  environment { TRUSTED_SOURCE_SHA = '__SOURCE_SHA__' }
+  parameters { booleanParam(name: 'FAIL_TEST_GATE', defaultValue: false, description: 'Intentional local test-gate failure') }
+  stages {
+    stage('Reviewed backend source') {
+      steps {
+        sh '''
+          set -eu
+          git clone --no-hardlinks "/opt/release-merged-source/$TRUSTED_SOURCE_SHA" .
+          git checkout --detach "$TRUSTED_SOURCE_SHA"
+          test "$(git rev-parse HEAD)" = "$TRUSTED_SOURCE_SHA"
+        '''
+      }
+    }
+    stage('Backend build, isolated tests, scan and publish') {
+      steps {
+        sh '''
+          set -eu
+          negative=""
+          if test "$FAIL_TEST_GATE" = true; then negative="--negative-test"; fi
+          python3 -m scripts.backend_ci --source-sha "$TRUSTED_SOURCE_SHA" --build-number "$BUILD_NUMBER" $negative
+        '''
+      }
+    }
+  }
+  post {
+    always { archiveArtifacts artifacts: 'output/backend-ci/*.json', allowEmptyArchive: true }
+    cleanup { deleteDir() }
+  }
+}

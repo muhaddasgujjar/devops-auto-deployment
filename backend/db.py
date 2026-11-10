@@ -9,6 +9,11 @@ class Database:
                                     connect_args={'connect_timeout': 5})
         self.metadata = MetaData()
         with self.engine.connect() as conn:
+            privileged = conn.scalar(text('SELECT rolsuper OR rolcreatedb OR rolcreaterole OR rolreplication OR rolbypassrls '
+                                           'FROM pg_roles WHERE rolname=current_user'))
+            owns_tables = conn.scalar(text("SELECT count(*) FROM pg_tables WHERE schemaname='public' AND tableowner=current_user"))
+            if privileged or owns_tables:
+                raise RuntimeError('API requires a restricted role without table ownership')
             if conn.scalar(text('SELECT version_num FROM alembic_version')) != HEAD:
                 raise RuntimeError('Database migrations are not at the supported revision')
             self.metadata.reflect(conn, only=['projects', 'environments', 'builds', 'artifacts',

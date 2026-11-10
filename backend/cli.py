@@ -39,7 +39,8 @@ def main():
         parser.error('This lab client sends credentials only to a loopback HTTP origin')
     settings = load_settings()
     tokens = json.loads(args.tokens.read_text())
-    with httpx.Client(base_url=args.url, headers={'X-API-Key': tokens['admin']}, timeout=30) as client:
+    with httpx.Client(base_url=args.url, headers={'X-API-Key': tokens['admin']}, timeout=30,
+                      follow_redirects=False, trust_env=False) as client:
         state = client.get('/environment')
         state.raise_for_status()
         if args.action == 'state':

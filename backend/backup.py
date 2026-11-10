@@ -37,6 +37,11 @@ def restore(path, database):
             '--exit-on-error', '--no-owner', '--no-acl', '-d', database], stdin=stream, capture_output=True)
     if result.returncode:
         raise RuntimeError('Restore failed; the new destination is retained for diagnosis')
+    from backend.security import configure_database, connect, load_url
+    from sqlalchemy.engine import make_url
+    bootstrap = make_url(load_url('RELEASE_BOOTSTRAP_CONFIG_FILE')).set(database=database)
+    with connect(bootstrap.render_as_string(hide_password=False)) as conn:
+        configure_database(conn)
 
 
 def main():

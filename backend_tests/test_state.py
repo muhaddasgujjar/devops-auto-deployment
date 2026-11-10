@@ -17,12 +17,14 @@ from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
+from sqlalchemy.exc import DBAPIError
 
 from backend.api import content_hash, create_app
 from backend.config import load_settings
 from backend.contracts import ReleaseObservation
 from backend.imports import normalize
 from backend.service import Conflict
+from backend.security import configure_database, connect, load_url
 from scripts.render_release import ROOT
 
 
@@ -30,23 +32,38 @@ class PostgreSQLStateTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.base = load_settings()
+        cls.bootstrap_url = load_url('RELEASE_BOOTSTRAP_CONFIG_FILE')
+        cls.migration_url = load_url('RELEASE_MIGRATION_CONFIG_FILE')
         cls.db_name = 'release_state_test_' + uuid.uuid4().hex[:12]
-        cls.admin = create_engine(cls.base.database_url, isolation_level='AUTOCOMMIT')
+        cls.admin = create_engine(cls.bootstrap_url, isolation_level='AUTOCOMMIT')
         with cls.admin.connect() as conn:
             conn.execute(text('CREATE DATABASE ' + cls.db_name))
+        test_bootstrap = make_url(cls.bootstrap_url).set(database=cls.db_name).render_as_string(hide_password=False)
+        with connect(test_bootstrap) as conn:
+            configure_database(conn)
         cls.tokens = {role: 'test-' + role + '-key-01234567890123456789' for role in ('read', 'developer', 'admin')}
         cls.settings = replace(cls.base,
             database_url=make_url(cls.base.database_url).set(database=cls.db_name).render_as_string(hide_password=False),
             api_keys={hashlib.sha256(value.encode()).hexdigest(): role for role, value in cls.tokens.items()},
             callback_secret='test-callback-secret-' * 3)
         cls.previous_config = os.environ['RELEASE_CONFIG_FILE']
-        cls.config_path = Path(cls.previous_config).parent / (cls.db_name + '.json')
+        cls.previous_migration = os.environ['RELEASE_MIGRATION_CONFIG_FILE']
+        cls.private_directory = tempfile.TemporaryDirectory(prefix='release-backend-test-')
+        cls.config_path = Path(cls.private_directory.name) / 'runtime.json'
         fd = os.open(cls.config_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         with os.fdopen(fd, 'w') as stream:
             json.dump(asdict(cls.settings), stream)
         os.environ['RELEASE_CONFIG_FILE'] = str(cls.config_path)
+        cls.test_migration = make_url(cls.migration_url).set(database=cls.db_name).render_as_string(hide_password=False)
+        migration_path = Path(cls.private_directory.name) / 'migration.json'
+        fd = os.open(migration_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, 'w') as stream:
+            json.dump({'database_url': cls.test_migration}, stream)
+        os.environ['RELEASE_MIGRATION_CONFIG_FILE'] = str(migration_path)
         command.upgrade(Config(str(ROOT / 'alembic.ini')), 'head')
-        cls.clean_engine = create_engine(cls.settings.database_url)
+        with connect(test_bootstrap) as conn:
+            configure_database(conn)
+        cls.clean_engine = create_engine(test_bootstrap)
 
     @classmethod
     def tearDownClass(cls):
@@ -56,7 +73,8 @@ class PostgreSQLStateTests(unittest.TestCase):
             conn.execute(text('DROP DATABASE ' + cls.db_name + ' WITH (FORCE)'))
         cls.admin.dispose()
         os.environ['RELEASE_CONFIG_FILE'] = cls.previous_config
-        cls.config_path.unlink()
+        os.environ['RELEASE_MIGRATION_CONFIG_FILE'] = cls.previous_migration
+        cls.private_directory.cleanup()
 
     def setUp(self):
         with self.clean_engine.begin() as conn:
@@ -292,3 +310,43 @@ class PostgreSQLStateTests(unittest.TestCase):
                 for child in value:
                     check_references(child)
         check_references(schema)
+
+    def denied(self, statement):
+        with self.assertRaises(DBAPIError):
+            with self.service.db.engine.begin() as conn:
+                conn.execute(text(statement))
+
+    def test_runtime_has_no_administrative_role_flags(self):
+        with self.service.db.engine.connect() as conn:
+            row = conn.execute(text('SELECT rolsuper,rolcreatedb,rolcreaterole,rolreplication,rolbypassrls '
+                                    'FROM pg_roles WHERE rolname=current_user')).one()
+            self.assertFalse(any(row))
+
+    def test_runtime_cannot_create_or_alter_schema(self):
+        self.denied('CREATE TABLE public.forbidden_probe (id integer)')
+        self.denied('ALTER TABLE public.projects ADD COLUMN forbidden_probe integer')
+        self.denied('CREATE DATABASE forbidden_probe')
+
+    def test_runtime_cannot_rewrite_or_remove_audit(self):
+        self.import_report()
+        self.denied("UPDATE audit SET action='rewritten'")
+        self.denied('DELETE FROM audit')
+        self.denied('TRUNCATE audit')
+        self.assertEqual(self.counts()['audit'], 1)
+
+    def test_runtime_cannot_rewrite_event_identity_or_migration_revision(self):
+        self.import_report()
+        self.denied("UPDATE incoming_events SET payload_hash='" + '0' * 64 + "'")
+        self.denied("UPDATE alembic_version SET version_num='forged'")
+        self.denied('SET ROLE release_state_migrator')
+
+    def test_migration_role_can_change_schema_without_superuser(self):
+        engine = create_engine(self.test_migration)
+        try:
+            with engine.begin() as conn:
+                self.assertFalse(conn.scalar(text('SELECT rolsuper FROM pg_roles WHERE rolname=current_user')))
+                conn.execute(text('CREATE TABLE public.migration_probe (id integer)'))
+                conn.execute(text('ALTER TABLE public.migration_probe ADD COLUMN value text'))
+                conn.execute(text('DROP TABLE public.migration_probe'))
+        finally:
+            engine.dispose()
