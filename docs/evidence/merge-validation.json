@@ -1,12 +1,12 @@
 {
-  "recorded_at_utc": "2026-11-09T20:06:32.952998+00:00",
+  "recorded_at_utc": "2026-11-09T20:27:58.466394+00:00",
   "python": "3.12.3",
   "platform": "Linux",
-  "tests_run": 39,
+  "tests_run": 48,
   "failures": 0,
   "errors": 0,
   "skipped": 0,
-  "duration_seconds": 6.057,
+  "duration_seconds": 5.109,
   "passed": true,
   "scope": "Canonical and foundation HTTP, manifest renderer and local temporary Git publication tests; not live CI or recovery validation",
   "cases": []

@@ -1,6 +1,7 @@
 """Observe a local Jenkins -> environment Git -> Argo CD -> Rollouts trial."""
 import argparse
 import base64
+import hashlib
 import http.cookiejar
 import json
 import os
@@ -15,6 +16,7 @@ from urllib.error import HTTPError, URLError
 
 from scripts.live_trial import kube, resource, sample, service_hash
 from scripts.render_release import ROOT
+from scripts.runtime_decision import decision
 
 
 def queued_build_number(item):
@@ -69,7 +71,7 @@ class Jenkins:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('scenario', choices=['healthy', 'error', 'latency', 'startup'])
+    parser.add_argument('scenario', choices=['healthy', 'error', 'latency', 'startup', 'no-traffic', 'telemetry-outage'])
     parser.add_argument('--job', choices=['release-local', 'release-main', 'release-merged'], default='release-merged')
     args = parser.parse_args()
     os.environ['KUBECONFIG'] = str(ROOT / 'output/lab.kubeconfig')
@@ -81,8 +83,14 @@ def main():
     folder = ROOT / 'output' / ('gitops-' + args.scenario + '-' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ'))
     folder.mkdir(parents=True, exist_ok=False)
     old_hash = service_hash()
+    if not old_hash:
+        raise RuntimeError('Establish a verified stable revision before runtime trials')
     summary = {'scenario': args.scenario, 'previous_stable_hash': old_hash, 'started': datetime.now(timezone.utc).isoformat()}
+    summary['observer_commit'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    summary['observer_sha256'] = {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+                                  for name in ('scripts/gitops_trial.py', 'scripts/runtime_decision.py')}
     stop, threads = threading.Event(), []
+    monitoring = None
     log = (folder / 'proxy.log').open('w')
     proxy = subprocess.Popen(['kubectl', 'proxy', '--address=127.0.0.1', '--port=18001'], stdout=log, stderr=subprocess.STDOUT)
     root = 'http://127.0.0.1:18001/api/v1/namespaces/demo-dev/services/'
@@ -108,8 +116,13 @@ def main():
             time.sleep(0.5)
         else:
             raise RuntimeError('Stable application was not reachable before the test')
+        baseline = sample(root + 'demo-stable:80/proxy/')
+        if baseline.get('status') != 200 or baseline.get('response', {}).get('mode') != 'healthy':
+            raise RuntimeError('Stable baseline must serve a healthy revision')
+        summary['baseline_response'] = baseline
         jenkins = Jenkins()
-        queue = jenkins.build(args.scenario, args.job)
+        mode = args.scenario if args.scenario in ('error', 'latency', 'startup') else 'healthy'
+        queue = jenkins.build(mode, args.job)
         deadline = time.monotonic() + 1200
         number = None
         while time.monotonic() < deadline:
@@ -137,39 +150,47 @@ def main():
             raise TimeoutError('Jenkins build exceeded observation deadline')
         evidence = jenkins.json(f'job/{args.job}/{number}/artifact/output/environment-commit.json')
         summary.update(evidence)
-        for filename in ('scan.json', 'sbom.json', 'environment-commit.json'):
+        files = ['scan.json', 'sbom.json', 'environment-commit.json']
+        if args.job == 'release-merged':
+            files += ['source.json', 'image-inspect.json']
+        for filename in files:
             (folder / filename).write_bytes(jenkins.request(f'job/{args.job}/{number}/artifact/output/{filename}')[0])
         print('Build passed; observing Argo reconciliation and candidate analysis', flush=True)
         summary['observation_started'] = datetime.now(timezone.utc).isoformat()
         summary['availability_boundary'] = 'After CI completion; excludes build/scan and Git publication interval'
         start_traffic('demo-stable', 'stable.jsonl')
         expected_revision = evidence['source_commit'] + '-' + evidence['release_id']
-        for i in range(4):
-            start_traffic('demo-preview', f'preview-{i}.jsonl')
+        if args.scenario == 'telemetry-outage':
+            obj = json.loads(kube('get', 'deployment', 'prometheus', '-n', 'monitoring', '-o', 'json'))
+            monitoring = {'uid': obj['metadata']['uid'], 'replicas': obj['spec'].get('replicas', 1)}
+            if monitoring['replicas'] != 1:
+                raise RuntimeError('Telemetry injection requires the existing one-replica lab monitor')
+            patch = [{'op': 'test', 'path': '/metadata/uid', 'value': monitoring['uid']},
+                     {'op': 'test', 'path': '/spec/replicas', 'value': monitoring['replicas']},
+                     {'op': 'replace', 'path': '/spec/replicas', 'value': 0}]
+            kube('patch', 'deployment', 'prometheus', '-n', 'monitoring', '--type=json', '-p', json.dumps(patch))
+            summary['telemetry_injection'] = monitoring
+            deadline = time.monotonic() + 60
+            while json.loads(kube('get', 'pods', '-l', 'app=prometheus', '-n', 'monitoring', '-o', 'json'))['items']:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError('Prometheus did not stop within the injection window')
+                time.sleep(1)
+        if args.scenario not in ('startup', 'no-traffic'):
+            for i in range(4):
+                start_traffic('demo-preview', f'preview-{i}.jsonl')
+        # Refresh only GitOps discovery; CI never applies runtime manifests.
+        kube('annotate', 'application', 'release-demo-dev', '-n', 'argocd',
+             'argocd.argoproj.io/refresh=hard', '--overwrite')
         deadline = time.monotonic() + 420
         while time.monotonic() < deadline:
             rollout = resource('rollout', 'release-demo')
-            env = rollout['spec']['template']['spec']['containers'][0]['env']
-            current_revision = next(e['value'] for e in env if e['name'] == 'APP_REVISION')
-            state = rollout.get('status', {})
-            candidate = state.get('currentPodHash')
             application = json.loads(kube('get', 'application', 'release-demo-dev', '-n', 'argocd', '-o', 'json'))
-            synced = application.get('status', {}).get('sync', {})
-            runs = [r for r in resource('analysisrun').get('items', []) if r['metadata'].get('labels', {}).get('rollouts-pod-template-hash') == candidate]
-            phases = [r.get('status', {}).get('phase') for r in runs]
-            observed = str(state.get('observedGeneration')) == str(rollout['metadata']['generation'])
-            if (observed and current_revision == expected_revision and candidate != old_hash
-                    and synced.get('revision') == evidence['environment_commit'] and synced.get('status') == 'Synced'):
-                if args.scenario == 'healthy' and 'Successful' in phases and service_hash() == candidate:
-                    summary['verdict'] = 'candidate-promoted-through-gitops'
-                elif args.scenario in ('error', 'latency') and 'Failed' in phases and state.get('abort'):
-                    summary['verdict'] = 'candidate-rejected-through-gitops'
-                elif args.scenario == 'startup' and state.get('abort'):
-                    summary['verdict'] = 'readiness-aborted-through-gitops'
-                if 'verdict' in summary:
-                    if args.scenario != 'healthy' and service_hash() != old_hash:
-                        raise AssertionError('Faulty candidate changed stable service')
-                    break
+            verdict = decision(args.scenario, expected_revision, evidence['environment_commit'], old_hash,
+                               rollout, application, resource('analysisrun').get('items', []), service_hash())
+            if verdict:
+                summary['verdict'] = verdict
+                summary['decision_observed'] = datetime.now(timezone.utc).isoformat()
+                break
             time.sleep(3)
         else:
             raise TimeoutError('Expected GitOps/controller outcome was not observed')
@@ -178,6 +199,8 @@ def main():
             raise AssertionError('Stable response unhealthy')
         if args.scenario == 'healthy' and final['response']['revision'] != expected_revision:
             raise AssertionError('Serving revision does not match Jenkins artifact')
+        if args.scenario != 'healthy' and final['response']['revision'] != baseline['response']['revision']:
+            raise AssertionError('Rejected candidate changed the stable serving revision')
         summary.update(final_response=final, serving_hash=service_hash())
     except Exception as exc:
         summary.update(verdict='trial-failed', error=str(exc))
@@ -195,6 +218,32 @@ def main():
             (folder / 'application.json').write_text(kube('get', 'application', 'release-demo-dev', '-n', 'argocd', '-o', 'json'))
         except Exception as exc:
             summary['capture_application_error'] = str(exc)
+        if monitoring is not None:
+            try:
+                obj = json.loads(kube('get', 'deployment', 'prometheus', '-n', 'monitoring', '-o', 'json'))
+                if obj['metadata']['uid'] != monitoring['uid']:
+                    raise RuntimeError('Monitor identity changed; refusing restoration')
+                if obj['spec'].get('replicas', 1) == 0:
+                    patch = [{'op': 'test', 'path': '/metadata/uid', 'value': monitoring['uid']},
+                             {'op': 'test', 'path': '/spec/replicas', 'value': 0},
+                             {'op': 'replace', 'path': '/spec/replicas', 'value': monitoring['replicas']}]
+                    kube('patch', 'deployment', 'prometheus', '-n', 'monitoring', '--type=json', '-p', json.dumps(patch))
+                elif obj['spec'].get('replicas') != monitoring['replicas']:
+                    raise RuntimeError('Monitor replicas changed externally; refusing overwrite')
+                deadline = time.monotonic() + 120
+                while True:
+                    restored = json.loads(kube('get', 'deployment', 'prometheus', '-n', 'monitoring', '-o', 'json'))
+                    status = restored.get('status', {})
+                    if (restored['metadata']['uid'] == monitoring['uid'] and
+                            status.get('observedGeneration') == restored['metadata']['generation'] and
+                            status.get('availableReplicas', 0) >= monitoring['replicas']):
+                        break
+                    if time.monotonic() >= deadline:
+                        raise TimeoutError('Prometheus availability did not recover')
+                    time.sleep(2)
+                summary['telemetry_restored'] = True
+            except Exception as exc:
+                summary['telemetry_restore_error'] = str(exc)
         proxy.terminate()
         try:
             proxy.wait(timeout=5)
@@ -205,10 +254,14 @@ def main():
         rows = [json.loads(line) for line in (folder / 'stable.jsonl').read_text().splitlines()] if (folder / 'stable.jsonl').exists() else []
         summary.update(stable_requests=len(rows), stable_non_200=sum(row.get('status') != 200 for row in rows),
                        finished=datetime.now(timezone.utc).isoformat())
+        summary['availability_gate_passed'] = bool(rows) and summary['stable_non_200'] == 0
+        summary['acceptance_passed'] = (summary.get('verdict') not in (None, 'trial-failed')
+                                        and summary['availability_gate_passed']
+                                        and not summary.get('telemetry_restore_error'))
         (folder / 'summary.json').write_text(json.dumps(summary, indent=2))
     print(json.dumps(summary), flush=True)
-    if summary['stable_non_200']:
-        raise AssertionError('Stable failures were observed; inspect retained evidence')
+    if not summary['acceptance_passed']:
+        raise AssertionError('Trial acceptance failed; inspect retained evidence')
 
 
 if __name__ == '__main__':
