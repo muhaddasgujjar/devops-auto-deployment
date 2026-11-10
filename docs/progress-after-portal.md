@@ -1,5 +1,9 @@
 # MVP progress after the real-data portal
 
+Historical milestone-6 snapshot. The current estimate and priorities are in
+[progress after recovery](progress-after-recovery.md); the 73% below is retained
+to show the existing rubric before milestone 7.
+
 10 November 2026. Current acceptance estimate: **approximately 73%** on the existing
 weighted MVP rubric. The interface contributes three points in its existing
 workstream; no other workstream receives duplicate credit for its packaging or

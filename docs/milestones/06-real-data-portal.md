@@ -49,11 +49,11 @@ compiled JavaScript are identical to the final one; the final change adjusts CSS
 ## Evidence and operation
 
 - `docs/evidence/merge-validation.json`: 54 core/demo tests.
-- `docs/evidence/backend-tests.json`: 47 PostgreSQL/session/worker tests.
+- `docs/evidence/backend-tests-milestone6.json`: 47 PostgreSQL/session/worker tests.
 - `docs/evidence/frontend-tests.json`: 5 presentation tests with raw TAP hash.
-- `docs/evidence/backend-ci-acceptance.json`: independent negative/positive
+- `docs/evidence/backend-ci-milestone6.json`: independent negative/positive
   Jenkins, registry byte/digest, runtime identity, scan, SBOM and frontend proof.
-- `docs/evidence/portal-service-acceptance.json`: real installed-service checks.
+- `docs/evidence/portal-service-milestone6.json`: real installed-service checks.
 - `docs/evidence/portal-live-observer-acceptance.json`: earlier live collector/UI
   compatibility proof with current observation, retained separately from the
   final static-bundle installation check.

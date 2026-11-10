@@ -1,0 +1,182 @@
+{
+  "recorded_at_utc": "2026-11-10T16:10:45.661815+00:00",
+  "passed": true,
+  "policy": {
+    "id": "post-promotion-v1",
+    "window_seconds": 30,
+    "consecutive_windows": 3,
+    "minimum_requests": 100,
+    "maximum_error_ratio": 0.05,
+    "maximum_p95_seconds": 0.5,
+    "expected_pods": 2,
+    "maximum_scrape_age_seconds": 15,
+    "maximum_sample_age_seconds": 90,
+    "monitor_seconds": 3600,
+    "target_retention_seconds": 604800,
+    "recovery_timeout_seconds": 600,
+    "cooldown_seconds": 300
+  },
+  "trials": [
+    {
+      "fault": "error",
+      "origin_build": 20,
+      "target_build": 16,
+      "published_source_commit": "1718c24d32bdb922f0a1624b934dd3cb2d88db14",
+      "observer_source_commit": "1718c24d32bdb922f0a1624b934dd3cb2d88db14",
+      "incident_id": "3baac9c0-ebb7-4978-a412-1c76310fe2c0",
+      "phases": [
+        "proposed",
+        "applying",
+        "verifying",
+        "recovered"
+      ],
+      "phase_actors": [
+        {
+          "phase": "proposed",
+          "actor": "api:recovery:c424c6d119de",
+          "source": "recovery"
+        },
+        {
+          "phase": "applying",
+          "actor": "api:recovery:c424c6d119de",
+          "source": "recovery"
+        },
+        {
+          "phase": "verifying",
+          "actor": "api:recovery:c424c6d119de",
+          "source": "recovery"
+        },
+        {
+          "phase": "recovered",
+          "actor": "api:recovery:c424c6d119de",
+          "source": "recovery"
+        }
+      ],
+      "base_commit": "d0dde8a131ac1496b39f7aa04a664045dba1eed0",
+      "recovery_commit": "c21dd48c6246d8f31409939a3003ca7549685eef",
+      "recovery_commits": 1,
+      "origin_image": "localhost:5001/release-demo@sha256:0e25c7f09db9ded29cc59bb27642e47c0005508bf2b758366ba7726da9487aaf",
+      "origin_oci_config_digest": "sha256:68521a44ad2fc9288310144846ce60f0c5dd3c350621d90c27b06b4f21a18752",
+      "target_image": "localhost:5001/release-demo@sha256:56c097a893ae7e05da7833afedd8c7e95242defdec4c702bf4774730ac3c75d4",
+      "independent_http": {
+        "requests": 40907,
+        "non_200": 20833,
+        "maximum_gap_seconds": 4.2759,
+        "affected_revision_samples": 20804,
+        "last_100_matching_target_200": true,
+        "scope": "Finite functional experiment, not a production availability claim"
+      },
+      "clock_offset_span_seconds": 0.048956,
+      "independent_fault_samples": 20804,
+      "detection_seconds": 216.201,
+      "fault_to_verified_seconds": 577.203,
+      "telemetry_gap": {
+        "seconds": 123.959,
+        "unavailable_windows": [
+          "2026-11-10T15:29:30+00:00",
+          "2026-11-10T15:30:00+00:00",
+          "2026-11-10T15:30:30+00:00"
+        ],
+        "incidents_while_unavailable": 0,
+        "permission_restored": true
+      },
+      "writer_restart": {
+        "previous_pid": "241862",
+        "new_pid": "294661",
+        "restarts": 1
+      },
+      "actual_verification_requests": 173,
+      "raw_trial": "output/recovery-error-20261110T152451Z",
+      "summary_sha256": "049baf26a3c2b2bdf7e42c0e1f7a770f547de76fce8df7f72195902f3341994f"
+    },
+    {
+      "fault": "latency",
+      "origin_build": 21,
+      "target_build": 16,
+      "published_source_commit": "1718c24d32bdb922f0a1624b934dd3cb2d88db14",
+      "observer_source_commit": "1718c24d32bdb922f0a1624b934dd3cb2d88db14",
+      "incident_id": "88b02594-b1bb-4fd7-b42c-576d6dfc34d8",
+      "phases": [
+        "proposed",
+        "applying",
+        "verifying",
+        "recovered"
+      ],
+      "phase_actors": [
+        {
+          "phase": "proposed",
+          "actor": "api:recovery:c424c6d119de",
+          "source": "recovery"
+        },
+        {
+          "phase": "applying",
+          "actor": "api:recovery:c424c6d119de",
+          "source": "recovery"
+        },
+        {
+          "phase": "verifying",
+          "actor": "api:recovery:c424c6d119de",
+          "source": "recovery"
+        },
+        {
+          "phase": "recovered",
+          "actor": "api:recovery:c424c6d119de",
+          "source": "recovery"
+        }
+      ],
+      "base_commit": "9608048d7777be6ab10481c2bbd773910cdf3369",
+      "recovery_commit": "523f43399db6d6df0d16dcd4873a5848eebc062c",
+      "recovery_commits": 1,
+      "origin_image": "localhost:5001/release-demo@sha256:b2236c7e6115d5930b8cf00d1984e1d6ac9362f98193599250f8733f74632c2a",
+      "origin_oci_config_digest": "sha256:33ab078ca3857267f734c1821fafbbe80fdddd9fa917635b1715f6af54b27578",
+      "target_image": "localhost:5001/release-demo@sha256:56c097a893ae7e05da7833afedd8c7e95242defdec4c702bf4774730ac3c75d4",
+      "independent_http": {
+        "requests": 20304,
+        "non_200": 0,
+        "maximum_gap_seconds": 0.7204,
+        "affected_revision_samples": 1128,
+        "last_100_matching_target_200": true,
+        "scope": "Finite functional experiment, not a production availability claim"
+      },
+      "clock_offset_span_seconds": 0.010858,
+      "independent_fault_samples": 1130,
+      "detection_seconds": 94.852,
+      "fault_to_verified_seconds": 391.109,
+      "telemetry_gap": null,
+      "writer_restart": null,
+      "actual_verification_requests": 173,
+      "raw_trial": "output/recovery-latency-20261110T153926Z",
+      "summary_sha256": "d9c4c1db2c5ba81bf858650878e9a5709de3ced72368d14c52fdc53e78b23e13"
+    }
+  ],
+  "failed_attempts": [
+    {
+      "raw_trial": "output/recovery-error-20261110T124956Z",
+      "origin_build": 18,
+      "status": "failed",
+      "reason": "AssertionError",
+      "outcome": "verification_timeout",
+      "counted_as_success": false,
+      "clock_offset_span_seconds": 4460.963,
+      "clock_discontinuity": true,
+      "summary_sha256": "527452df55906de727b4b57a84b1a41a40b4bac69be81944fe261fd2be88fdb6"
+    },
+    {
+      "raw_trial": "output/recovery-error-20261110T150929Z",
+      "origin_build": 19,
+      "status": "excluded",
+      "reason": "Host wall clock discontinuity invalidates this trial",
+      "outcome": "healthy_target_verified",
+      "counted_as_success": false,
+      "clock_offset_span_seconds": 27.702,
+      "clock_discontinuity": true,
+      "summary_sha256": "fec2df5659d36b8ff10e3816d39f70bcaa76d088ff4c6961d79db3a078f65e1f"
+    }
+  ],
+  "limitations": [
+    "Two local functional trials, not a repeated benchmark or production availability result",
+    "Error trial includes a deliberate telemetry gap and writer restart; timings include those injections",
+    "No-target, Git failure, timeout, competing writers and uncertain publication replay are exercised separately in real PostgreSQL/temporary Git tests",
+    "Initial CI discovery uses the existing manual Argo refresh; recovery discovery uses ordinary controller polling"
+  ]
+}

@@ -1,8 +1,9 @@
 # Post-promotion recovery
 
-Implementation is under local acceptance. Do not count live recovery until the
-milestone's independent trial receipt passes. Pre-promotion rejection remains a
-separate capability.
+Local functional acceptance passed for error and latency recovery; see
+[milestone 7](milestones/07-post-promotion-recovery.md) and the
+[independent receipt](evidence/recovery-acceptance.json). Pre-promotion rejection
+remains a separate capability. This is not a production availability result.
 
 ## Policy and ownership
 
@@ -103,8 +104,29 @@ Supplemental historical acceptance is imported with `--kind recovery_target`.
 `scripts.record_recovery_target` first checks preserved artifact hashes and scan/
 image/analysis identities. It supplements missing scan identity without rewriting
 the original report, changing environment desired state or inventing a new trial.
+Target enrollment currently uses these curated retained receipts. A newly
+observed successful CI release does not automatically acquire accepted target
+status without its bound scan/SBOM, analysis and HTTP acceptance evidence. If no
+eligible retained target exists, the worker records `no_accepted_target` and
+does not publish Git. Automating that evidence-enrollment path is later integration
+work; this milestone proves recovery against an explicitly enrolled target.
 
 ## Acceptance and shutdown
+
+Check host time before trials. This Ubuntu 24.04 WSL installation had both
+Hyper-V host synchronization and `systemd-timesyncd` active. Repeated wall-clock
+corrections invalidated two trial attempts. Following
+[Canonical's WSL time guidance](https://ubuntu.com/wsl/docs/stable/explanation/time-sync/),
+the conflicting NTP unit was stopped and disabled in this WSL distribution;
+Windows/Hyper-V time synchronization remains active. No Windows time setting or
+kernel clock-source setting was changed. A fresh 30-second wall/monotonic/raw
+clock capture showed about 5 microseconds of wall/monotonic offset variation.
+Fresh trial streams must independently pass the two-second clock-consistency gate.
+Do not suppress this gate or adjust stored incident timestamps to obtain a pass.
+The reversible unit change is `systemctl disable --now systemd-timesyncd`;
+`systemctl enable --now systemd-timesyncd` restores its prior enabled state but
+may reintroduce this conflict. Review the target machine's own time setup before
+applying the same change elsewhere.
 
 Run core and PostgreSQL suites before configuring reviewed Jenkins sources. The
 backend pipeline also runs real temporary Git conflict/idempotency tests in its
@@ -113,7 +135,7 @@ After clean-source/backend CI acceptance, configure the normal `release-merged`
 job to the same reviewed commit and run:
 
 ```sh
-/opt/release-lab/backend-venv/bin/python -m scripts.recovery_trial error --restart-writer --stop-ci-after-build
+/opt/release-lab/backend-venv/bin/python -m scripts.recovery_trial error --restart-writer --telemetry-gap-seconds 120 --stop-ci-after-build
 # Start the managed Jenkins controller/agent again before the next trial.
 /opt/release-lab/backend-venv/bin/python -m scripts.recovery_trial latency --stop-ci-after-build
 ```

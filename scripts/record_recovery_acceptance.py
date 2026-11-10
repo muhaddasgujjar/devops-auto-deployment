@@ -62,11 +62,18 @@ def main():
         assert summary['final_http']['status']==200 and summary['final_http']['mode']=='healthy'
         rows=[json.loads(line) for line in (folder/'stable.jsonl').read_text().splitlines()]
         offsets=[datetime.fromisoformat(r['timestamp']).timestamp()-r['completed_monotonic_seconds'] for r in rows]
-        assert max(offsets)-min(offsets)<=2, 'Host clock changed during the trial'
+        clock_span=max(offsets)-min(offsets)
+        assert clock_span<=2, 'Host clock changed during the trial'
         gaps=[b['client_monotonic_seconds']-a['client_monotonic_seconds'] for a,b in zip(rows,rows[1:])]
         assert len(rows)>=100 and 0<=min(gaps) and max(gaps)<=10
         expected=target['build']['source_commit']+'-jenkins-'+str(target['build']['number'])
         assert all(row['status']==200 and row['revision']==expected for row in rows[-100:])
+        origin_revision=publication['source_commit']+'-jenkins-'+str(summary['jenkins_build'])
+        injected=datetime.fromisoformat(summary['fault_injected_at_utc'])
+        affected=[r for r in rows if r['revision']==origin_revision and datetime.fromisoformat(r['timestamp'])>=injected]
+        fault_samples=sum(r['status']==500 for r in affected) if summary['fault']=='error' else sum(
+            r['status']==200 and r['seconds']>=.5 for r in affected)
+        assert fault_samples>0, 'Independent stream did not observe the serving fault'
         assert summary['promoted_before_fault']['http']['status']==200
         scan=json.loads((folder/'scan.json').read_text()); image=json.loads((folder/'image-inspect.json').read_text())[0]
         assert scan['Metadata']['ImageID']==image['Id'] and publication['image'] in image['RepoDigests']
@@ -93,6 +100,7 @@ def main():
             'base_commit':incident['base_commit'],'recovery_commit':incident['recovery_commit'],'recovery_commits':1,
             'origin_image':publication['image'],'origin_oci_config_digest':body['config']['digest'],
             'target_image':target['artifact']['image'],'independent_http':summary['independent_http'],
+            'clock_offset_span_seconds':round(clock_span,6),'independent_fault_samples':fault_samples,
             'detection_seconds':summary['detection_seconds'],'fault_to_verified_seconds':summary['fault_to_verified_seconds'],
             'telemetry_gap':summary.get('telemetry_gap'),'writer_restart':summary.get('writer_restart'),
             'actual_verification_requests':proof['requests'],'raw_trial':folder.relative_to(ROOT).as_posix(),
@@ -108,6 +116,8 @@ def main():
         offsets=[datetime.fromisoformat(r['timestamp']).timestamp()-r.get('completed_monotonic_seconds',r['client_monotonic_seconds']) for r in rows]
         span=max(offsets)-min(offsets)
         failed.append({'raw_trial':name,'origin_build':summary.get('jenkins_build'),
+            'status':'excluded' if summary.get('excluded_reason') else 'failed',
+            'reason':summary.get('excluded_reason',summary.get('failure_type')),
             'outcome':summary.get('incident',{}).get('outcome'),'counted_as_success':False,
             'clock_offset_span_seconds':round(span,3),'clock_discontinuity':span>2,
             'summary_sha256':hashlib.sha256((folder/'summary.json').read_bytes()).hexdigest()})

@@ -1,5 +1,5 @@
 {
-  "recorded_at_utc": "2026-11-10T12:48:01.951972+00:00",
+  "recorded_at_utc": "2026-11-10T15:08:25.803570+00:00",
   "passed": true,
   "kubernetes": [
     {
@@ -107,7 +107,7 @@
     }
   ],
   "service": {
-    "WorkingDirectory": "/opt/release-lab/backend-runtime/3f862284ce509364f01c68b1c767abe57b727c2c",
+    "WorkingDirectory": "/opt/release-lab/backend-runtime/1718c24d32bdb922f0a1624b934dd3cb2d88db14",
     "User": "release-recovery",
     "ProtectSystem": "strict",
     "NoNewPrivileges": "yes",
@@ -121,9 +121,9 @@
   "baseline_response": {
     "ok": true,
     "status": 200,
-    "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-17",
+    "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-16",
     "mode": "healthy",
-    "seconds": 0.0869893150002099
+    "seconds": 0.07028587700006028
   },
   "token_lifetime": "1h; explicit refresh and service restart required",
   "limitations": [

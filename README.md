@@ -5,12 +5,12 @@ single Git project, preserving both histories. The canonical application is
 `demo/app.py`; `examples/foundation/` is an isolated earlier test fixture, not a
 second product. See [merged status and the solo one-week plan](docs/merged-project-status.md).
 The earlier 20% assessment is superseded by the combined-work estimate there.
-After real-data portal acceptance, the current weighted MVP estimate is approximately
-**73%**; see [progress and next priorities](docs/progress-after-portal.md).
+After post-promotion recovery acceptance, the current weighted MVP estimate is approximately
+**80%**; see [progress and next priorities](docs/progress-after-recovery.md).
 
-Run the 54 core/demo tests using `python scripts/validate.py` in an environment with
+Run the 56 core/demo tests using `python scripts/validate.py` in an environment with
 `requirements-validation.txt` installed. Results go to `docs/evidence/merge-validation.json`.
-The separate 47-test backend/session/worker suite requires PostgreSQL and the pinned backend
+The separate 74-test backend/session/recovery/worker suite requires PostgreSQL and the pinned backend
 venv; see [permissions, CI and supervised operation](docs/backend-hardening.md).
 The November 9 merge passed tests/schema checks but exposed live lab failures.
 The laptop recovery session restored controllers, serving telemetry and GitOps
@@ -25,8 +25,8 @@ passing trial observed 849 HTTP 200 responses. Earlier failed trials are retaine
 The [runtime rejection milestone](docs/milestones/03-runtime-failure-validation.md)
 extends that proof to HTTP errors, latency, readiness failure, missing traffic and
 telemetry outage through actual Jenkins and GitOps. An interrupted observation is
-excluded and repeated; pre-promotion rejection is distinguished from future
-post-promotion recovery. The [durable state milestone](docs/milestones/04-durable-state.md)
+excluded and repeated; pre-promotion rejection is distinguished from the subsequent
+post-promotion recovery milestone. The [durable state milestone](docs/milestones/04-durable-state.md)
 now adds authenticated APIs, PostgreSQL evidence/audit state, read-only restart
 reconciliation and a restore verified through a separate API process.
 The [hardening milestone](docs/milestones/05-backend-hardening.md) adds restricted
@@ -36,9 +36,17 @@ adds authenticated real-data views, evidence history and admin audit access.
 Use [the portal runbook](docs/portal.md) to build it and start the local interface
 at `http://127.0.0.1:8090/`.
 
+The [recovery milestone](docs/milestones/07-post-promotion-recovery.md) adds sustained
+post-promotion error/latency detection, durable incidents, a restricted Git writer
+and read-only recovery history. Real serving-error and latency trials restored an
+enrolled accepted digest through Git; missing telemetry and worker restart were
+also exercised. Earlier clock-invalid attempts remain excluded. See the
+[recovery runbook](docs/recovery.md) and [next delivery plan](docs/next-delivery-plan.md).
+
 A self-hosted Kubernetes release platform under development. Jenkins owns builds;
 Git owns desired configuration; Argo CD owns synchronization; Argo Rollouts owns
-candidate promotion. The custom API records their real state; the React portal displays it.
+candidate promotion. The recovery worker publishes accepted target configuration
+through Git. The custom API records their real state; the React portal displays it.
 
 ## Current milestone
 
@@ -67,7 +75,8 @@ Docker, kubectl, k3d, Jenkins, and Trivy are separate system tools, not pip pack
 `/healthz` and `/readyz` expose probe status; `/metrics`
 exposes Prometheus metrics. `DEMO_MODE=error` returns HTTP 500 while probes remain
 healthy; `latency` delays application requests; `startup` fails readiness.
-Faults are selected at startup with no public mutation API.
+Faults are selected at startup or through an opt-in ephemeral pod-local file used
+by the controlled post-promotion test injector. There is no HTTP fault activation API.
 
 Start with [the lab runbook](docs/lab.md). See [architecture decisions](docs/architecture.md),
 [the delivery backlog](docs/implementation-plan.md), and [validation evidence](docs/validation.md).
@@ -89,7 +98,8 @@ container runtime. The current Windows host has about 8 GiB RAM: start with the 
 single-node profile for routine work and the full profile for serial trusted-lab
 CI trials. A separate isolated build host remains later work. PostgreSQL and the
 product API now run with restricted roles and supervised local services. The
-post-promotion recovery and full monitoring follow.
+post-promotion recovery is accepted locally; persistent monitoring, notifications
+and broader platform restore follow.
 
 The installed Windows lab can be managed from PowerShell:
 
