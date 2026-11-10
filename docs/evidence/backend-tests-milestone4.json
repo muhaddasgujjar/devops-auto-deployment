@@ -1,0 +1,11 @@
+{
+  "recorded_at_utc": "2026-11-10T07:19:41.804498+00:00",
+  "passed": true,
+  "tests_run": 20,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "duration_seconds": 9.332,
+  "scope": "Fresh PostgreSQL migration, real evidence import, API auth/HMAC/limits, transactions, concurrency, ordering, restart and freshness",
+  "failed_cases": []
+}

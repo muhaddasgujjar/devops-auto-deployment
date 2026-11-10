@@ -5,13 +5,13 @@ single Git project, preserving both histories. The canonical application is
 `demo/app.py`; `examples/foundation/` is an isolated earlier test fixture, not a
 second product. See [merged status and the solo one-week plan](docs/merged-project-status.md).
 The earlier 20% assessment is superseded by the combined-work estimate there.
-After durable backend acceptance, the current weighted MVP estimate is approximately
-**65%**; see [progress and next priorities](docs/progress-after-backend.md).
+After backend hardening acceptance, the current weighted MVP estimate is approximately
+**70%**; see [progress and next priorities](docs/progress-after-hardening.md).
 
 Run the 54 core/demo tests using `python scripts/validate.py` in an environment with
 `requirements-validation.txt` installed. Results go to `docs/evidence/merge-validation.json`.
-The separate 20-test backend suite requires PostgreSQL and the pinned backend venv;
-see [backend setup and validation](docs/backend.md).
+The separate 32-test backend/worker suite requires PostgreSQL and the pinned backend
+venv; see [permissions, CI and supervised operation](docs/backend-hardening.md).
 The November 9 merge passed tests/schema checks but exposed live lab failures.
 The laptop recovery session restored controllers, serving telemetry and GitOps
 sync, with a lean startup profile. See [laptop work and later migration](docs/laptop-first.md)
@@ -29,6 +29,9 @@ excluded and repeated; pre-promotion rejection is distinguished from future
 post-promotion recovery. The [durable state milestone](docs/milestones/04-durable-state.md)
 now adds authenticated APIs, PostgreSQL evidence/audit state, read-only restart
 reconciliation and a restore verified through a separate API process.
+The [hardening milestone](docs/milestones/05-backend-hardening.md) adds restricted
+database roles, scoped and supervised collection, and a dedicated backend CI job
+with real test/scan/publication gates. The real-data interface is next.
 
 A self-hosted Kubernetes release platform under development. Jenkins owns builds;
 Git owns desired configuration; Argo CD owns synchronization; Argo Rollouts owns
@@ -82,7 +85,8 @@ No subscription or cloud account is required for the lab. Docker/k3d need a Linu
 container runtime. The current Windows host has about 8 GiB RAM: start with the lean
 single-node profile for routine work and the full profile for serial trusted-lab
 CI trials. A separate isolated build host remains later work. PostgreSQL and the
-product API now run locally; backend hardening, the interface and full monitoring follow.
+product API now run with restricted roles and supervised local services. The
+interface, post-promotion recovery and full monitoring follow.
 
 The installed Windows lab can be managed from PowerShell:
 

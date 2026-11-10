@@ -97,5 +97,15 @@
     "One-hour observer token is explicitly refreshed by the administrator before later sessions",
     "Units are installed but not enabled at boot; laptop services are started/stopped explicitly",
     "The collector uses namespace-scoped read access and cannot deploy or recover releases"
-  ]
+  ],
+  "observer_token_lifetime_seconds": 3600,
+  "observer_token_expires_at_utc": "2026-11-10T09:05:48+00:00",
+  "services_stopped_after_acceptance": true,
+  "implementation_sha256": {
+    "backend/security.py": "539a1f0b9473a85c3bdaf4608a919c41aac67a83aa38b2ed995326edc01d39a5",
+    "backend/worker.py": "700649a31245bea15f50955afe3283860e7ffd8b984620fd78ac5daf059f89b0",
+    "backend/db.py": "1334cfb04ea34c552fe9bbcde8854362c24f4493721e231c10a692e67bca96bb",
+    "scripts/install_backend_services.py": "83d49f3911282549290d38317f41f84d7dd73d29db224d8f15300c6cec59daab",
+    "platform/backend-observer.yaml": "e3e957a7ecf2b533463bf86555e0c5c530f2c5dbfc765e08c7349758ab3f9162"
+  }
 }

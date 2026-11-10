@@ -1,5 +1,8 @@
 # Release-state backend runbook and contracts
 
+Current operation includes [backend hardening and supervision](backend-hardening.md).
+Use its role-provisioning and token-refresh instructions for later sessions.
+
 This backend records and explains releases. Jenkins publishes environment Git;
 Argo CD syncs it; Rollouts controls the serving selector. The backend collector
 uses only `get`/local Git reads and never applies, patches, promotes or rolls back.
@@ -96,8 +99,11 @@ reconciliation. PostgreSQL uses its own labelled container and volume, bound to
 python3 -m venv /opt/release-lab/backend-venv
 /opt/release-lab/backend-venv/bin/python -m pip install -r requirements-backend-lock.txt
 /opt/release-lab/venv/bin/python -m scripts.backend_runtime setup
+/opt/release-lab/backend-venv/bin/python -m scripts.provision_backend_roles
 export RELEASE_CONFIG_FILE=/opt/release-lab/secrets/backend/config.json
+export RELEASE_MIGRATION_CONFIG_FILE=/opt/release-lab/secrets/backend/migration-config.json
 /opt/release-lab/backend-venv/bin/python -m alembic upgrade head
+/opt/release-lab/backend-venv/bin/python -m scripts.provision_backend_roles
 /opt/release-lab/backend-venv/bin/python -m uvicorn backend.api:create_app \
   --factory --host 127.0.0.1 --port 8090 --no-access-log
 ```
@@ -131,9 +137,10 @@ $PY -m backend.cli state
 $PY -m backend.cli reconcile --kubeconfig output/lab.kubeconfig
 ```
 
-The CLI runs one bounded reconciliation per invocation. Continuous worker/service
-supervision and automatic Jenkins producer hooks remain operational follow-up
-work; they are not installed as a desktop automation. The CLI sends credentials
+The CLI runs one bounded reconciliation per invocation. The separate supervised
+worker now collects every 30 seconds; see the hardening runbook for its scoped
+credentials and explicit token refresh. Automatic Jenkins producer hooks remain
+separate work. These product services are not desktop automations. The CLI sends credentials
 only to an explicitly loopback HTTP origin. The database/configuration live under
 the named Docker volume and `/opt/release-lab/secrets/backend/`, not Git. Protect
 and transfer that private configuration separately when moving machines.
@@ -142,6 +149,8 @@ and transfer that private configuration separately when moving machines.
 
 ```sh
 export RELEASE_CONFIG_FILE=/opt/release-lab/secrets/backend/config.json
+export RELEASE_MIGRATION_CONFIG_FILE=/opt/release-lab/secrets/backend/migration-config.json
+export RELEASE_BOOTSTRAP_CONFIG_FILE=/opt/release-lab/secrets/backend/bootstrap-config.json
 /opt/release-lab/backend-venv/bin/python -m scripts.validate_backend
 ```
 
@@ -153,6 +162,7 @@ see [SQLAlchemy transaction documentation](https://docs.sqlalchemy.org/en/20/cor
 
 ```sh
 /opt/release-lab/backend-venv/bin/python -m backend.backup backup output/state-UNIQUE.dump
+export RELEASE_BOOTSTRAP_CONFIG_FILE=/opt/release-lab/secrets/backend/bootstrap-config.json
 /opt/release-lab/backend-venv/bin/python -m backend.backup restore output/state-UNIQUE.dump \
   --database release_state_restore_UNIQUE123
 ```
@@ -171,9 +181,9 @@ revision. Destructive downgrade is disabled. See the
 
 ## Remaining boundaries
 
-This is one local project/environment, not a multi-tenant service. API runtime and
-migrations currently share the local PostgreSQL owner role; separate restricted
-runtime credentials are a hardening priority before network exposure. Backend
-packaging/build/scanning is separate from the existing demo-only Jenkins snapshot.
-Keep the API on loopback. No UI, post-promotion actuator, SSO, TLS ingress,
+This is one local project/environment, not a multi-tenant service. API runtime,
+migration and bootstrap credentials are now separated and tested. The dedicated
+backend pipeline packages/tests/scans its own image, separate from the old demo
+Jenkins snapshot. Keep the API on loopback and follow explicit observer token
+refresh instructions. No UI, post-promotion actuator, SSO, TLS ingress,
 notification system or production availability claim is included in this stage.

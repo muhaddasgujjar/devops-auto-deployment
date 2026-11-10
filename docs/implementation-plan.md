@@ -32,8 +32,9 @@ formal availability/recovery distributions are still pending.
 The merged source now passes local manual CI/GitOps acceptance and the integrated
 runtime fault matrix. See [CI evidence](milestones/02-ci-gitops.md) and
 [runtime evidence](milestones/03-runtime-failure-validation.md). The
-[durable release/evidence state gate](milestones/04-durable-state.md) also passed
-local PostgreSQL/API acceptance. See [current priorities](progress-after-backend.md).
+[durable state gate](milestones/04-durable-state.md) and
+[backend hardening gate](milestones/05-backend-hardening.md) also passed local
+acceptance. See [current priorities](progress-after-hardening.md).
 
 Remaining integration and production work:
 
@@ -47,18 +48,17 @@ Remaining integration and production work:
 
 ## Following milestones in laptop-first order
 
-1. Harden the implemented backend: separate database runtime/migration roles,
-   dedicated backend build/test/scan path and supervised read-only collection.
-   The local contracts, migrations, evidence import, signed callbacks, API roles,
-   deduplication, concurrency, restart reconciliation and restore are accepted.
-2. Minimal real-data React environment status, release history and decision evidence.
-3. Post-promotion detection, retention, serialized Git-authoritative recovery and
+The database roles, backend CI and supervised collection prerequisites are now
+accepted locally. The remaining sequence is:
+
+1. Minimal real-data React environment status, release history and decision evidence.
+2. Post-promotion detection, retention, serialized Git-authoritative recovery and
    explicit failed recovery handling before exposing recovery actions in the UI.
-4. Persistent Prometheus/Grafana/Alertmanager, local notification receiver, bounded
+3. Persistent Prometheus/Grafana/Alertmanager, local notification receiver, bounded
    delivery retries and broader platform backup/restore.
-5. Other-machine reproduction, isolated builds, TLS registry, staging environment
+4. Other-machine reproduction, isolated builds, TLS registry, staging environment
    and infrastructure dependency verification.
-6. Repeated failure experiments and fresh-machine reproduction; publish measured
+5. Repeated failure experiments and fresh-machine reproduction; publish measured
    p50/p95 timings, trial counts, false positives, availability, and resource use.
 
 Five user interviews, team capacity confirmation, a second-user pilot, and the

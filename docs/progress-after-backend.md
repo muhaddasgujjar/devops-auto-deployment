@@ -1,5 +1,8 @@
 # MVP progress after durable state acceptance
 
+Historical checkpoint; [the current hardening assessment](progress-after-hardening.md)
+supersedes this score without creating a separate project.
+
 10 November 2026. **Approximately 65% complete** under the same weighted MVP
 engineering rubric. This estimates accepted scope, not production readiness,
 elapsed effort or test pass rates. Both historical implementations remain one

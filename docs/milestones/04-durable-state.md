@@ -2,6 +2,8 @@
 
 Completed 10 November 2026 for the local prototype. Release/evidence storage,
 authenticated APIs and bounded read-only reconciliation now work on real data.
+This is the historical stage-4 checkpoint. [Milestone 5](05-backend-hardening.md)
+subsequently completed the role separation, backend CI and supervision work.
 
 ## Accepted results
 
@@ -48,7 +50,8 @@ document setup, authentication, imports, reconciliation and restore.
 
 Committed receipts:
 
-- `docs/evidence/backend-tests.json`: actual PostgreSQL integration suite.
+- `docs/evidence/backend-tests-milestone4.json`: preserved 20-test receipt matching
+  the original acceptance report hash; the latest suite is recorded separately.
 - `docs/evidence/merge-validation.json`: separate core/demo suite.
 - `docs/evidence/backend-acceptance.json`: real HTTP/process restart, missed
   release, source outage, restored API equality, archive and implementation hashes.
