@@ -1,0 +1,25 @@
+{
+  "recorded_at_utc": "2026-11-10T06:23:43.132070+00:00",
+  "passed": true,
+  "scope": "Original real trial accepted; three isolated copied-artifact corruptions rejected",
+  "original_trial": "output/gitops-error-20261110T055201Z",
+  "original_summary_sha256": "bf38ac5db4da126a5c0dee14a60a058a06c85f00da3ef71fabb6bdb8261af87a",
+  "recorder_sha256": "47eadc1aa62c02ba6d65ccc87fcc6edd980478c091c50984c5eb7e45e20b5858",
+  "cases": [
+    {
+      "case": "scan_image_mismatch",
+      "rejected": true,
+      "reason": "Scan/image identity mismatch"
+    },
+    {
+      "case": "wrong_git_revision",
+      "rejected": true,
+      "reason": "Snapshot/controller decision mismatch"
+    },
+    {
+      "case": "non_200_stable_sample",
+      "rejected": true,
+      "reason": "Availability evidence mismatch"
+    }
+  ]
+}

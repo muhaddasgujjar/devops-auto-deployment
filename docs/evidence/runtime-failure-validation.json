@@ -1,0 +1,1424 @@
+{
+  "recorded_at_utc": "2026-11-10T06:26:32.333320+00:00",
+  "passed": true,
+  "scope": "Local manual CI/GitOps pre-promotion rejection and final healthy restoration",
+  "trials": [
+    {
+      "scenario": "error",
+      "previous_stable_hash": "7d87d56885",
+      "started": "2026-11-10T05:52:02.760775+00:00",
+      "observer_commit": "93421c2f82e099fe084cb40ebcac7cea047126a0",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "09197662bd0a8696c56eb80d12a3ebd07d99072c136fc45971c6cfb4a7100c22",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T05:52:03.535376+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.023032
+      },
+      "jenkins_build": 9,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:d56b402fb8b7eb7c32d307e0dc9f60f36d2c9d924e3135b5c8c141cdd40f0404",
+      "release_id": "jenkins-9",
+      "environment_commit": "a147059aa234ecce4745a471b7f4af603f8c1ea9",
+      "changed": true,
+      "observation_started": "2026-11-10T05:53:05.994251+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "verdict": "candidate-rejected-through-gitops",
+      "decision_observed": "2026-11-10T05:54:27.959047+00:00",
+      "final_response": {
+        "timestamp": "2026-11-10T05:54:27.959072+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.014894
+      },
+      "serving_hash": "7d87d56885",
+      "stable_requests": 342,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T05:54:31.403358+00:00",
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "passed": true,
+      "ci_duration_ms": 53120,
+      "candidate_hash": "79fb9b6765",
+      "tests_in_release_snapshot": 36,
+      "analyses": [
+        {
+          "name": "release-demo-79fb9b6765-33-pre",
+          "phase": "Failed",
+          "metrics": [
+            {
+              "consecutiveSuccess": 1,
+              "count": 1,
+              "measurements": [
+                {
+                  "finishedAt": "2026-11-10T05:54:24Z",
+                  "phase": "Successful",
+                  "startedAt": "2026-11-10T05:54:24Z",
+                  "value": "[0.0475]"
+                }
+              ],
+              "metadata": {
+                "ResolvedPrometheusQuery": "histogram_quantile(0.95, sum by (le) (rate(demo_request_duration_seconds_bucket{namespace=\"demo-dev\",revision=\"79fb9b6765\"}[60s])))\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"79fb9b6765\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"79fb9b6765\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"79fb9b6765\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"79fb9b6765\"})) <= 15)\n"
+              },
+              "name": "candidate-p95-latency",
+              "phase": "Successful",
+              "successful": 1
+            },
+            {
+              "count": 1,
+              "failed": 1,
+              "measurements": [
+                {
+                  "finishedAt": "2026-11-10T05:54:24Z",
+                  "phase": "Failed",
+                  "startedAt": "2026-11-10T05:54:24Z",
+                  "value": "[1]"
+                }
+              ],
+              "metadata": {
+                "ResolvedPrometheusQuery": "(\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"79fb9b6765\",status=\"500\"}[60s]))\n  /\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"79fb9b6765\"}[60s]))\n)\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"79fb9b6765\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"79fb9b6765\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"79fb9b6765\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"79fb9b6765\"})) <= 15)\n"
+              },
+              "name": "candidate-error-ratio",
+              "phase": "Failed"
+            }
+          ]
+        }
+      ],
+      "reported_high_critical": 0,
+      "wall_observation_to_decision_seconds": 81.965,
+      "sampling_quality": {
+        "max_wall_sample_gap_seconds": 1.233,
+        "wall_clock_reversals": 2,
+        "max_monotonic_sample_gap_seconds": null
+      },
+      "raw_trial": "output/gitops-error-20261110T055201Z",
+      "artifact_sha256": {
+        "summary.json": "bf38ac5db4da126a5c0dee14a60a058a06c85f00da3ef71fabb6bdb8261af87a",
+        "jenkins-build.json": "fd1ac3219f50c17886faf2530eab3d15d63b12fe8187b57745a175380f243fb3",
+        "source.json": "f103ad5f0729cad128953956ed8f06209c4658d328b900534fb0768adfc0a49c",
+        "scan.json": "27eebd640a3bd4871f4e02e0b7eea6a4f11525e3e2425502b2c667349ec47b51",
+        "sbom.json": "017ea203e5324f2a85f22e8c2ced8b20d4f97f42c8498c7f041ce7d4608ed4a4",
+        "image-inspect.json": "4f8236a4403d9828a5147e9d16a6ea3ef4abc08685de73ea8f061c648cd859b5",
+        "environment-commit.json": "edb9158fe42620b8b26f986cd4cb0ba5cd09e21517e60676052bf24a18eb0a12",
+        "rollout.json": "c6008e8e1459b10b1a6a817e56f6353391ed58530f432df6d303b6c612dd1b2a",
+        "analysisrun.json": "beb9da0e2ae9fbb3e1692786f3fb5f4cea13cecbbf99e66abf38a6b43126a9bf",
+        "application.json": "79439c107a126d4b24a049988b500b5e3e9cd1c2f6e8fa47ba483a8714fa7a6d",
+        "service.json": "dc81f223e204f84fab42d4e2134e7224798c777911539afb1f7a752d1a4b5443",
+        "pod.json": "f836f99fb2fde2440ec37d1801ffa051dc5b2093717c9d71e4e8660a3d7b5f70",
+        "stable.jsonl": "9a014b3dd1f54ac977a92593935f6382d504efb6f593790859a971cc9bf59284",
+        "jenkins-console.txt": "ecf180de7f688ad8e63b7862c13c77c1d809a18691d8c1410f7e48d3984cdb02",
+        "preview-0.jsonl": "f189bd7f33827a06925fab6dff3e60b843bcc19f1ba887cefd91a030b7166e1d",
+        "preview-1.jsonl": "01c1af514a81dab5bf6939fcebd032f4e52e7a81302db7a3eb8fdf50648e639b",
+        "preview-2.jsonl": "ca5ab2342a5373d268bf23b802544e8fc7ab87e594e8df187aa19e79fdc33d0f",
+        "preview-3.jsonl": "99d212b9b884c754f1b7385ccb81ffda0d77ac2323c6075c667b3d578e0aa521"
+      }
+    },
+    {
+      "scenario": "latency",
+      "previous_stable_hash": "7d87d56885",
+      "started": "2026-11-10T05:54:33.796320+00:00",
+      "observer_commit": "93421c2f82e099fe084cb40ebcac7cea047126a0",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "09197662bd0a8696c56eb80d12a3ebd07d99072c136fc45971c6cfb4a7100c22",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T05:54:34.558815+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.01982
+      },
+      "jenkins_build": 10,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:fc0efa062c17c53ac014bd4276dee680094515a86ec8d799e04db8033158755c",
+      "release_id": "jenkins-10",
+      "environment_commit": "dced8a0ae71cb2f9d70770b58ecfe516a3010af5",
+      "changed": true,
+      "observation_started": "2026-11-10T05:55:08.514477+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "verdict": "candidate-rejected-through-gitops",
+      "decision_observed": "2026-11-10T05:56:18.748128+00:00",
+      "final_response": {
+        "timestamp": "2026-11-10T05:56:18.748163+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.017044
+      },
+      "serving_hash": "7d87d56885",
+      "stable_requests": 320,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T05:56:21.038121+00:00",
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "passed": true,
+      "ci_duration_ms": 24018,
+      "candidate_hash": "f86bcfd97",
+      "tests_in_release_snapshot": 36,
+      "analyses": [
+        {
+          "name": "release-demo-f86bcfd97-34-pre",
+          "phase": "Failed",
+          "metrics": [
+            {
+              "consecutiveSuccess": 1,
+              "count": 1,
+              "measurements": [
+                {
+                  "finishedAt": "2026-11-10T05:56:16Z",
+                  "phase": "Successful",
+                  "startedAt": "2026-11-10T05:56:16Z",
+                  "value": "[0]"
+                }
+              ],
+              "metadata": {
+                "ResolvedPrometheusQuery": "(\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"f86bcfd97\",status=\"500\"}[60s]))\n  /\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"f86bcfd97\"}[60s]))\n)\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"f86bcfd97\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"f86bcfd97\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"f86bcfd97\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"f86bcfd97\"})) <= 15)\n"
+              },
+              "name": "candidate-error-ratio",
+              "phase": "Successful",
+              "successful": 1
+            },
+            {
+              "count": 1,
+              "failed": 1,
+              "measurements": [
+                {
+                  "finishedAt": "2026-11-10T05:56:16Z",
+                  "phase": "Failed",
+                  "startedAt": "2026-11-10T05:56:16Z",
+                  "value": "[0.975]"
+                }
+              ],
+              "metadata": {
+                "ResolvedPrometheusQuery": "histogram_quantile(0.95, sum by (le) (rate(demo_request_duration_seconds_bucket{namespace=\"demo-dev\",revision=\"f86bcfd97\"}[60s])))\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"f86bcfd97\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"f86bcfd97\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"f86bcfd97\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"f86bcfd97\"})) <= 15)\n"
+              },
+              "name": "candidate-p95-latency",
+              "phase": "Failed"
+            }
+          ]
+        }
+      ],
+      "reported_high_critical": 0,
+      "wall_observation_to_decision_seconds": 70.234,
+      "sampling_quality": {
+        "max_wall_sample_gap_seconds": 0.44,
+        "wall_clock_reversals": 2,
+        "max_monotonic_sample_gap_seconds": null
+      },
+      "raw_trial": "output/gitops-latency-20261110T055433Z",
+      "artifact_sha256": {
+        "summary.json": "38ccf5e63e5bf11a36b74bbc02a5146f648f35fd6bfcf05f2705fb3f354b0b0d",
+        "jenkins-build.json": "cc6549672981d31615342f5f2be8997c2b85ed9200689f1fb0761baaa160af40",
+        "source.json": "f103ad5f0729cad128953956ed8f06209c4658d328b900534fb0768adfc0a49c",
+        "scan.json": "a80ae365ab19d8df98a60f6396390befa2d0a2750bbdfa6af78966f0cabb1d9d",
+        "sbom.json": "8548b6790b5bff354cdb3f02ef250d389592238bb690aae3ecc33fddd430fb79",
+        "image-inspect.json": "f82dcd4033a7029185798711577aa68a0de2cc3959082640b54e4286d1f92ab1",
+        "environment-commit.json": "0a47e92d3f9718deaabb0819124082f80ee1a0d3f000d78cde8593a9f1003374",
+        "rollout.json": "29f1a1917e814dabc20577fd0f75ab2c156528ee1e04eb9a3df0a2732f8642a3",
+        "analysisrun.json": "4fcf4b490e569e17f26fc24389c32f8ae6d2a1e370a834a59544c51fda83f503",
+        "application.json": "1cddd2041cef0cf9d027383ede73de88d2295644d3e187cf1ef9f428d5df2325",
+        "service.json": "4ec361146f534b6e67bd4ef2cf9adf5c7970bfbf9a2954052946a5b9428c4b21",
+        "pod.json": "2832ec271d132c9f534e4c08ae8c0da556cfcd84b9fd1ebaf892af0bca1e4e41",
+        "stable.jsonl": "a6da672303a008d966bdbefdfad5cf8aa7fbc4c09d5eef662c459651ebb0fcf9",
+        "jenkins-console.txt": "cb2c9df243d61496e65206385abb5177e915241ba046015d9496f002d59ebebf",
+        "preview-0.jsonl": "1fb9825ce3a28d90e6a06d0acabd03197e050f09b36fa5b07e1e47ce92f2a7a2",
+        "preview-1.jsonl": "1d577709d45a61ffb6477c0aa2d35914134ea0ad3c7d2e60f9e7a4d61a98bb9a",
+        "preview-2.jsonl": "89830b096b6956fd1a41fdfa2c1ef691347de94d2fdf749e2e15046927969fc6",
+        "preview-3.jsonl": "248af9913091faa80be8675ee9797aabf3444b89ce852abe9bbffe77164ce151"
+      }
+    },
+    {
+      "scenario": "startup",
+      "previous_stable_hash": "7d87d56885",
+      "started": "2026-11-10T05:56:23.247521+00:00",
+      "observer_commit": "93421c2f82e099fe084cb40ebcac7cea047126a0",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "09197662bd0a8696c56eb80d12a3ebd07d99072c136fc45971c6cfb4a7100c22",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T05:56:23.980277+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.017243
+      },
+      "jenkins_build": 11,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:735dfda5d7073dcfb32c278df816b8b33d699a3abd015cfa5dc093dfef30a5cd",
+      "release_id": "jenkins-11",
+      "environment_commit": "6a9a69a6d30288727986c39925f2232c973bf07e",
+      "changed": true,
+      "observation_started": "2026-11-10T05:56:57.116816+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "verdict": "readiness-aborted-through-gitops",
+      "decision_observed": "2026-11-10T06:00:08.562186+00:00",
+      "final_response": {
+        "timestamp": "2026-11-10T06:00:08.562214+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.014528
+      },
+      "serving_hash": "7d87d56885",
+      "stable_requests": 879,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T06:00:12.015753+00:00",
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "passed": true,
+      "ci_duration_ms": 22962,
+      "candidate_hash": "7fd579fb8c",
+      "tests_in_release_snapshot": 36,
+      "analyses": [],
+      "reported_high_critical": 0,
+      "wall_observation_to_decision_seconds": 191.445,
+      "sampling_quality": {
+        "max_wall_sample_gap_seconds": 0.465,
+        "wall_clock_reversals": 5,
+        "max_monotonic_sample_gap_seconds": null
+      },
+      "raw_trial": "output/gitops-startup-20261110T055622Z",
+      "artifact_sha256": {
+        "summary.json": "d3ece90afd886518992e1b87a3148eb6e3bed67bbccde7ee67075026010188a3",
+        "jenkins-build.json": "1f9060a0e478cc945e16970c1520ca6325d8f20827c5facdcec9b5033fb3a847",
+        "source.json": "f103ad5f0729cad128953956ed8f06209c4658d328b900534fb0768adfc0a49c",
+        "scan.json": "5b9c4d5f5d18a6eeb16614fabadd3568ad0462f92f4ce005f4ebd5238c76d444",
+        "sbom.json": "a12fcd56214883bc7fc834aada5498c378f4259ce9455bfb954a50ca44db9dea",
+        "image-inspect.json": "93765fb12c06897431354cf21667244fbf2921a47bca198029b91f0a9de5da80",
+        "environment-commit.json": "1368600d7e7af901afd78143bd885a94ee8bf12553d8e865ec33818d316e248a",
+        "rollout.json": "35976a1f55011507eaeea3f73ed4b0bc8c53755772013cb1d4a74020a5386b4e",
+        "analysisrun.json": "8c284a58f0b39d99d4cfe06e87b564ab3041d40224adcd406902ec1a6a2108e4",
+        "application.json": "691a05ffe02e5fa8d6664e45636e1bad4e4d6feb23b157ebef02e075882888c5",
+        "service.json": "9056baefbe3fb9faca44dd68352ea15b0531cdfa0049e882166792cdcff75a4d",
+        "pod.json": "c53134eb9dc70771dbe5f7fbbc2b5e969ad5af4cf022864b00eecfab4dacd571",
+        "stable.jsonl": "e529909414e3cd8ae0aa4fe61a30e3a96a02e0aeb6ab6ca66f1507466c979ebd",
+        "jenkins-console.txt": "ef9c51213049d3b38f6e200a278ba2bbac87b8b0e1f7a2d19025a1eb9c1734a0"
+      }
+    },
+    {
+      "scenario": "telemetry-outage",
+      "previous_stable_hash": "7d87d56885",
+      "started": "2026-11-10T06:11:46.095505+00:00",
+      "observer_commit": "93421c2f82e099fe084cb40ebcac7cea047126a0",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "09197662bd0a8696c56eb80d12a3ebd07d99072c136fc45971c6cfb4a7100c22",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T06:11:47.497544+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.039155
+      },
+      "jenkins_build": 13,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:da6ed7615f2cd2bdbc0723daa4b00e5c603f528c3618cd18e09fec5b143f37ee",
+      "release_id": "jenkins-13",
+      "environment_commit": "15e9847f5122f47b34bbed54926d9db500bec4ac",
+      "changed": true,
+      "observation_started": "2026-11-10T06:12:39.540156+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "telemetry_injection": {
+        "uid": "e5c46c0a-649d-4e28-adda-0f72e3ee8f04",
+        "replicas": 1
+      },
+      "verdict": "missing-telemetry-blocked-through-gitops",
+      "decision_observed": "2026-11-10T06:14:25.615475+00:00",
+      "final_response": {
+        "timestamp": "2026-11-10T06:14:25.615587+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.020179
+      },
+      "serving_hash": "7d87d56885",
+      "telemetry_restored": true,
+      "stable_requests": 421,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T06:14:49.164118+00:00",
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "passed": true,
+      "ci_duration_ms": 40937,
+      "candidate_hash": "88d69d7c8",
+      "tests_in_release_snapshot": 36,
+      "analyses": [
+        {
+          "name": "release-demo-88d69d7c8-37-pre",
+          "phase": "Error",
+          "metrics": [
+            {
+              "consecutiveError": 3,
+              "error": 3,
+              "measurements": [
+                {
+                  "finishedAt": "2026-11-10T06:14:04Z",
+                  "message": "Post \"http://prometheus.monitoring.svc.cluster.local:9090/api/v1/query\": dial tcp 10.43.222.171:9090: connect: connection refused",
+                  "phase": "Error",
+                  "startedAt": "2026-11-10T06:14:04Z"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:14:14Z",
+                  "message": "Post \"http://prometheus.monitoring.svc.cluster.local:9090/api/v1/query\": dial tcp 10.43.222.171:9090: connect: connection refused",
+                  "phase": "Error",
+                  "startedAt": "2026-11-10T06:14:14Z"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:14:24Z",
+                  "message": "Post \"http://prometheus.monitoring.svc.cluster.local:9090/api/v1/query\": dial tcp 10.43.222.171:9090: connect: connection refused",
+                  "phase": "Error",
+                  "startedAt": "2026-11-10T06:14:24Z"
+                }
+              ],
+              "message": "Post \"http://prometheus.monitoring.svc.cluster.local:9090/api/v1/query\": dial tcp 10.43.222.171:9090: connect: connection refused",
+              "metadata": {
+                "ResolvedPrometheusQuery": "histogram_quantile(0.95, sum by (le) (rate(demo_request_duration_seconds_bucket{namespace=\"demo-dev\",revision=\"88d69d7c8\"}[60s])))\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"88d69d7c8\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"88d69d7c8\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"88d69d7c8\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"88d69d7c8\"})) <= 15)\n"
+              },
+              "name": "candidate-p95-latency",
+              "phase": "Error"
+            },
+            {
+              "consecutiveError": 3,
+              "error": 3,
+              "measurements": [
+                {
+                  "finishedAt": "2026-11-10T06:14:04Z",
+                  "message": "Post \"http://prometheus.monitoring.svc.cluster.local:9090/api/v1/query\": dial tcp 10.43.222.171:9090: connect: connection refused",
+                  "phase": "Error",
+                  "startedAt": "2026-11-10T06:14:04Z"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:14:14Z",
+                  "message": "Post \"http://prometheus.monitoring.svc.cluster.local:9090/api/v1/query\": dial tcp 10.43.222.171:9090: connect: connection refused",
+                  "phase": "Error",
+                  "startedAt": "2026-11-10T06:14:14Z"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:14:24Z",
+                  "message": "Post \"http://prometheus.monitoring.svc.cluster.local:9090/api/v1/query\": dial tcp 10.43.222.171:9090: connect: connection refused",
+                  "phase": "Error",
+                  "startedAt": "2026-11-10T06:14:24Z"
+                }
+              ],
+              "message": "Post \"http://prometheus.monitoring.svc.cluster.local:9090/api/v1/query\": dial tcp 10.43.222.171:9090: connect: connection refused",
+              "metadata": {
+                "ResolvedPrometheusQuery": "(\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"88d69d7c8\",status=\"500\"}[60s]))\n  /\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"88d69d7c8\"}[60s]))\n)\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"88d69d7c8\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"88d69d7c8\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"88d69d7c8\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"88d69d7c8\"})) <= 15)\n"
+              },
+              "name": "candidate-error-ratio",
+              "phase": "Error"
+            }
+          ]
+        }
+      ],
+      "reported_high_critical": 0,
+      "wall_observation_to_decision_seconds": 106.075,
+      "sampling_quality": {
+        "max_wall_sample_gap_seconds": 1.631,
+        "wall_clock_reversals": 2,
+        "max_monotonic_sample_gap_seconds": null
+      },
+      "raw_trial": "output/gitops-telemetry-outage-20261110T061145Z",
+      "artifact_sha256": {
+        "summary.json": "634aa0da94e3f04a25159bca4d160208fbfc7e8526d093dafbb3641f9a78b702",
+        "jenkins-build.json": "55cb89741356f810db79877b4d3c5eda13176c913326d74562e7a37fd9603f59",
+        "source.json": "f103ad5f0729cad128953956ed8f06209c4658d328b900534fb0768adfc0a49c",
+        "scan.json": "bdcb3e3a94f9447343736384653b14785968b5aa6adc694f5f2dc8477b2e5983",
+        "sbom.json": "02fe41a3045f388df6879cf3fc36fc2af10a912d90a2912f3b601df81dfd05f6",
+        "image-inspect.json": "14dc5f1fb1f973ae3c95c7fc2b3f631ba42bcc712e6bb2680e2a4c9bf4276005",
+        "environment-commit.json": "4580209c99094e36dec2792dbe1f9eeb8e448edd51f2e07311f47d3cbc13a4c6",
+        "rollout.json": "7dddfc78533428d6c2676fd26a33a837238cedf887c16d820b3a33ce17fe1ada",
+        "analysisrun.json": "5f0efcdf34aeb9d01a972da0671a21b6944954581ef598415bff937948ac0bbb",
+        "application.json": "8786c8ddb351c5c3defcc09bab7611b80062d94d1007a7091b2e440326be23d5",
+        "service.json": "883dfb34d0db0eb0eab10c2b83d198ade555c55c8f7317a7cb6c8e9707599fcb",
+        "pod.json": "9ff70d37f567c9a42736f68fce04dc9ca209d62853f49b1ae6487314c61c8e13",
+        "stable.jsonl": "40e1c4daf1dda12de680125c5308309116f444f1933942d9a4156edcce65ad15",
+        "jenkins-console.txt": "a21830f6cfd7f960773ac3fa122e99f3a3127521911b8541035e62afa8f99bd4",
+        "preview-0.jsonl": "c84b262cd43c3729aa6404daabb70738f10c4ec7939e8d6fe3f3ba30966bcb73",
+        "preview-1.jsonl": "813824a79251dbe79a75da3b422f654f4b6e47cbc54f4bca21ff8e08b7891479",
+        "preview-2.jsonl": "938ef9bbf7bc6fb841d94247e20213d3d1353be1fec3f5073d912cec5ddf3e8d",
+        "preview-3.jsonl": "2b93d6713753c51e3c5bcc879e21f94096942c6e3ea48cecc23556d1e02ebc4f"
+      }
+    },
+    {
+      "scenario": "no-traffic",
+      "previous_stable_hash": "7bf7bf5488",
+      "started": "2026-11-10T06:19:49.538279+00:00",
+      "observer_commit": "d7c79afecf2e33064ff268d7a14aba0937211518",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "68664877b6f1beadd59fbe9c0c5842448b12797039dea5126df59a83b38146af",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817",
+        "scripts/observation.py": "90004a581697de90d99baa22a0777810e6c624798973871f651ca4af50386e36"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T06:19:50.877061+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-14",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.02669
+      },
+      "jenkins_build": 15,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:7ba31d878044b831326b742229dc31e5d36796d3863394d53db44ed54eb7a446",
+      "release_id": "jenkins-15",
+      "environment_commit": "9ae0e497cac69314831b0c4dd89a042c3ab9f799",
+      "changed": true,
+      "observation_started": "2026-11-10T06:20:44.794432+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "verdict": "missing-traffic-inconclusive-through-gitops",
+      "decision_observed": "2026-11-10T06:22:34.414783+00:00",
+      "client_monotonic_observation_seconds": 114.303,
+      "final_response": {
+        "timestamp": "2026-11-10T06:22:34.415030+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-14",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.021798
+      },
+      "serving_hash": "7bf7bf5488",
+      "stable_requests": 488,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T06:22:37.683696+00:00",
+      "sampling_quality": {
+        "max_wall_sample_gap_seconds": 0.588,
+        "wall_clock_reversals": 3,
+        "max_monotonic_sample_gap_seconds": 0.588
+      },
+      "sampling_gate_passed": true,
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "passed": true,
+      "ci_duration_ms": 40597,
+      "candidate_hash": "dfd894bf9",
+      "tests_in_release_snapshot": 36,
+      "analyses": [
+        {
+          "name": "release-demo-dfd894bf9-39-pre",
+          "phase": "Inconclusive",
+          "metrics": [
+            {
+              "count": 3,
+              "inconclusive": 3,
+              "measurements": [
+                {
+                  "finishedAt": "2026-11-10T06:22:03Z",
+                  "phase": "Inconclusive",
+                  "startedAt": "2026-11-10T06:22:03Z",
+                  "value": "[]"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:22:18Z",
+                  "phase": "Inconclusive",
+                  "startedAt": "2026-11-10T06:22:18Z",
+                  "value": "[]"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:22:33Z",
+                  "phase": "Inconclusive",
+                  "startedAt": "2026-11-10T06:22:33Z",
+                  "value": "[]"
+                }
+              ],
+              "metadata": {
+                "ResolvedPrometheusQuery": "(\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"dfd894bf9\",status=\"500\"}[60s]))\n  /\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"dfd894bf9\"}[60s]))\n)\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"dfd894bf9\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"dfd894bf9\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"dfd894bf9\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"dfd894bf9\"})) <= 15)\n"
+              },
+              "name": "candidate-error-ratio",
+              "phase": "Inconclusive"
+            },
+            {
+              "count": 3,
+              "inconclusive": 3,
+              "measurements": [
+                {
+                  "finishedAt": "2026-11-10T06:22:03Z",
+                  "phase": "Inconclusive",
+                  "startedAt": "2026-11-10T06:22:03Z",
+                  "value": "[]"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:22:18Z",
+                  "phase": "Inconclusive",
+                  "startedAt": "2026-11-10T06:22:18Z",
+                  "value": "[]"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:22:33Z",
+                  "phase": "Inconclusive",
+                  "startedAt": "2026-11-10T06:22:33Z",
+                  "value": "[]"
+                }
+              ],
+              "metadata": {
+                "ResolvedPrometheusQuery": "histogram_quantile(0.95, sum by (le) (rate(demo_request_duration_seconds_bucket{namespace=\"demo-dev\",revision=\"dfd894bf9\"}[60s])))\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"dfd894bf9\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"dfd894bf9\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"dfd894bf9\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"dfd894bf9\"})) <= 15)\n"
+              },
+              "name": "candidate-p95-latency",
+              "phase": "Inconclusive"
+            }
+          ]
+        }
+      ],
+      "reported_high_critical": 0,
+      "wall_observation_to_decision_seconds": 109.62,
+      "raw_trial": "output/gitops-no-traffic-20261110T061948Z",
+      "artifact_sha256": {
+        "summary.json": "e888045e318e1ee0728388ce7a6a5060a92cb7ae3504b40bad80b49919ee17df",
+        "jenkins-build.json": "795660d88b6153a730dbbe4e52c21673106d78fce90349a8c62bd6a7475943c0",
+        "source.json": "f103ad5f0729cad128953956ed8f06209c4658d328b900534fb0768adfc0a49c",
+        "scan.json": "b30ab0dff292f92b97cd25e9b76d1454e51451df7128a53cd15fc39c5b603145",
+        "sbom.json": "732cadb2a71bde8e3c3db7d715353bedf960d88831e97383a5af604f8c69756c",
+        "image-inspect.json": "32fe0d2683fa39532bfd10f6971db2bd03332594a552cb020371c3728dd66e4c",
+        "environment-commit.json": "714682225afd279594fab40fa5cbb744cf720779077e77a3bff7ec9ac5584357",
+        "rollout.json": "f3f766199897bda09b5c5e405b30812a07d1f55c96df89c8ab8cccb8c138226f",
+        "analysisrun.json": "573779c3d656fd52fddcacb973fe1bd789a33f6930085f485ee8a40f9c6b084f",
+        "application.json": "cac7a2db54488b2001a2bcf5251e370c1a0ac3ef8b22800c70ca3b0a688f1f33",
+        "service.json": "9d59940a909b8291447146e1560aa57ab96a14c632aa87d3aaed9197d4653875",
+        "pod.json": "548058da94ab94d0ea608ca88fa91e0b3123d8863afaf9f29678563b075f05a2",
+        "stable.jsonl": "7df4bb1dde037be02bbefc1a2d5f182065a71ea471a1fc8e0684280aef4494ab",
+        "jenkins-console.txt": "9a23067fe89fb28700be4e45c32258ef08672f5d89c3856ba3060d69dbe2f3e0"
+      }
+    },
+    {
+      "scenario": "healthy",
+      "previous_stable_hash": "7bf7bf5488",
+      "started": "2026-11-10T06:22:40.074874+00:00",
+      "observer_commit": "d7c79afecf2e33064ff268d7a14aba0937211518",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "68664877b6f1beadd59fbe9c0c5842448b12797039dea5126df59a83b38146af",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817",
+        "scripts/observation.py": "90004a581697de90d99baa22a0777810e6c624798973871f651ca4af50386e36"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T06:22:40.841950+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-14",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.020314
+      },
+      "jenkins_build": 16,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:56c097a893ae7e05da7833afedd8c7e95242defdec4c702bf4774730ac3c75d4",
+      "release_id": "jenkins-16",
+      "environment_commit": "2d1d629be3a81bdad0c23dc809b47236313e184c",
+      "changed": true,
+      "observation_started": "2026-11-10T06:23:16.684735+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "verdict": "candidate-promoted-through-gitops",
+      "decision_observed": "2026-11-10T06:25:27.950243+00:00",
+      "client_monotonic_observation_seconds": 138.134,
+      "final_response": {
+        "timestamp": "2026-11-10T06:25:27.950361+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-16",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.015446
+      },
+      "serving_hash": "78f7c449ff",
+      "stable_requests": 601,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T06:25:31.349955+00:00",
+      "sampling_quality": {
+        "max_wall_sample_gap_seconds": 0.632,
+        "wall_clock_reversals": 5,
+        "max_monotonic_sample_gap_seconds": 0.632
+      },
+      "sampling_gate_passed": true,
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "passed": true,
+      "ci_duration_ms": 24840,
+      "candidate_hash": "78f7c449ff",
+      "tests_in_release_snapshot": 36,
+      "analyses": [
+        {
+          "name": "release-demo-78f7c449ff-40-pre",
+          "phase": "Successful",
+          "metrics": [
+            {
+              "consecutiveSuccess": 5,
+              "count": 5,
+              "measurements": [
+                {
+                  "finishedAt": "2026-11-10T06:24:25Z",
+                  "phase": "Successful",
+                  "startedAt": "2026-11-10T06:24:25Z",
+                  "value": "[0]"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:24:40Z",
+                  "phase": "Successful",
+                  "startedAt": "2026-11-10T06:24:40Z",
+                  "value": "[0]"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:24:55Z",
+                  "phase": "Successful",
+                  "startedAt": "2026-11-10T06:24:55Z",
+                  "value": "[0]"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:25:10Z",
+                  "phase": "Successful",
+                  "startedAt": "2026-11-10T06:25:10Z",
+                  "value": "[0]"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:25:25Z",
+                  "phase": "Successful",
+                  "startedAt": "2026-11-10T06:25:25Z",
+                  "value": "[0]"
+                }
+              ],
+              "metadata": {
+                "ResolvedPrometheusQuery": "(\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"78f7c449ff\",status=\"500\"}[60s]))\n  /\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"78f7c449ff\"}[60s]))\n)\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"78f7c449ff\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"78f7c449ff\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"78f7c449ff\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"78f7c449ff\"})) <= 15)\n"
+              },
+              "name": "candidate-error-ratio",
+              "phase": "Successful",
+              "successful": 5
+            },
+            {
+              "consecutiveSuccess": 5,
+              "count": 5,
+              "measurements": [
+                {
+                  "finishedAt": "2026-11-10T06:24:25Z",
+                  "phase": "Successful",
+                  "startedAt": "2026-11-10T06:24:25Z",
+                  "value": "[0.0475]"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:24:40Z",
+                  "phase": "Successful",
+                  "startedAt": "2026-11-10T06:24:40Z",
+                  "value": "[0.0475]"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:24:55Z",
+                  "phase": "Successful",
+                  "startedAt": "2026-11-10T06:24:55Z",
+                  "value": "[0.047499999999999994]"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:25:10Z",
+                  "phase": "Successful",
+                  "startedAt": "2026-11-10T06:25:10Z",
+                  "value": "[0.04750000000000001]"
+                },
+                {
+                  "finishedAt": "2026-11-10T06:25:25Z",
+                  "phase": "Successful",
+                  "startedAt": "2026-11-10T06:25:25Z",
+                  "value": "[0.0475]"
+                }
+              ],
+              "metadata": {
+                "ResolvedPrometheusQuery": "histogram_quantile(0.95, sum by (le) (rate(demo_request_duration_seconds_bucket{namespace=\"demo-dev\",revision=\"78f7c449ff\"}[60s])))\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"78f7c449ff\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"78f7c449ff\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"78f7c449ff\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"78f7c449ff\"})) <= 15)\n"
+              },
+              "name": "candidate-p95-latency",
+              "phase": "Successful",
+              "successful": 5
+            }
+          ]
+        }
+      ],
+      "reported_high_critical": 0,
+      "wall_observation_to_decision_seconds": 131.266,
+      "raw_trial": "output/gitops-healthy-20261110T062239Z",
+      "artifact_sha256": {
+        "summary.json": "9769b452604535ecb0ac4257a7c2fe4d5f581eba2f7734cdb07ce76a95c7ae9a",
+        "jenkins-build.json": "dc74df8e3846a20c75f2a07a748b5e0b0646e3dc6484ddbdd94c46118b330707",
+        "source.json": "f103ad5f0729cad128953956ed8f06209c4658d328b900534fb0768adfc0a49c",
+        "scan.json": "4ae2a69a7f755acccadfa6517d7f20085a06808e5822681a0daf6d2706660836",
+        "sbom.json": "2d2b681cc7d0994948cfba47a34dbfdf679f3f3cabadc9b1dbe065db56c66fd6",
+        "image-inspect.json": "8268a1ceca7e6642a9cba8aeda1b679da22f1fa7739c1680bad7c2967e77b269",
+        "environment-commit.json": "eb633d42900f71cad23e99f09249229472c072c8ed8878aa0cf4d31db551b9e1",
+        "rollout.json": "4f73b0e41c925ee79eed7b2d3627bac7aefc9002a5df6027ac21e1555e421ccc",
+        "analysisrun.json": "42a88703f6ee6b4a11a903236ddf6e81cfa3c6147452017757b5f0cacf089715",
+        "application.json": "9f12435ea8d1aa618687b83f2739469c53cd27ffa2344ebc76bbbba7d2780172",
+        "service.json": "21f28b8e26d83f63bffa27508071ac8c026b62b548f37aed3884ba23ec26db0a",
+        "pod.json": "9b6073c6ad7f4e6b2c22c3ac47d8059e497f147c4c34c36daab4f121301b0c57",
+        "stable.jsonl": "b7d500ff4caa2d4b22d0309d02a332fbba437a5496a8ea78658b2886e75eaa3a",
+        "jenkins-console.txt": "a112ff5447418e0ddd683d1849ed2672bfa26e8291b92ccac0f074275be71ccf",
+        "preview-0.jsonl": "f14461ce7589afa38924f6d0410304acaa9a577d9bc2d5dafbefe3b7afb07990",
+        "preview-1.jsonl": "d3e0430669aef7b2fb0b51be8653fc6a37fab7af585896b82551e7849dff049b",
+        "preview-2.jsonl": "3e246bcf289bddd1e9ebea1c1072606e0da8717175f294d4a40c07a45a4a5a36",
+        "preview-3.jsonl": "6c129e61916efea49535aa5792711e0685bd559a4e562d1dfc40eebbae9048f6"
+      }
+    }
+  ],
+  "attempt_history": [
+    {
+      "raw_trial": "output/gitops-error-20261110T055201Z",
+      "scenario": "error",
+      "previous_stable_hash": "7d87d56885",
+      "started": "2026-11-10T05:52:02.760775+00:00",
+      "observer_commit": "93421c2f82e099fe084cb40ebcac7cea047126a0",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "09197662bd0a8696c56eb80d12a3ebd07d99072c136fc45971c6cfb4a7100c22",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T05:52:03.535376+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.023032
+      },
+      "jenkins_build": 9,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:d56b402fb8b7eb7c32d307e0dc9f60f36d2c9d924e3135b5c8c141cdd40f0404",
+      "release_id": "jenkins-9",
+      "environment_commit": "a147059aa234ecce4745a471b7f4af603f8c1ea9",
+      "changed": true,
+      "observation_started": "2026-11-10T05:53:05.994251+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "verdict": "candidate-rejected-through-gitops",
+      "decision_observed": "2026-11-10T05:54:27.959047+00:00",
+      "final_response": {
+        "timestamp": "2026-11-10T05:54:27.959072+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.014894
+      },
+      "serving_hash": "7d87d56885",
+      "stable_requests": 342,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T05:54:31.403358+00:00",
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "crosscheck_passed": true
+    },
+    {
+      "raw_trial": "output/gitops-healthy-20261110T061451Z",
+      "scenario": "healthy",
+      "previous_stable_hash": "7d87d56885",
+      "started": "2026-11-10T06:14:52.449288+00:00",
+      "observer_commit": "93421c2f82e099fe084cb40ebcac7cea047126a0",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "09197662bd0a8696c56eb80d12a3ebd07d99072c136fc45971c6cfb4a7100c22",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T06:14:53.271315+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.026006
+      },
+      "jenkins_build": 14,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:f4a30738b25e460c94c12e2b6c2741ad3884064fa0ce8453d3c6fec75130a4b7",
+      "release_id": "jenkins-14",
+      "environment_commit": "252336845c6d5dfd677db7122208ab67ac393be4",
+      "changed": true,
+      "observation_started": "2026-11-10T06:16:05.737638+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "verdict": "candidate-promoted-through-gitops",
+      "decision_observed": "2026-11-10T06:18:37.725622+00:00",
+      "final_response": {
+        "timestamp": "2026-11-10T06:18:37.725655+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-14",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.01579
+      },
+      "serving_hash": "7bf7bf5488",
+      "stable_requests": 646,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T06:18:41.092297+00:00",
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "crosscheck_passed": true
+    },
+    {
+      "raw_trial": "output/gitops-healthy-20261110T062239Z",
+      "scenario": "healthy",
+      "previous_stable_hash": "7bf7bf5488",
+      "started": "2026-11-10T06:22:40.074874+00:00",
+      "observer_commit": "d7c79afecf2e33064ff268d7a14aba0937211518",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "68664877b6f1beadd59fbe9c0c5842448b12797039dea5126df59a83b38146af",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817",
+        "scripts/observation.py": "90004a581697de90d99baa22a0777810e6c624798973871f651ca4af50386e36"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T06:22:40.841950+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-14",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.020314
+      },
+      "jenkins_build": 16,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:56c097a893ae7e05da7833afedd8c7e95242defdec4c702bf4774730ac3c75d4",
+      "release_id": "jenkins-16",
+      "environment_commit": "2d1d629be3a81bdad0c23dc809b47236313e184c",
+      "changed": true,
+      "observation_started": "2026-11-10T06:23:16.684735+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "verdict": "candidate-promoted-through-gitops",
+      "decision_observed": "2026-11-10T06:25:27.950243+00:00",
+      "client_monotonic_observation_seconds": 138.134,
+      "final_response": {
+        "timestamp": "2026-11-10T06:25:27.950361+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-16",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.015446
+      },
+      "serving_hash": "78f7c449ff",
+      "stable_requests": 601,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T06:25:31.349955+00:00",
+      "sampling_quality": {
+        "max_wall_sample_gap_seconds": 0.632,
+        "wall_clock_reversals": 5,
+        "max_monotonic_sample_gap_seconds": 0.632
+      },
+      "sampling_gate_passed": true,
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "crosscheck_passed": true
+    },
+    {
+      "raw_trial": "output/gitops-latency-20261110T055433Z",
+      "scenario": "latency",
+      "previous_stable_hash": "7d87d56885",
+      "started": "2026-11-10T05:54:33.796320+00:00",
+      "observer_commit": "93421c2f82e099fe084cb40ebcac7cea047126a0",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "09197662bd0a8696c56eb80d12a3ebd07d99072c136fc45971c6cfb4a7100c22",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T05:54:34.558815+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.01982
+      },
+      "jenkins_build": 10,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:fc0efa062c17c53ac014bd4276dee680094515a86ec8d799e04db8033158755c",
+      "release_id": "jenkins-10",
+      "environment_commit": "dced8a0ae71cb2f9d70770b58ecfe516a3010af5",
+      "changed": true,
+      "observation_started": "2026-11-10T05:55:08.514477+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "verdict": "candidate-rejected-through-gitops",
+      "decision_observed": "2026-11-10T05:56:18.748128+00:00",
+      "final_response": {
+        "timestamp": "2026-11-10T05:56:18.748163+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.017044
+      },
+      "serving_hash": "7d87d56885",
+      "stable_requests": 320,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T05:56:21.038121+00:00",
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "crosscheck_passed": true
+    },
+    {
+      "raw_trial": "output/gitops-no-traffic-20261110T060013Z",
+      "scenario": "no-traffic",
+      "previous_stable_hash": "7d87d56885",
+      "started": "2026-11-10T06:00:14.379223+00:00",
+      "observer_commit": "93421c2f82e099fe084cb40ebcac7cea047126a0",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "09197662bd0a8696c56eb80d12a3ebd07d99072c136fc45971c6cfb4a7100c22",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T06:00:15.155431+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.018164
+      },
+      "jenkins_build": 12,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:2c120a6f45f6d2c1364de73eed5e6bad5bd2aa8420c3f8d4933cdf29cc4eba83",
+      "release_id": "jenkins-12",
+      "environment_commit": "18dfd1e3ed0ccb00ebabb72056f54413d22ab0b8",
+      "changed": true,
+      "observation_started": "2026-11-10T06:00:51.699755+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "verdict": "missing-traffic-inconclusive-through-gitops",
+      "decision_observed": "2026-11-10T06:11:34.287116+00:00",
+      "final_response": {
+        "timestamp": "2026-11-10T06:11:34.287261+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.059783
+      },
+      "serving_hash": "7d87d56885",
+      "stable_requests": 357,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T06:11:42.226419+00:00",
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "crosscheck_passed": false,
+      "crosscheck_error": "Stable observation interrupted: maximum sample gap 538.000s exceeds 10s"
+    },
+    {
+      "raw_trial": "output/gitops-no-traffic-20261110T061948Z",
+      "scenario": "no-traffic",
+      "previous_stable_hash": "7bf7bf5488",
+      "started": "2026-11-10T06:19:49.538279+00:00",
+      "observer_commit": "d7c79afecf2e33064ff268d7a14aba0937211518",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "68664877b6f1beadd59fbe9c0c5842448b12797039dea5126df59a83b38146af",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817",
+        "scripts/observation.py": "90004a581697de90d99baa22a0777810e6c624798973871f651ca4af50386e36"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T06:19:50.877061+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-14",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.02669
+      },
+      "jenkins_build": 15,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:7ba31d878044b831326b742229dc31e5d36796d3863394d53db44ed54eb7a446",
+      "release_id": "jenkins-15",
+      "environment_commit": "9ae0e497cac69314831b0c4dd89a042c3ab9f799",
+      "changed": true,
+      "observation_started": "2026-11-10T06:20:44.794432+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "verdict": "missing-traffic-inconclusive-through-gitops",
+      "decision_observed": "2026-11-10T06:22:34.414783+00:00",
+      "client_monotonic_observation_seconds": 114.303,
+      "final_response": {
+        "timestamp": "2026-11-10T06:22:34.415030+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-14",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.021798
+      },
+      "serving_hash": "7bf7bf5488",
+      "stable_requests": 488,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T06:22:37.683696+00:00",
+      "sampling_quality": {
+        "max_wall_sample_gap_seconds": 0.588,
+        "wall_clock_reversals": 3,
+        "max_monotonic_sample_gap_seconds": 0.588
+      },
+      "sampling_gate_passed": true,
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "crosscheck_passed": true
+    },
+    {
+      "raw_trial": "output/gitops-startup-20261110T055622Z",
+      "scenario": "startup",
+      "previous_stable_hash": "7d87d56885",
+      "started": "2026-11-10T05:56:23.247521+00:00",
+      "observer_commit": "93421c2f82e099fe084cb40ebcac7cea047126a0",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "09197662bd0a8696c56eb80d12a3ebd07d99072c136fc45971c6cfb4a7100c22",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T05:56:23.980277+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.017243
+      },
+      "jenkins_build": 11,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:735dfda5d7073dcfb32c278df816b8b33d699a3abd015cfa5dc093dfef30a5cd",
+      "release_id": "jenkins-11",
+      "environment_commit": "6a9a69a6d30288727986c39925f2232c973bf07e",
+      "changed": true,
+      "observation_started": "2026-11-10T05:56:57.116816+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "verdict": "readiness-aborted-through-gitops",
+      "decision_observed": "2026-11-10T06:00:08.562186+00:00",
+      "final_response": {
+        "timestamp": "2026-11-10T06:00:08.562214+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.014528
+      },
+      "serving_hash": "7d87d56885",
+      "stable_requests": 879,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T06:00:12.015753+00:00",
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "crosscheck_passed": true
+    },
+    {
+      "raw_trial": "output/gitops-telemetry-outage-20261110T061145Z",
+      "scenario": "telemetry-outage",
+      "previous_stable_hash": "7d87d56885",
+      "started": "2026-11-10T06:11:46.095505+00:00",
+      "observer_commit": "93421c2f82e099fe084cb40ebcac7cea047126a0",
+      "observer_sha256": {
+        "scripts/gitops_trial.py": "09197662bd0a8696c56eb80d12a3ebd07d99072c136fc45971c6cfb4a7100c22",
+        "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817"
+      },
+      "baseline_response": {
+        "timestamp": "2026-11-10T06:11:47.497544+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.039155
+      },
+      "jenkins_build": 13,
+      "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+      "image": "localhost:5001/release-demo@sha256:da6ed7615f2cd2bdbc0723daa4b00e5c603f528c3618cd18e09fec5b143f37ee",
+      "release_id": "jenkins-13",
+      "environment_commit": "15e9847f5122f47b34bbed54926d9db500bec4ac",
+      "changed": true,
+      "observation_started": "2026-11-10T06:12:39.540156+00:00",
+      "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+      "telemetry_injection": {
+        "uid": "e5c46c0a-649d-4e28-adda-0f72e3ee8f04",
+        "replicas": 1
+      },
+      "verdict": "missing-telemetry-blocked-through-gitops",
+      "decision_observed": "2026-11-10T06:14:25.615475+00:00",
+      "final_response": {
+        "timestamp": "2026-11-10T06:14:25.615587+00:00",
+        "status": 200,
+        "response": {
+          "service": "release-demo",
+          "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-8",
+          "mode": "healthy"
+        },
+        "duration_seconds": 0.020179
+      },
+      "serving_hash": "7d87d56885",
+      "telemetry_restored": true,
+      "stable_requests": 421,
+      "stable_non_200": 0,
+      "finished": "2026-11-10T06:14:49.164118+00:00",
+      "availability_gate_passed": true,
+      "acceptance_passed": true,
+      "crosscheck_passed": true
+    }
+  ],
+  "final_health": {
+    "checked_at": "2026-11-10T06:25:57.193484+00:00",
+    "checks": {
+      "nodes": {
+        "ok": true,
+        "detail": [
+          {
+            "name": "k3d-release-lab-server-0",
+            "conditions": {
+              "MemoryPressure": "False",
+              "DiskPressure": "False",
+              "PIDPressure": "False",
+              "Ready": "True"
+            }
+          }
+        ]
+      },
+      "argo-rollouts": {
+        "ok": true,
+        "detail": {
+          "availableReplicas": 1,
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-10-20T11:18:49Z",
+              "lastUpdateTime": "2026-10-20T11:19:10Z",
+              "message": "ReplicaSet \"argo-rollouts-64f7fbd656\" has successfully progressed.",
+              "reason": "NewReplicaSetAvailable",
+              "status": "True",
+              "type": "Progressing"
+            },
+            {
+              "lastTransitionTime": "2026-11-10T05:50:59Z",
+              "lastUpdateTime": "2026-11-10T05:50:59Z",
+              "message": "Deployment has minimum availability.",
+              "reason": "MinimumReplicasAvailable",
+              "status": "True",
+              "type": "Available"
+            }
+          ],
+          "observedGeneration": 1,
+          "readyReplicas": 1,
+          "replicas": 1,
+          "terminatingReplicas": 0,
+          "updatedReplicas": 1
+        }
+      },
+      "prometheus": {
+        "ok": true,
+        "detail": {
+          "availableReplicas": 1,
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-10-20T11:19:11Z",
+              "lastUpdateTime": "2026-10-22T18:39:14Z",
+              "message": "ReplicaSet \"prometheus-6944955d9d\" has successfully progressed.",
+              "reason": "NewReplicaSetAvailable",
+              "status": "True",
+              "type": "Progressing"
+            },
+            {
+              "lastTransitionTime": "2026-11-10T06:14:47Z",
+              "lastUpdateTime": "2026-11-10T06:14:47Z",
+              "message": "Deployment has minimum availability.",
+              "reason": "MinimumReplicasAvailable",
+              "status": "True",
+              "type": "Available"
+            }
+          ],
+          "observedGeneration": 10,
+          "readyReplicas": 1,
+          "replicas": 1,
+          "terminatingReplicas": 0,
+          "updatedReplicas": 1
+        }
+      },
+      "stable_service": {
+        "ok": true,
+        "detail": {
+          "phase": "Healthy",
+          "candidate_hash": "78f7c449ff",
+          "serving_hash": "78f7c449ff",
+          "expected_pods": 2,
+          "response": {
+            "service": "release-demo",
+            "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-16",
+            "mode": "healthy"
+          },
+          "desired_image": "localhost:5001/release-demo@sha256:56c097a893ae7e05da7833afedd8c7e95242defdec4c702bf4774730ac3c75d4"
+        }
+      },
+      "serving_revision_telemetry": {
+        "ok": true,
+        "detail": {
+          "targets": [
+            {
+              "metric": {
+                "__name__": "up",
+                "instance": "10.42.0.35:8080",
+                "job": "demo-pods",
+                "namespace": "demo-dev",
+                "pod": "release-demo-78f7c449ff-r76t2",
+                "revision": "78f7c449ff"
+              },
+              "value": [
+                1794291960.277,
+                "1"
+              ]
+            },
+            {
+              "metric": {
+                "__name__": "up",
+                "instance": "10.42.0.34:8080",
+                "job": "demo-pods",
+                "namespace": "demo-dev",
+                "pod": "release-demo-78f7c449ff-dh6fn",
+                "revision": "78f7c449ff"
+              },
+              "value": [
+                1794291960.277,
+                "1"
+              ]
+            }
+          ],
+          "sample_age_seconds": [
+            {
+              "metric": {
+                "instance": "10.42.0.35:8080",
+                "job": "demo-pods",
+                "namespace": "demo-dev",
+                "pod": "release-demo-78f7c449ff-r76t2",
+                "revision": "78f7c449ff"
+              },
+              "value": [
+                1794291960.801,
+                "2.135000228881836"
+              ]
+            },
+            {
+              "metric": {
+                "instance": "10.42.0.34:8080",
+                "job": "demo-pods",
+                "namespace": "demo-dev",
+                "pod": "release-demo-78f7c449ff-dh6fn",
+                "revision": "78f7c449ff"
+              },
+              "value": [
+                1794291960.801,
+                "0.9350001811981201"
+              ]
+            }
+          ]
+        }
+      },
+      "gitops_sync": {
+        "ok": true,
+        "detail": {
+          "sync": {
+            "comparedTo": {
+              "destination": {
+                "namespace": "demo-dev",
+                "server": "https://kubernetes.default.svc"
+              },
+              "ignoreDifferences": [
+                {
+                  "jsonPointers": [
+                    "/spec/selector/rollouts-pod-template-hash"
+                  ],
+                  "kind": "Service",
+                  "name": "demo-stable"
+                },
+                {
+                  "jsonPointers": [
+                    "/spec/selector/rollouts-pod-template-hash"
+                  ],
+                  "kind": "Service",
+                  "name": "demo-preview"
+                }
+              ],
+              "source": {
+                "directory": {
+                  "exclude": "namespace.yaml"
+                },
+                "path": "environments/dev",
+                "repoURL": "ssh://release-git@172.18.0.1:2222/var/lib/release-lab/git/environment.git",
+                "targetRevision": "main"
+              }
+            },
+            "revision": "2d1d629be3a81bdad0c23dc809b47236313e184c",
+            "status": "Synced"
+          },
+          "health": {
+            "lastTransitionTime": "2026-11-10T06:25:25Z",
+            "status": "Healthy"
+          },
+          "conditions": []
+        }
+      }
+    },
+    "attention": [],
+    "context": "k3d-release-lab",
+    "release": {
+      "phase": "Healthy",
+      "candidate_hash": "78f7c449ff",
+      "serving_hash": "78f7c449ff",
+      "expected_pods": 2,
+      "response": {
+        "service": "release-demo",
+        "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-16",
+        "mode": "healthy"
+      },
+      "desired_image": "localhost:5001/release-demo@sha256:56c097a893ae7e05da7833afedd8c7e95242defdec4c702bf4774730ac3c75d4"
+    },
+    "linux_memory_available_mib": 1135.2,
+    "ok": true
+  },
+  "final_health_sha256": "bbbb018dfa24ac7f6c539e4f4257fa5bc14cc2b05fdb4c720605437948faf8c1",
+  "limitations": [
+    "One serial observation per accepted case; no reliability distribution or production SLO",
+    "Stable HTTP measurement uses the Kubernetes API proxy after CI completes",
+    "Observer requests Argo hard refresh; CI has no cluster credentials",
+    "Missing traffic/telemetry block promotion; they do not prove that the candidate is bad",
+    "Post-promotion detection and Git-authoritative recovery are not implemented",
+    "Application source is the recorded CI snapshot, separate from the newer observer source",
+    "Small wall-clock corrections are counted per trial; wall elapsed times are approximate, not benchmark timings"
+  ]
+}

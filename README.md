@@ -5,20 +5,26 @@ single Git project, preserving both histories. The canonical application is
 `demo/app.py`; `examples/foundation/` is an isolated earlier test fixture, not a
 second product. See [merged status and the solo one-week plan](docs/merged-project-status.md).
 The earlier 20% assessment is superseded by the combined-work estimate there.
-After CI/GitOps acceptance, the current weighted MVP estimate is approximately
-**50%**; see [progress after CI](docs/progress-after-ci.md).
+After integrated runtime rejection validation, the current weighted MVP estimate
+is approximately **56%**; see [progress and next priorities](docs/progress-after-runtime.md).
 
-Run all 39 tests using `python scripts/validate.py` in an environment with
+Run all 54 tests using `python scripts/validate.py` in an environment with
 `requirements-validation.txt` installed. Results go to `docs/evidence/merge-validation.json`.
 The November 9 merge passed tests/schema checks but exposed live lab failures.
 The laptop recovery session restored controllers, serving telemetry and GitOps
 sync, with a lean startup profile. See [laptop work and later migration](docs/laptop-first.md)
-for current evidence and remaining work. This is not a fresh CI build/promotion run.
+for that recovery session. It predates the subsequent CI and runtime acceptance.
 
 The subsequent [CI-to-GitOps milestone](docs/milestones/02-ci-gitops.md) is now complete
 for a local manual acceptance run: Jenkins build 8 delivered the reviewed source,
 passed the updated vulnerability gate and promoted through Argo. The controlled
 passing trial observed 849 HTTP 200 responses. Earlier failed trials are retained.
+
+The [runtime rejection milestone](docs/milestones/03-runtime-failure-validation.md)
+extends that proof to HTTP errors, latency, readiness failure, missing traffic and
+telemetry outage through actual Jenkins and GitOps. An interrupted observation is
+excluded and repeated; pre-promotion rejection is distinguished from future
+post-promotion recovery. Next: [durable release/evidence state](docs/next-milestone-durable-state.md).
 
 A self-hosted Kubernetes release platform under development. Jenkins owns builds;
 Git owns desired configuration; Argo CD owns synchronization; Argo Rollouts owns
@@ -70,8 +76,9 @@ For a repeatable acceptance walkthrough, follow [testing the current lab](docs/t
 
 No subscription or cloud account is required for the lab. Docker/k3d need a Linux
 container runtime. The current Windows host has about 8 GiB RAM: start with the lean
-single-node profile and run Jenkins on a separate Linux build host. PostgreSQL,
-the portal, and full monitoring are later milestones.
+single-node profile for routine work and the full profile for serial trusted-lab
+CI trials. A separate isolated build host remains later work. PostgreSQL and the
+product API are next; the portal and full monitoring follow.
 
 The installed Windows lab can be managed from PowerShell:
 

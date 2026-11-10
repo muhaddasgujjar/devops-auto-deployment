@@ -27,29 +27,36 @@ See [the validation report](live-validation.md) for actual results and failed pi
 runs. These checks are a local experiment; repeated benchmark conditions and
 formal availability/recovery distributions are still pending.
 
-## Next gate: CI and GitOps integration
+## CI and GitOps integration: local acceptance complete
+
+The merged source now passes local manual CI/GitOps acceptance and the integrated
+runtime fault matrix. See [CI evidence](milestones/02-ci-gitops.md) and
+[runtime evidence](milestones/03-runtime-failure-validation.md). The next local
+gate is [durable release/evidence state](next-milestone-durable-state.md).
+
+Remaining integration and production work:
 
 - Prepare a dedicated trusted Linux build host and pin Jenkins LTS/plugin versions.
-- Ensure the SCM branch contains this implementation before configuring its Jenkinsfile.
-- Configure the separate environment repository, restricted bot credentials,
-  verified SSH host keys, branch policy, and a mutually reachable TLS registry.
-- Run the actual Jenkins test/scan/publish/promotion job and failure paths.
-- Install Argo CD and delegate the environment directory to it; stop manual applies
-  to workloads after that ownership handoff.
-- Verify good and faulty releases through Git commits and reconciliation, including
-  restart behavior and the distinction between desired candidate and serving stable.
+- Publish the reviewed implementation to the chosen external SCM branch before
+  configuring its Jenkinsfile and webhook.
+- Extend the existing restricted environment Git/SSH setup with external branch
+  policy and a mutually reachable TLS registry.
+- Exercise controller restart behavior and concurrent release delivery. Preserve
+  the already verified distinction between desired candidate and serving stable.
 
-## Following milestones from the assessment
+## Following milestones in laptop-first order
 
-1. Reproducible Ubuntu/k3s provisioning, TLS registry, least-privilege namespaces,
-   staging environment, checksums/digests for infrastructure dependencies.
-2. Post-promotion analysis/retention semantics and explicit failed recovery handling.
-3. FastAPI + PostgreSQL migrations for projects, environments, builds, artifacts,
-   releases, analysis, recovery, and audit evidence.
-4. Signed callbacks, durable deduplication, server-side roles, promotion serialization,
-   optimistic concurrency, restart reconciliation, bounded notification retries.
-5. React onboarding, release history, and recovery evidence screens.
-6. Persistent Prometheus/Grafana/Alertmanager, local notification receiver, backup/restore.
+1. FastAPI + PostgreSQL contracts/migrations, real evidence import, releases,
+   analysis and audit records, including a verified database backup/restore.
+2. Signed callbacks, durable deduplication, server-side roles, optimistic
+   concurrency and read-only restart reconciliation.
+3. Minimal real-data React environment status, release history and decision evidence.
+4. Post-promotion detection, retention, serialized Git-authoritative recovery and
+   explicit failed recovery handling before exposing recovery actions in the UI.
+5. Persistent Prometheus/Grafana/Alertmanager, local notification receiver, bounded
+   delivery retries and broader platform backup/restore.
+6. Other-machine reproduction, isolated builds, TLS registry, staging environment
+   and infrastructure dependency verification.
 7. Repeated failure experiments and fresh-machine reproduction; publish measured
    p50/p95 timings, trial counts, false positives, availability, and resource use.
 
