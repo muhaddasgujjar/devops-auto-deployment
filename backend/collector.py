@@ -95,4 +95,5 @@ def collect(kubeconfig, environment_git):
         observation_sequence=int(metadata['resourceVersion']), source_uid=metadata['uid'],
         observed_at=datetime.now(timezone.utc), stable_revision=stable_revisions.pop(),
         stable_hash=stable_hash, stable_image=stable_images.pop(), analyses=analyses,
-        observation_details={'source': 'read-only-kubernetes-and-environment-git', 'rollout_generation': metadata['generation']})
+        observation_details={'source': 'read-only-kubernetes-and-environment-git',
+                             'rollout_generation': metadata['generation'], 'resource_version': metadata['resourceVersion']})

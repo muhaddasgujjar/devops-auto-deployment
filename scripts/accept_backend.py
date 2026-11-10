@@ -90,7 +90,7 @@ def reconcile(client, settings, kubeconfig):
         payload['unavailable'] = 'sources_unavailable'
     response = post_callback(client, settings, payload)
     response.raise_for_status()
-    return response.json()
+    return {**response.json(), 'collected_resource_version': payload.get('release', {}).get('observation_details', {}).get('resource_version')}
 
 
 def main():
@@ -125,7 +125,7 @@ def main():
     with server(config_path, 8090) as client:
         before = get(client, '/environment')
         require(before['desired']['build']['number'] == 16, 'Backend changed while it was stopped')
-        reconcile(client, settings, args.kubeconfig)
+        discovered = reconcile(client, settings, args.kubeconfig)
         current = get(client, '/environment')
         require(current['freshness'] == 'current' and current['desired']['build']['number'] > 16 and
                 current['desired']['id'] == current['stable']['id'] and current['desired']['status'] == 'promoted',
@@ -133,7 +133,7 @@ def main():
         missed_build = current['desired']['build']['number']
         reconcile(client, settings, OUTPUT / 'deliberately-missing.kubeconfig')
         require(get(client, '/environment')['freshness'] == 'unavailable', 'Source outage was hidden')
-        reconcile(client, settings, args.kubeconfig)
+        refreshed = reconcile(client, settings, args.kubeconfig)
         recovered = get(client, '/environment')
         require(recovered['freshness'] == 'current', 'Unchanged-resource-version refresh did not restore freshness')
         require(import_report(client, 'ci-gitops-acceptance.json', 'ci_acceptance')['duplicate'], 'Restart lost durable deduplication')
@@ -166,7 +166,8 @@ def main():
                   'backup': {'archive': archive.relative_to(ROOT).as_posix(), 'sha256': hashlib.sha256(archive.read_bytes()).hexdigest(),
                              'bytes': archive.stat().st_size, 'restored_database': restored_name,
                              'identical_api_views': list(snapshot)},
-                  'api_process_restart_passed': True, 'source_outage_and_same_version_recovery_passed': True,
+                  'api_process_restart_passed': True, 'source_outage_recovery_passed': True,
+                  'unchanged_kubernetes_resource_version': discovered['collected_resource_version'] == refreshed['collected_resource_version'],
                   'limitations': ['Local single project/environment; API keys are not enterprise SSO',
                                   'Curated imports retain reported proof; they do not independently rerun scans',
                                   'New live-discovered artifacts expose scan metadata as unknown until CI evidence arrives',

@@ -1,0 +1,406 @@
+{
+  "recorded_at_utc": "2026-11-10T07:09:31.921988+00:00",
+  "passed": true,
+  "scope": "Local PostgreSQL/API durable state, missed real release reconciliation and API-verified restore",
+  "initial_http_stage": {
+    "passed": true,
+    "recorded_at_utc": "2026-11-10T07:00:40.551359+00:00",
+    "imports": [
+      {
+        "event_id": "import:report:875835d9d51159500d1f30d16075672fac0e4618c9b6be0ea42eb549f62b1132",
+        "version": 1,
+        "duplicate": false,
+        "changes": [
+          {
+            "release_id": "5f877260-fec3-5cea-ab2d-c0e08cd176a7",
+            "build": 8,
+            "status": "promoted",
+            "quality": "accepted",
+            "state_applied": true
+          }
+        ],
+        "source": "import"
+      },
+      {
+        "event_id": "import:report:b36d88ce99ed45e3a3f82bb85df90521e24afd223f9c28ecbfe32f15c67595c0",
+        "version": 2,
+        "duplicate": false,
+        "changes": [
+          {
+            "release_id": "2b9fec4e-a039-551b-b8e7-5fea7f8998eb",
+            "build": 9,
+            "status": "rejected",
+            "quality": "accepted",
+            "state_applied": true
+          },
+          {
+            "release_id": "d3e54501-1d71-5a3f-a010-ef0aba0615e2",
+            "build": 10,
+            "status": "rejected",
+            "quality": "accepted",
+            "state_applied": true
+          },
+          {
+            "release_id": "989b0f3a-72ba-50ad-a6f0-bb7a997fca43",
+            "build": 11,
+            "status": "readiness_aborted",
+            "quality": "accepted",
+            "state_applied": true
+          },
+          {
+            "release_id": "32b23113-7486-564e-837c-553dc011c6e4",
+            "build": 12,
+            "status": "inconclusive",
+            "quality": "excluded",
+            "state_applied": true
+          },
+          {
+            "release_id": "40bb161c-26fe-519a-bc4f-400d8df0f7dd",
+            "build": 13,
+            "status": "telemetry_error",
+            "quality": "accepted",
+            "state_applied": true
+          },
+          {
+            "release_id": "9b1b033b-1457-596e-9f3e-ab213206e9e3",
+            "build": 14,
+            "status": "promoted",
+            "quality": "historical",
+            "state_applied": true
+          },
+          {
+            "release_id": "55310695-9615-560c-850c-e16eb73dfcf5",
+            "build": 15,
+            "status": "inconclusive",
+            "quality": "accepted",
+            "state_applied": true
+          },
+          {
+            "release_id": "9e428824-ac65-579a-a681-43cbe25e67ed",
+            "build": 16,
+            "status": "promoted",
+            "quality": "accepted",
+            "state_applied": true
+          }
+        ],
+        "source": "import"
+      },
+      {
+        "event_id": "import:report:9ca0157ad369b31ea68ba52b7a22cb6c19dc967e8c7d8265be93c9126abd4a1f",
+        "version": 3,
+        "duplicate": false,
+        "changes": [
+          {
+            "build": 5,
+            "build_id": "fb4d4e92-8e3f-5310-814c-97ad1589bf58",
+            "state_applied": false,
+            "status": "ci_failed",
+            "reason": "synthetic_test_gate; publication blocked"
+          }
+        ],
+        "source": "import"
+      }
+    ],
+    "releases": 9,
+    "builds": 10,
+    "desired_build": 16,
+    "stable_build": 16,
+    "after_stopped_source": "unavailable",
+    "version": 4,
+    "api_process_stopped_after_stage": true
+  },
+  "missed_release_detected": 17,
+  "previous_stored_build": 16,
+  "serving_revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-17",
+  "source_uid": "2b7b855c-69bb-4ae8-b2c7-046f9898c069",
+  "freshness_after_recovery": "current",
+  "version": 7,
+  "database_server_version": "17.11",
+  "rows": {
+    "builds": 11,
+    "artifacts": 10,
+    "releases": 10,
+    "analyses": 6,
+    "observations": 11,
+    "incoming_events": 7,
+    "audit": 7
+  },
+  "backup": {
+    "archive": "output/backend-acceptance/state-cbd9f4d6bbac.dump",
+    "sha256": "024478911beaa4b895090d807270ca9be6f32ecc7e1af8216224a298d801865b",
+    "bytes": 47799,
+    "restored_database": "release_state_restore_a56492e75d90",
+    "identical_api_views": [
+      "environment",
+      "releases",
+      "builds",
+      "audit"
+    ]
+  },
+  "api_process_restart_passed": true,
+  "source_outage_recovery_passed": true,
+  "unchanged_kubernetes_resource_version": true,
+  "limitations": [
+    "Local single project/environment; API keys are not enterprise SSO",
+    "Curated imports retain reported proof; they do not independently rerun scans",
+    "New live-discovered artifacts expose scan metadata as unknown until CI evidence arrives",
+    "Collector reads Git/Kubernetes only; post-promotion recovery remains unimplemented",
+    "Raw backups and credentials are private local state, excluded from Git"
+  ],
+  "implementation_sha256": {
+    "alembic.ini": "1db0e423155d077b0dd056333c43b5c118b20ad2c38abe187014e1af857016cf",
+    "backend/__init__.py": "caaf74480dcd69191fc4e7de1f2920fb445b9bdce06e76132e22c0b51521756e",
+    "backend/api.py": "598b623e26f1963c981a1e9fa1088f37adc34a1ed0bc272dc80bb1041b25b988",
+    "backend/backup.py": "282c1d4a307fb964e8ab851d29f444b34f9cc4908cb6d34326b99a6606857c79",
+    "backend/cli.py": "7ebf2d82cf814e4fd6b42ab91e89342ebbab134f04ee55d708ef776235072e4d",
+    "backend/collector.py": "83c92eefc41ebc37940278624282d5ca30a00725dc6cbf073aecc919d48baea3",
+    "backend/config.py": "a4adc2cb96937f35ed1ed2ddc123ed235a5ca95f97ed21880e7235f72a568464",
+    "backend/contracts.py": "3b2690df9a7b298e484d8edf6e966b1a116714984fc50fa4ee5bee8f66a97265",
+    "backend/db.py": "1d1999140611fb297c349189ab38d26b01f11a84d2c990bfc3934ff2a92545dc",
+    "backend/imports.py": "1a96a7f63cdeb80a871ed5d39a02788afdf64d08aa50082a0fb372fe58629278",
+    "backend/migrations/env.py": "d5e0985aaaae2ec56615184876849aee4da1591d82d97d28d5507b1f345b7342",
+    "backend/migrations/script.py.mako": "d7558dcb7ce01d3e44830898336d3027de66e5ffdb1491c0cd27f6159b021902",
+    "backend/migrations/versions/0001_release_state.py": "bd5a55bbe573f7620f6cbbc5370c3a09398d708ae168c1a58baeb784534c32e6",
+    "backend/service.py": "d8a61cd574d13756e03c89249fbd21e06c94a42876762896713b6ab985e187b9",
+    "backend-versions.json": "d92ba0f2abbfeb3dbc1adbe810cc252f283cbfe0eba439f2b39b90072421ea7f",
+    "backend_tests/test_state.py": "8637c77f9d28717f844602ee138aa19d78c5dd834fe3dacbc87f5294464dbfe9",
+    "requirements-backend-lock.txt": "d45a2eaac86ca6619121a317d484a187a11795c4328fde503231013e80b5a7ef",
+    "requirements-backend.txt": "18569e438401afb02a116f46eeca5bc9dc81bc3c16fed8ea96834bf0203ab65b",
+    "scripts/accept_backend.py": "6e2e8ea9aa91e6576240b718304eb4d3bf080d272fa398bd66bd9c946fd33748",
+    "scripts/backend_runtime.py": "21d8930b27a5cb3c01de2be1d918ab501dec5ac539c3f4cb98b2101bd416921e",
+    "scripts/validate_backend.py": "f98f6138a8165423845dab7a425e3f6832cd4adb00102b2c1aceb14ff6664f7d"
+  },
+  "final_platform_health": {
+    "checked_at": "2026-11-10T07:11:41.331347+00:00",
+    "checks": {
+      "nodes": {
+        "ok": true,
+        "detail": [
+          {
+            "name": "k3d-release-lab-server-0",
+            "conditions": {
+              "MemoryPressure": "False",
+              "DiskPressure": "False",
+              "PIDPressure": "False",
+              "Ready": "True"
+            }
+          }
+        ]
+      },
+      "argo-rollouts": {
+        "ok": true,
+        "detail": {
+          "availableReplicas": 1,
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-10-20T11:18:49Z",
+              "lastUpdateTime": "2026-10-20T11:19:10Z",
+              "message": "ReplicaSet \"argo-rollouts-64f7fbd656\" has successfully progressed.",
+              "reason": "NewReplicaSetAvailable",
+              "status": "True",
+              "type": "Progressing"
+            },
+            {
+              "lastTransitionTime": "2026-11-10T07:03:12Z",
+              "lastUpdateTime": "2026-11-10T07:03:12Z",
+              "message": "Deployment has minimum availability.",
+              "reason": "MinimumReplicasAvailable",
+              "status": "True",
+              "type": "Available"
+            }
+          ],
+          "observedGeneration": 1,
+          "readyReplicas": 1,
+          "replicas": 1,
+          "terminatingReplicas": 0,
+          "updatedReplicas": 1
+        }
+      },
+      "prometheus": {
+        "ok": true,
+        "detail": {
+          "availableReplicas": 1,
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-10-20T11:19:11Z",
+              "lastUpdateTime": "2026-10-22T18:39:14Z",
+              "message": "ReplicaSet \"prometheus-6944955d9d\" has successfully progressed.",
+              "reason": "NewReplicaSetAvailable",
+              "status": "True",
+              "type": "Progressing"
+            },
+            {
+              "lastTransitionTime": "2026-11-10T07:03:20Z",
+              "lastUpdateTime": "2026-11-10T07:03:20Z",
+              "message": "Deployment has minimum availability.",
+              "reason": "MinimumReplicasAvailable",
+              "status": "True",
+              "type": "Available"
+            }
+          ],
+          "observedGeneration": 10,
+          "readyReplicas": 1,
+          "replicas": 1,
+          "terminatingReplicas": 0,
+          "updatedReplicas": 1
+        }
+      },
+      "stable_service": {
+        "ok": true,
+        "detail": {
+          "phase": "Healthy",
+          "candidate_hash": "6c68b89cf4",
+          "serving_hash": "6c68b89cf4",
+          "expected_pods": 2,
+          "response": {
+            "service": "release-demo",
+            "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-17",
+            "mode": "healthy"
+          },
+          "desired_image": "localhost:5001/release-demo@sha256:4f4a15a16b0a0c5ff81fd3651f56425156a42ff92e50e7177fbb972349a8490e"
+        }
+      },
+      "serving_revision_telemetry": {
+        "ok": true,
+        "detail": {
+          "targets": [
+            {
+              "metric": {
+                "__name__": "up",
+                "instance": "10.42.0.45:8080",
+                "job": "demo-pods",
+                "namespace": "demo-dev",
+                "pod": "release-demo-6c68b89cf4-d6c8j",
+                "revision": "6c68b89cf4"
+              },
+              "value": [
+                1794294703.236,
+                "1"
+              ]
+            },
+            {
+              "metric": {
+                "__name__": "up",
+                "instance": "10.42.0.46:8080",
+                "job": "demo-pods",
+                "namespace": "demo-dev",
+                "pod": "release-demo-6c68b89cf4-f8q62",
+                "revision": "6c68b89cf4"
+              },
+              "value": [
+                1794294703.236,
+                "1"
+              ]
+            }
+          ],
+          "sample_age_seconds": [
+            {
+              "metric": {
+                "instance": "10.42.0.45:8080",
+                "job": "demo-pods",
+                "namespace": "demo-dev",
+                "pod": "release-demo-6c68b89cf4-d6c8j",
+                "revision": "6c68b89cf4"
+              },
+              "value": [
+                1794294703.511,
+                "4.531999826431274"
+              ]
+            },
+            {
+              "metric": {
+                "instance": "10.42.0.46:8080",
+                "job": "demo-pods",
+                "namespace": "demo-dev",
+                "pod": "release-demo-6c68b89cf4-f8q62",
+                "revision": "6c68b89cf4"
+              },
+              "value": [
+                1794294703.511,
+                "3.2300000190734863"
+              ]
+            }
+          ]
+        }
+      },
+      "gitops_sync": {
+        "ok": true,
+        "detail": {
+          "sync": {
+            "comparedTo": {
+              "destination": {
+                "namespace": "demo-dev",
+                "server": "https://kubernetes.default.svc"
+              },
+              "ignoreDifferences": [
+                {
+                  "jsonPointers": [
+                    "/spec/selector/rollouts-pod-template-hash"
+                  ],
+                  "kind": "Service",
+                  "name": "demo-stable"
+                },
+                {
+                  "jsonPointers": [
+                    "/spec/selector/rollouts-pod-template-hash"
+                  ],
+                  "kind": "Service",
+                  "name": "demo-preview"
+                }
+              ],
+              "source": {
+                "directory": {
+                  "exclude": "namespace.yaml"
+                },
+                "path": "environments/dev",
+                "repoURL": "ssh://release-git@172.18.0.1:2222/var/lib/release-lab/git/environment.git",
+                "targetRevision": "main"
+              }
+            },
+            "revision": "d64ce70aed529b8649e51b504d6e673c7dd6b517",
+            "status": "Synced"
+          },
+          "health": {
+            "lastTransitionTime": "2026-11-10T07:08:27Z",
+            "status": "Healthy"
+          },
+          "conditions": []
+        }
+      }
+    },
+    "attention": [],
+    "context": "k3d-release-lab",
+    "release": {
+      "phase": "Healthy",
+      "candidate_hash": "6c68b89cf4",
+      "serving_hash": "6c68b89cf4",
+      "expected_pods": 2,
+      "response": {
+        "service": "release-demo",
+        "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-17",
+        "mode": "healthy"
+      },
+      "desired_image": "localhost:5001/release-demo@sha256:4f4a15a16b0a0c5ff81fd3651f56425156a42ff92e50e7177fbb972349a8490e"
+    },
+    "linux_memory_available_mib": 1554.2,
+    "ok": true
+  },
+  "started_services_stopped_with_data_preserved": true,
+  "code_hashes_finalized_at_utc": "2026-11-10T07:21:11.414234+00:00",
+  "backend_test_receipt_sha256": "096a5fb1feafe751b556aca1dd27c51dcaf6967b11245bd3ce7ee26ae60d4818",
+  "final_backend_tests": {
+    "recorded_at_utc": "2026-11-10T07:19:41.804498+00:00",
+    "passed": true,
+    "tests_run": 20,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 9.332,
+    "scope": "Fresh PostgreSQL migration, real evidence import, API auth/HMAC/limits, transactions, concurrency, ordering, restart and freshness",
+    "failed_cases": []
+  },
+  "post_process_acceptance_regressions": [
+    "Non-ASCII callback signatures return 401",
+    "Streamed request contracts have resolvable OpenAPI schemas"
+  ]
+}

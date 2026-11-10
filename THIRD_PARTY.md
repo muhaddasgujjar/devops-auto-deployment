@@ -15,9 +15,20 @@ pipeline, and configuration in this repository are project-authored.
 | Prometheus | Candidate telemetry | https://github.com/prometheus/prometheus/blob/main/LICENSE |
 | Trivy | CI vulnerability scan and SBOM | https://github.com/aquasecurity/trivy/blob/main/LICENSE |
 | Jenkins | External CI controller/agent | https://github.com/jenkinsci/jenkins/blob/master/LICENSE.txt |
+| FastAPI | Local authenticated state API | [Upstream license](https://github.com/fastapi/fastapi/blob/master/LICENSE) |
+| SQLAlchemy | PostgreSQL access and transactions | [Upstream license](https://github.com/sqlalchemy/sqlalchemy/blob/main/LICENSE) |
+| Alembic | Explicit database migrations | [Upstream license](https://github.com/sqlalchemy/alembic/blob/main/LICENSE) |
+| Psycopg | PostgreSQL driver and binary distribution | [Upstream notices](https://github.com/psycopg/psycopg/blob/master/COPYING) |
+| PostgreSQL / official image | Durable release/evidence state | [Upstream license](https://www.postgresql.org/about/licence/) |
+| Uvicorn | Local API process | [Upstream license](https://github.com/encode/uvicorn/blob/main/LICENSE.md) |
+| HTTPX | Authenticated CLI and HTTP acceptance client | [Upstream license](https://github.com/encode/httpx/blob/master/LICENSE.md) |
 
-Selected versions are in `versions.json`; registry is pinned in `platform/k3d.yaml`.
+Selected versions are in `versions.json` and `backend-versions.json`; backend
+Python packages are pinned in `requirements-backend-lock.txt`, including transitive
+dependencies. Their distribution notices remain in the installed wheel metadata.
+The registry is pinned in `platform/k3d.yaml`.
 Exact tags do not constitute immutable checksums. Infrastructure image digests,
 download checksums, full transitive attribution and installation compatibility are
-pending live installation. Application release manifests require OCI SHA-256 digests.
+not yet comprehensively enforced. Local runtime and backend installation are
+validated in milestone evidence. Application release manifests require OCI SHA-256 digests.
 No licence is selected for project-authored code; choose one before distribution.

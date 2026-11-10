@@ -118,7 +118,20 @@ def create_app(settings=None):
 
     @app.get('/openapi.json', dependencies=[Depends(read)])
     def specification():
-        return app.openapi()
+        document = app.openapi()
+        schemas = document.setdefault('components', {}).setdefault('schemas', {})
+        # Bodies are streamed manually for size and exact-byte HMAC validation.
+        # Publish their actual Pydantic contracts explicitly for API consumers.
+        for path, contract in (('/imports', ImportRequest), ('/callbacks', CallbackRequest)):
+            body_schema = contract.model_json_schema(ref_template='#/components/schemas/{model}')
+            schemas.update(body_schema.pop('$defs', {}))
+            schemas[contract.__name__] = body_schema
+            document['paths'][path]['post']['requestBody'] = {'required': True, 'content': {
+                'application/json': {'schema': {'$ref': '#/components/schemas/' + contract.__name__}}}}
+        document['paths']['/callbacks']['post']['parameters'] = [
+            {'in': 'header', 'name': name, 'required': True, 'schema': {'type': 'string'}}
+            for name in ('X-Release-Timestamp', 'X-Release-Signature')]
+        return document
 
     @app.post('/imports')
     async def import_evidence(request: Request, actor=Depends(write)):
@@ -145,7 +158,7 @@ def create_app(settings=None):
         except ValueError:
             raise HTTPException(401, 'Callback timestamp is missing or expired')
         expected = 'v1=' + hmac.new(settings.callback_secret.encode(), stamp.encode() + b'.' + raw, hashlib.sha256).hexdigest()
-        if not hmac.compare_digest(expected, supplied):
+        if not hmac.compare_digest(expected.encode(), supplied.encode()):
             raise HTTPException(401, 'Invalid callback signature')
         envelope = parse(raw, CallbackRequest)
         if envelope.release and envelope.release.quality != 'not_measured':

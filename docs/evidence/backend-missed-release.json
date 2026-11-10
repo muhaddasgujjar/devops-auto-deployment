@@ -1,0 +1,174 @@
+{
+  "scenario": "healthy",
+  "previous_stable_hash": "78f7c449ff",
+  "started": "2026-11-10T07:05:21.398089+00:00",
+  "observer_commit": "fe1710d207a7906f8c5898688442ab579085cad1",
+  "observer_sha256": {
+    "scripts/gitops_trial.py": "68664877b6f1beadd59fbe9c0c5842448b12797039dea5126df59a83b38146af",
+    "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817",
+    "scripts/observation.py": "90004a581697de90d99baa22a0777810e6c624798973871f651ca4af50386e36"
+  },
+  "baseline_response": {
+    "timestamp": "2026-11-10T07:05:22.191563+00:00",
+    "status": 200,
+    "response": {
+      "service": "release-demo",
+      "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-16",
+      "mode": "healthy"
+    },
+    "duration_seconds": 0.025164
+  },
+  "jenkins_build": 17,
+  "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+  "image": "localhost:5001/release-demo@sha256:4f4a15a16b0a0c5ff81fd3651f56425156a42ff92e50e7177fbb972349a8490e",
+  "release_id": "jenkins-17",
+  "environment_commit": "d64ce70aed529b8649e51b504d6e673c7dd6b517",
+  "changed": true,
+  "observation_started": "2026-11-10T07:06:11.103516+00:00",
+  "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+  "verdict": "candidate-promoted-through-gitops",
+  "decision_observed": "2026-11-10T07:08:27.989206+00:00",
+  "client_monotonic_observation_seconds": 143.815,
+  "final_response": {
+    "timestamp": "2026-11-10T07:08:27.989295+00:00",
+    "status": 200,
+    "response": {
+      "service": "release-demo",
+      "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-17",
+      "mode": "healthy"
+    },
+    "duration_seconds": 0.007563
+  },
+  "serving_hash": "6c68b89cf4",
+  "stable_requests": 628,
+  "stable_non_200": 0,
+  "finished": "2026-11-10T07:08:29.563006+00:00",
+  "sampling_quality": {
+    "max_wall_sample_gap_seconds": 1.313,
+    "wall_clock_reversals": 4,
+    "max_monotonic_sample_gap_seconds": 1.313
+  },
+  "sampling_gate_passed": true,
+  "availability_gate_passed": true,
+  "acceptance_passed": true,
+  "passed": true,
+  "ci_duration_ms": 37388,
+  "candidate_hash": "6c68b89cf4",
+  "tests_in_release_snapshot": 36,
+  "analyses": [
+    {
+      "name": "release-demo-6c68b89cf4-41-pre",
+      "phase": "Successful",
+      "metrics": [
+        {
+          "consecutiveSuccess": 5,
+          "count": 5,
+          "measurements": [
+            {
+              "finishedAt": "2026-11-10T07:07:27Z",
+              "phase": "Successful",
+              "startedAt": "2026-11-10T07:07:27Z",
+              "value": "[0.0475]"
+            },
+            {
+              "finishedAt": "2026-11-10T07:07:42Z",
+              "phase": "Successful",
+              "startedAt": "2026-11-10T07:07:42Z",
+              "value": "[0.0475]"
+            },
+            {
+              "finishedAt": "2026-11-10T07:07:57Z",
+              "phase": "Successful",
+              "startedAt": "2026-11-10T07:07:57Z",
+              "value": "[0.0475]"
+            },
+            {
+              "finishedAt": "2026-11-10T07:08:12Z",
+              "phase": "Successful",
+              "startedAt": "2026-11-10T07:08:12Z",
+              "value": "[0.04750000000000001]"
+            },
+            {
+              "finishedAt": "2026-11-10T07:08:27Z",
+              "phase": "Successful",
+              "startedAt": "2026-11-10T07:08:27Z",
+              "value": "[0.0475]"
+            }
+          ],
+          "metadata": {
+            "ResolvedPrometheusQuery": "histogram_quantile(0.95, sum by (le) (rate(demo_request_duration_seconds_bucket{namespace=\"demo-dev\",revision=\"6c68b89cf4\"}[60s])))\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"6c68b89cf4\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"6c68b89cf4\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"6c68b89cf4\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"6c68b89cf4\"})) <= 15)\n"
+          },
+          "name": "candidate-p95-latency",
+          "phase": "Successful",
+          "successful": 5
+        },
+        {
+          "consecutiveSuccess": 5,
+          "count": 5,
+          "measurements": [
+            {
+              "finishedAt": "2026-11-10T07:07:27Z",
+              "phase": "Successful",
+              "startedAt": "2026-11-10T07:07:27Z",
+              "value": "[0]"
+            },
+            {
+              "finishedAt": "2026-11-10T07:07:42Z",
+              "phase": "Successful",
+              "startedAt": "2026-11-10T07:07:42Z",
+              "value": "[0]"
+            },
+            {
+              "finishedAt": "2026-11-10T07:07:57Z",
+              "phase": "Successful",
+              "startedAt": "2026-11-10T07:07:57Z",
+              "value": "[0]"
+            },
+            {
+              "finishedAt": "2026-11-10T07:08:12Z",
+              "phase": "Successful",
+              "startedAt": "2026-11-10T07:08:12Z",
+              "value": "[0]"
+            },
+            {
+              "finishedAt": "2026-11-10T07:08:27Z",
+              "phase": "Successful",
+              "startedAt": "2026-11-10T07:08:27Z",
+              "value": "[0]"
+            }
+          ],
+          "metadata": {
+            "ResolvedPrometheusQuery": "(\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"6c68b89cf4\",status=\"500\"}[60s]))\n  /\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"6c68b89cf4\"}[60s]))\n)\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"6c68b89cf4\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"6c68b89cf4\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"6c68b89cf4\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"6c68b89cf4\"})) <= 15)\n"
+          },
+          "name": "candidate-error-ratio",
+          "phase": "Successful",
+          "successful": 5
+        }
+      ]
+    }
+  ],
+  "reported_high_critical": 0,
+  "wall_observation_to_decision_seconds": 136.886,
+  "raw_trial": "output/gitops-healthy-20261110T070521Z",
+  "artifact_sha256": {
+    "summary.json": "c9934061577834554cb92941548b4606ba35683d9c73df66ce974c0c5e9cb818",
+    "jenkins-build.json": "d9b2b235cad2756dfe4ef647261f28fdf7c42768a3f0940544b4ba33ec7b10cc",
+    "source.json": "f103ad5f0729cad128953956ed8f06209c4658d328b900534fb0768adfc0a49c",
+    "scan.json": "91ef3ed89db13aa3dab7ef8a2b6aa1f8cc29011f472c2dc1567c79cbf1a4d354",
+    "sbom.json": "c0e9cee3bb7cd59e2d0f2509bc920a91327a1f0bf10aa8e12c8550a72199f6b1",
+    "image-inspect.json": "33d6fcae57cfe72436fd95b86f25949f1aba82468d04ce830c1db0d7ce299bf4",
+    "environment-commit.json": "3602a76c97936d6b3258f3baf5d5d64dd7ac18836a1dd3a9dc7baff20cbc595d",
+    "rollout.json": "6829cb48a6dce24d24af1432c2919e9c73c924ccd965cb026f057d49852f4830",
+    "analysisrun.json": "55e41bb2ad952154cd38d0d14c3699e5d9bdbe49cbe74d93995b6b83046d34d8",
+    "application.json": "459511618d2ed76ab748296436f9280e33f07bd3ae72ee332c7ab1cc36e25569",
+    "service.json": "ae2ca03ae6af7da42ddf1539ea9068e1d9b330011e93846162ecf04f21626008",
+    "pod.json": "5d58b764587251c9e2c7e6b5cc2ef34f611f91eb29b8e94717d64e468de0319c",
+    "stable.jsonl": "1ab6c8007f8ee723ade37fc8df29b2986452ab6e6f72f7bc440107c8b0753cd1",
+    "jenkins-console.txt": "bd5d4308c22539f8f88c442074691d93a7698bb92748771f0acdb682f7f8c6e2",
+    "preview-0.jsonl": "6c38da84d87d2a6f8578414669efbffd0ac5e5d4c6379e37d321f0d174917379",
+    "preview-1.jsonl": "e5b6050aa4d637ecc66d8f429efd362d59bce3675a97a810308a3d0b73187e02",
+    "preview-2.jsonl": "2b2f2b6e7743c6d605e3a89af2494ae5b0eab6dc8754b3bd2845ff3a1ab4de77",
+    "preview-3.jsonl": "67fc99961be045a9ca1e6c1ac08dbd52d2e3047fbc81f2a5669f4e98c459edb7"
+  },
+  "scope": "Real Jenkins release while backend API stopped; later discovered by read-only reconciliation"
+}

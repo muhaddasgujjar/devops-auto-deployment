@@ -1,5 +1,10 @@
 # Next milestone: durable release and evidence state
 
+Completed for local acceptance on 10 November 2026; see
+[milestone 4](milestones/04-durable-state.md) and
+[current progress/next priorities](progress-after-backend.md). The text below
+retains the original acceptance plan.
+
 This is the next laptop milestone after runtime rejection acceptance. The existing
 CI/controller path supplies evidence; the product backend must retain and explain
 it. No database, API or UI completion is claimed by this plan.

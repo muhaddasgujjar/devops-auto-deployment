@@ -5,11 +5,13 @@ single Git project, preserving both histories. The canonical application is
 `demo/app.py`; `examples/foundation/` is an isolated earlier test fixture, not a
 second product. See [merged status and the solo one-week plan](docs/merged-project-status.md).
 The earlier 20% assessment is superseded by the combined-work estimate there.
-After integrated runtime rejection validation, the current weighted MVP estimate
-is approximately **56%**; see [progress and next priorities](docs/progress-after-runtime.md).
+After durable backend acceptance, the current weighted MVP estimate is approximately
+**65%**; see [progress and next priorities](docs/progress-after-backend.md).
 
-Run all 54 tests using `python scripts/validate.py` in an environment with
+Run the 54 core/demo tests using `python scripts/validate.py` in an environment with
 `requirements-validation.txt` installed. Results go to `docs/evidence/merge-validation.json`.
+The separate 20-test backend suite requires PostgreSQL and the pinned backend venv;
+see [backend setup and validation](docs/backend.md).
 The November 9 merge passed tests/schema checks but exposed live lab failures.
 The laptop recovery session restored controllers, serving telemetry and GitOps
 sync, with a lean startup profile. See [laptop work and later migration](docs/laptop-first.md)
@@ -24,11 +26,13 @@ The [runtime rejection milestone](docs/milestones/03-runtime-failure-validation.
 extends that proof to HTTP errors, latency, readiness failure, missing traffic and
 telemetry outage through actual Jenkins and GitOps. An interrupted observation is
 excluded and repeated; pre-promotion rejection is distinguished from future
-post-promotion recovery. Next: [durable release/evidence state](docs/next-milestone-durable-state.md).
+post-promotion recovery. The [durable state milestone](docs/milestones/04-durable-state.md)
+now adds authenticated APIs, PostgreSQL evidence/audit state, read-only restart
+reconciliation and a restore verified through a separate API process.
 
 A self-hosted Kubernetes release platform under development. Jenkins owns builds;
 Git owns desired configuration; Argo CD owns synchronization; Argo Rollouts owns
-candidate promotion. The custom API and UI follow a measured recovery experiment.
+candidate promotion. The custom API records their real state; the product UI follows.
 
 ## Current milestone
 
@@ -78,7 +82,7 @@ No subscription or cloud account is required for the lab. Docker/k3d need a Linu
 container runtime. The current Windows host has about 8 GiB RAM: start with the lean
 single-node profile for routine work and the full profile for serial trusted-lab
 CI trials. A separate isolated build host remains later work. PostgreSQL and the
-product API are next; the portal and full monitoring follow.
+product API now run locally; backend hardening, the interface and full monitoring follow.
 
 The installed Windows lab can be managed from PowerShell:
 

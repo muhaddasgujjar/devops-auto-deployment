@@ -205,6 +205,10 @@ class PostgreSQLStateTests(unittest.TestCase):
         self.assertEqual(self.client.get('/audit', headers={'X-API-Key': self.tokens['developer']}).status_code, 403)
         payload = {'event_id': 'signed', 'expected_version': 0, 'release': self.observation().model_dump(mode='json')}
         self.assertEqual(self.signed(payload, forged=True).status_code, 401)
+        raw = json.dumps(payload).encode()
+        malformed = self.client.post('/callbacks', content=raw, headers={
+            b'X-Release-Timestamp': str(int(time.time())).encode(), b'X-Release-Signature': b'\xff'})
+        self.assertEqual(malformed.status_code, 401)
         self.assertEqual(self.signed(payload, stamp=int(time.time()) - 600).status_code, 401)
         self.assertEqual(self.signed(payload).status_code, 200)
 
@@ -269,3 +273,22 @@ class PostgreSQLStateTests(unittest.TestCase):
         raw = json.dumps(self.report()).replace('45262', 'NaN')
         self.assertIn('NaN', raw)
         self.assertEqual(self.client.post('/imports', content=raw).status_code, 422)
+
+    def test_openapi_publishes_streamed_request_contracts(self):
+        schema = self.client.get('/openapi.json').json()
+        for path, name in (('/imports', 'ImportRequest'), ('/callbacks', 'CallbackRequest')):
+            body = schema['paths'][path]['post']['requestBody']
+            self.assertTrue(body['required'])
+            self.assertEqual(body['content']['application/json']['schema']['$ref'], '#/components/schemas/' + name)
+        def check_references(value):
+            if isinstance(value, dict):
+                if '$ref' in value:
+                    target = schema
+                    for part in value['$ref'].removeprefix('#/').split('/'):
+                        target = target[part]
+                for child in value.values():
+                    check_references(child)
+            elif isinstance(value, list):
+                for child in value:
+                    check_references(child)
+        check_references(schema)
