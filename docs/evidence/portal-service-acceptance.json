@@ -1,8 +1,8 @@
 {
-  "recorded_at_utc": "2026-11-10T10:56:52.666444+00:00",
+  "recorded_at_utc": "2026-11-10T11:10:07.217693+00:00",
   "passed": true,
-  "installed_source_commit": "13149ad24842a298f8dedeb2a1ab37707ab78c64",
-  "frontend_input_sha256": "1edfb5eb2dc083fc9f9cef400ffd22a42d4ab25c7f500128c7e1690a5c427029",
+  "installed_source_commit": "8d1faef9b1039031e1587032dcf9fe3b70b37802",
+  "frontend_input_sha256": "d0adc3427da0f3111c3b83b6bacaaa5898984579c29470a941cda6fbf3ea8d7a",
   "verified_asset_count": 3,
   "read_audit_denied": true,
   "admin_audit_allowed": true,
@@ -13,8 +13,8 @@
   "build_records": 11,
   "desired_build": 17,
   "stable_build": 17,
-  "freshness": "current",
-  "environment_version": 15,
+  "freshness": "stale",
+  "environment_version": 31,
   "limitations": [
     "Loopback HTTP, one API worker, process-local sessions; TLS/remote hosting remain future work",
     "This check reads production lab evidence; it does not promote or recover releases"

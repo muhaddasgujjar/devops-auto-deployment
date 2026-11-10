@@ -33,6 +33,8 @@ The [hardening milestone](docs/milestones/05-backend-hardening.md) adds restrict
 database roles, scoped and supervised collection, and a dedicated backend CI job
 with real test/scan/publication gates. The [portal milestone](docs/milestones/06-real-data-portal.md)
 adds authenticated real-data views, evidence history and admin audit access.
+Use [the portal runbook](docs/portal.md) to build it and start the local interface
+at `http://127.0.0.1:8090/`.
 
 A self-hosted Kubernetes release platform under development. Jenkins owns builds;
 Git owns desired configuration; Argo CD owns synchronization; Argo Rollouts owns

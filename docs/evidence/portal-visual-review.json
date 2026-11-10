@@ -1,0 +1,32 @@
+{
+  "recorded_at_utc": "2026-11-10T11:08:21.775488+00:00",
+  "method": "Real Chrome desktop UI using Windows Computer Use; disposable copy of actual PostgreSQL records and fixture-only keys",
+  "review_status": "partial; final CSS visual reload blocked by tool URL-verification policy",
+  "frontend_javascript_sha256": "1e06ce403b69603c236f4adec97c335ec5862c25b5f7fa7ab9c0246478142f4d",
+  "observed": [
+    "Read session sees admin-access-required audit page",
+    "Admin session sees 16 recorded ingestion/source-availability audit entries",
+    "Release search filters actual release/commit fields",
+    "Build 17 scan evidence stays Not recorded",
+    "Build 5 shows CI failed, missing artifacts and No release",
+    "Release 12 explicitly excludes the 538-second interrupted HTTP observation despite zero non-200 responses",
+    "Current and stale observations use Serving traffic and Last recorded stable respectively",
+    "Pausing the fixture API produces API unavailable and retains the last loaded records",
+    "Resuming the fixture API restores refresh without inventing release changes",
+    "Explicit sign-out returns to sign-in; service restart invalidates the earlier browser session",
+    "Desktop, 371-pixel emulation and a narrower actual window were inspected; responsive metadata readability was increased"
+  ],
+  "final_css_visually_rechecked": false,
+  "stop_reason": "Windows Computer Use could not determine the current browser URL confidently enough to enforce policy; no further browser actions were issued",
+  "not_exercised_in_browser": [
+    "Clipboard operation",
+    "Normalized JSON download",
+    "Full browser regression suite",
+    "Final CSS reload"
+  ],
+  "notes": [
+    "Final CSS is covered separately by compilation, packaged asset hash verification and API/CI gates; those do not establish pixel-perfect rendering",
+    "Existing-profile browser extension/CSP errors were visible; no external scripts/styles/assets occur in portal source",
+    "No real operator key was entered through browser automation; screenshots containing unrelated browser context were not exported"
+  ]
+}

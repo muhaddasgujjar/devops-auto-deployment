@@ -1,0 +1,35 @@
+{
+  "recorded_at_utc": "2026-11-10T11:11:56.864625+00:00",
+  "passed": true,
+  "containers_stopped": {
+    "release-state-db": {
+      "running": false
+    },
+    "release-agent": {
+      "running": false
+    },
+    "release-jenkins": {
+      "running": false
+    },
+    "registry.localhost": {
+      "running": false
+    },
+    "k3d-release-lab-server-0": {
+      "running": false
+    },
+    "k3d-release-lab-serverlb": {
+      "running": false
+    }
+  },
+  "services": {
+    "release-state-api": "inactive",
+    "release-state-collector": "inactive"
+  },
+  "preview_configs_remaining": 0,
+  "preview_port_closed": true,
+  "persistent_data_preserved": true,
+  "earlier_release_portal_db_managed_or_changed": false,
+  "verified_source_commit": "8d1faef9b1039031e1587032dcf9fe3b70b37802",
+  "frontend_input_sha256": "d0adc3427da0f3111c3b83b6bacaaa5898984579c29470a941cda6fbf3ea8d7a",
+  "visual_recheck": "blocked by Windows Computer Use URL confidence check; see portal-visual-review.json"
+}

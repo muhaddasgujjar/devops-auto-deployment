@@ -59,6 +59,8 @@ current server role; hiding a navigation item is not an authorization boundary.
 Sessions expire after one hour or 15 minutes without authenticated requests.
 Visible-tab polling counts as activity. Restarting the single API worker signs
 everyone out; multi-worker/shared sessions and production TLS are future work.
+Key/role configuration is loaded at API startup. Restart after changing it;
+there is no public account-management or session-revocation console.
 Loopback HTTP is this milestone's scope. Remote login origins are rejected.
 Ten sign-in attempts per minute per client address are allowed; request bodies,
 session count and throttle memory are bounded. There is no public registration.
@@ -94,6 +96,9 @@ Those keys are never installed in the real service. Run with the protected
 `RELEASE_BOOTSTRAP_CONFIG_FILE` set, inspect port 8093, and stop with Ctrl+C/SIGTERM.
 Cleanup drops only its generated preview database/config; the real database is
 unchanged. A backup remains in ignored output. This helper is not a deployment.
+SIGKILL, host shutdown or a forced WSL stop can interrupt that cleanup. Preserve
+the generated config/database for diagnosis and verify its exact fixture identity
+before removing an abandoned preview; never clean the main database or volume.
 
 The frontend is MIT-licensed React/React DOM with Vite and TypeScript tooling.
 No cloud account, paid model, external font, image service or subscription is

@@ -23,22 +23,28 @@ covered. Existing API-key clients and signed collector callbacks still pass.
 | PostgreSQL/API/session/worker | 47 tests pass, no skips |
 | Frontend presentation | 5 tests pass; missing scans/metrics and excluded samples stay explicit |
 | Build | TypeScript and Vite compile successfully; Windows and Linux produce the same three asset hashes |
-| Negative Jenkins gate | Build 3 runs 48 tests with exactly one intentional failure; no scan/SBOM or registry tag |
-| Positive Jenkins gate | Build 4 passes 47 tests, boots UID 10001, verifies served portal hashes and unauthenticated data denial, then scans/publishes |
+| Negative Jenkins gate | Build 5 runs 48 tests with exactly one intentional failure; no scan/SBOM or registry tag |
+| Positive Jenkins gate | Build 6 passes 47 tests, boots UID 10001, verifies served portal hashes and unauthenticated data denial, then scans/publishes |
 | Dependency gates | Production npm audit and Trivy OS/Python scan report zero HIGH/CRITICAL findings |
 | Installed local service | Same verified bundle served by immutable snapshot; read audit denied, admin audit allowed, CSRF enforced, logout revokes access |
-| Real collector compatibility | Supervised collector observes current build 17 through existing read/HMAC contracts; desired/stable both 17, state version 15 at acceptance |
+| Real collector compatibility | Supervised collector observes current build 17 through existing read/HMAC contracts; desired/stable both 17, state version 15 at the initial live acceptance |
 
 Reviewed CI and installed API source:
-`13149ad24842a298f8dedeb2a1ab37707ab78c64`.
+`8d1faef9b1039031e1587032dcf9fe3b70b37802`.
 Published image:
-`localhost:5001/release-state@sha256:99049286b28fd422cb14c4fabae6e795e234d95e231ce95682e1978eac8e2d33`.
+`localhost:5001/release-state@sha256:aee2bb83a397b9d989bf0af9c4bda2e23b1a9284578e1ff5604da67a6a3601db`.
 OCI config digest:
-`sha256:4a2891863c8c10e2ffe789ec89621d3dabd48e9404dbdda6c8fa4f97011c02f5`.
+`sha256:7f3c2a60174f287ee2f8ade38cfca12d9c559d55aa897a68d5fc79ca011a93dc`.
 Frontend input fingerprint:
-`1edfb5eb2dc083fc9f9cef400ffd22a42d4ab25c7f500128c7e1690a5c427029`.
+`d0adc3427da0f3111c3b83b6bacaaa5898984579c29470a941cda6fbf3ea8d7a`.
 The runtime OS/Python CycloneDX SBOM has 63 components; bundled JavaScript is
 covered by its npm lock/audit receipt, not claimed as part of that Trivy SBOM.
+
+The final API-only installation check used environment version 31, with the
+collector deliberately stopped and freshness correctly reported as stale.
+Desired/stable remained build 17, with 10 releases and 11 builds. The earlier
+current-observation receipt uses the first portal snapshot, whose backend and
+compiled JavaScript are identical to the final one; the final change adjusts CSS.
 
 ## Evidence and operation
 
@@ -48,6 +54,14 @@ covered by its npm lock/audit receipt, not claimed as part of that Trivy SBOM.
 - `docs/evidence/backend-ci-acceptance.json`: independent negative/positive
   Jenkins, registry byte/digest, runtime identity, scan, SBOM and frontend proof.
 - `docs/evidence/portal-service-acceptance.json`: real installed-service checks.
+- `docs/evidence/portal-live-observer-acceptance.json`: earlier live collector/UI
+  compatibility proof with current observation, retained separately from the
+  final static-bundle installation check.
+- `docs/evidence/portal-visual-review.json`: observed browser scenarios and the
+  explicit final-visual-recheck limitation.
+- `docs/evidence/portal-build.json`: final compiled asset/source hashes.
+- `docs/evidence/portal-closeout.json`: stopped services/containers, preview
+  cleanup and agreement between CI, installed service and compiled bundle.
 - [Portal runbook](../portal.md): build/start/stop, credentials and session limits.
 - [Progress and next milestone](../progress-after-portal.md): weighted estimate
   and the ordered post-promotion recovery plan.
@@ -56,6 +70,11 @@ Milestone 5's 32-test/older-image receipts are preserved separately as
 `backend-tests-milestone5.json` and `backend-ci-milestone5.json`. Its service
 restart/restore proof remains historical. The new backend job does not deploy
 the demo; the proven demo job/source and environment Git are unchanged.
+
+API, collector, working PostgreSQL, cluster, CI and registry are stopped after
+acceptance. Persistent volumes, backups and immutable source snapshots are
+retained. The disposable fixture preview database/config was cleaned up; the
+earlier database on 5433 remains untouched. Repository commits remain local.
 
 ## Practical limits
 
@@ -79,6 +98,6 @@ The final CSS adjustment constrains flex children/document overflow while tables
 retain their own horizontal scrolling. Its final visual reload was blocked by
 the Windows tool's inability to confidently verify the current browser URL.
 Browser automation ended immediately; the final CSS build/package/API checks
-continue separately. No final screenshot or automated browser-suite result is
+passed separately. No final screenshot or automated browser-suite result is
 claimed. Existing-profile extension CSP errors were visible during inspection;
 the portal's source contains no external scripts, styles or image URLs.
