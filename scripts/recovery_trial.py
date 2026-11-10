@@ -31,7 +31,10 @@ def main():
     parser.add_argument('fault',choices=['error','latency'])
     parser.add_argument('--restart-writer',action='store_true')
     parser.add_argument('--stop-ci-after-build',action='store_true')
+    parser.add_argument('--telemetry-gap-seconds',type=int,default=0)
     args=parser.parse_args()
+    if args.telemetry_gap_seconds and not 120<=args.telemetry_gap_seconds<=180:
+        parser.error('A controlled telemetry gap must last 120–180 seconds')
     folder=ROOT/'output'/('recovery-'+args.fault+'-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ'))
     folder.mkdir(parents=True,exist_ok=False)
     kubeconfig=ROOT/'output/lab.kubeconfig'
@@ -42,9 +45,10 @@ def main():
     client=httpx.Client(base_url='http://127.0.0.1:8090',headers={'X-API-Key':tokens['admin']},timeout=10,trust_env=False)
     def api(path):
         response=client.get(path); response.raise_for_status(); return response.json()
-    stop=threading.Event(); threads=[]; injected=[]
+    stop=threading.Event(); threads=[]; injected=[]; telemetry_removed=False
     summary={'fault':args.fault,'passed':False,'started_at_utc':datetime.now(timezone.utc).isoformat(),
-             'observer_source':command('git','-C',str(ROOT),'rev-parse','HEAD')}
+             'observer_source':command('git','-C',str(ROOT),'rev-parse','HEAD'),
+             'observer_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
     def traffic(service, filename):
         with (folder/filename).open('w') as stream:
             while not stop.is_set():
@@ -58,7 +62,9 @@ def main():
             raise AssertionError('Establish a healthy serving baseline before post-promotion injection')
         summary['baseline_response']=baseline
         for service,name in [('demo-stable','stable.jsonl'),('demo-preview','preview.jsonl')]:
-            thread=threading.Thread(target=traffic,args=(service,name),daemon=True); thread.start(); threads.append(thread)
+            for i in range(4):
+                filename=name.replace('.jsonl','-'+str(i)+'.jsonl')
+                thread=threading.Thread(target=traffic,args=(service,filename),daemon=True); thread.start(); threads.append(thread)
         jenkins=Jenkins(); queue=jenkins.build('healthy','release-merged'); number=None
         deadline=time.monotonic()+1200
         while time.monotonic()<deadline:
@@ -125,6 +131,21 @@ def main():
         injected_monotonic=time.monotonic()
         summary['injected_pods']=injected.copy()
         print('Origin promoted healthy; injected '+args.fault+' into its two serving pods',flush=True)
+        if args.telemetry_gap_seconds:
+            command(*kube,'delete','rolebinding','release-recovery','-n','monitoring')
+            telemetry_removed=True
+            gap_start=time.monotonic(); unavailable=set()
+            print('Holding a controlled read-permission outage; no recovery may be proposed without telemetry',flush=True)
+            while time.monotonic()-gap_start<args.telemetry_gap_seconds:
+                assert not any(r['origin']['id']==state['desired']['id'] for r in api('/recoveries')), 'Incident opened during missing telemetry'
+                windows=api('/recovery/health?release_id='+state['desired']['id'])
+                unavailable.update(w['window_end'] for w in windows if w['quality']=='unavailable')
+                time.sleep(3)
+            assert len(unavailable)>=3, 'Missing telemetry did not produce three unavailable windows'
+            command(*kube,'apply','-f',str(ROOT/'platform/backend-recovery.yaml'))
+            telemetry_removed=False
+            summary['telemetry_gap']={'seconds':round(time.monotonic()-gap_start,3),
+                'unavailable_windows':sorted(unavailable),'incidents_while_unavailable':0,'permission_restored':True}
         deadline=time.monotonic()+850; incident=None; previous=None; restarted=False
         while time.monotonic()<deadline:
             incident=next((r for r in api('/recoveries') if r['origin']['id']==state['desired']['id']),None)
@@ -167,6 +188,12 @@ def main():
     finally:
         stop.set()
         for thread in threads: thread.join(timeout=8)
+        if telemetry_removed:
+            command(*kube,'apply','-f',str(ROOT/'platform/backend-recovery.yaml'))
+        for prefix in ('stable','preview'):
+            records=[json.loads(line) for path in folder.glob(prefix+'-*.jsonl') for line in path.read_text().splitlines()]
+            records.sort(key=lambda r:r['client_monotonic_seconds'])
+            (folder/(prefix+'.jsonl')).write_text(''.join(json.dumps(r)+'\n' for r in records))
         verification_error=None
         if summary['passed']:
             try:

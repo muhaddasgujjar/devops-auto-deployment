@@ -1,0 +1,132 @@
+{
+  "recorded_at_utc": "2026-11-10T12:48:01.951972+00:00",
+  "passed": true,
+  "kubernetes": [
+    {
+      "request": [
+        "get",
+        "rollouts.argoproj.io/release-demo",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": true
+    },
+    {
+      "request": [
+        "get",
+        "applications.argoproj.io/release-demo-dev",
+        "-n",
+        "argocd"
+      ],
+      "allowed": true
+    },
+    {
+      "request": [
+        "get",
+        "services/demo-stable:80",
+        "--subresource=proxy",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": true
+    },
+    {
+      "request": [
+        "get",
+        "services/prometheus:9090",
+        "--subresource=proxy",
+        "-n",
+        "monitoring"
+      ],
+      "allowed": true
+    },
+    {
+      "request": [
+        "patch",
+        "rollouts.argoproj.io/release-demo",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "patch",
+        "services/demo-stable",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "create",
+        "pods",
+        "--subresource=exec",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "get",
+        "secrets",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "patch",
+        "applications.argoproj.io/release-demo-dev",
+        "-n",
+        "argocd"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "get",
+        "applications.argoproj.io/other",
+        "-n",
+        "argocd"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "get",
+        "services/other:9090",
+        "--subresource=proxy",
+        "-n",
+        "monitoring"
+      ],
+      "allowed": false
+    }
+  ],
+  "service": {
+    "WorkingDirectory": "/opt/release-lab/backend-runtime/3f862284ce509364f01c68b1c767abe57b727c2c",
+    "User": "release-recovery",
+    "ProtectSystem": "strict",
+    "NoNewPrivileges": "yes",
+    "ActiveState": "active"
+  },
+  "api_import_audit_browser_denied": true,
+  "separate_service_key": true,
+  "database_admin_hmac_credentials_in_worker": false,
+  "kubernetes_tls_verified_proxy_get": true,
+  "git_non_fast_forward_and_ref_deletion_denied": true,
+  "baseline_response": {
+    "ok": true,
+    "status": 200,
+    "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-17",
+    "mode": "healthy",
+    "seconds": 0.0869893150002099
+  },
+  "token_lifetime": "1h; explicit refresh and service restart required",
+  "limitations": [
+    "Repository-scoped SSH write authority; trusted local host and CI agent remain lab boundaries"
+  ]
+}
