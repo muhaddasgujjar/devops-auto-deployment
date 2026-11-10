@@ -64,7 +64,9 @@ systemctl show release-state-api.service release-state-collector.service -p Acti
 cat /var/lib/release-observer/status.json
 ```
 
-Install requires committed backend code. It copies that snapshot under
+Install requires committed backend/frontend code and a matching compiled portal
+(`npm ci --prefix frontend --ignore-scripts`, then `npm run build --prefix frontend`).
+See [portal operation](portal.md). It copies that snapshot under
 `/opt/release-lab/backend-runtime/<SHA>/` and never executes a mutable Windows
 working tree. Services use separate non-login users, root-provided systemd
 credentials, read-only filesystem protection, no privilege escalation and no

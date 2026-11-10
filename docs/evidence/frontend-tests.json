@@ -1,0 +1,10 @@
+{
+  "tap_sha256": "7f34e1aed021678f0b4ee19b9fa76a7564d3e84b7d702fff6b0416ad1ed08633",
+  "failures": 0,
+  "raw_report": "output/frontend-tests.tap",
+  "frontend_input_sha256": "d0adc3427da0f3111c3b83b6bacaaa5898984579c29470a941cda6fbf3ea8d7a",
+  "command": "node --test --test-reporter=tap frontend/tests/*.test.mjs",
+  "passed": true,
+  "recorded_at_utc": "2026-11-10T11:04:20.3080827Z",
+  "tests_run": 5
+}

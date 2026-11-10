@@ -5,12 +5,12 @@ single Git project, preserving both histories. The canonical application is
 `demo/app.py`; `examples/foundation/` is an isolated earlier test fixture, not a
 second product. See [merged status and the solo one-week plan](docs/merged-project-status.md).
 The earlier 20% assessment is superseded by the combined-work estimate there.
-After backend hardening acceptance, the current weighted MVP estimate is approximately
-**70%**; see [progress and next priorities](docs/progress-after-hardening.md).
+After real-data portal acceptance, the current weighted MVP estimate is approximately
+**73%**; see [progress and next priorities](docs/progress-after-portal.md).
 
 Run the 54 core/demo tests using `python scripts/validate.py` in an environment with
 `requirements-validation.txt` installed. Results go to `docs/evidence/merge-validation.json`.
-The separate 32-test backend/worker suite requires PostgreSQL and the pinned backend
+The separate 47-test backend/session/worker suite requires PostgreSQL and the pinned backend
 venv; see [permissions, CI and supervised operation](docs/backend-hardening.md).
 The November 9 merge passed tests/schema checks but exposed live lab failures.
 The laptop recovery session restored controllers, serving telemetry and GitOps
@@ -31,11 +31,12 @@ now adds authenticated APIs, PostgreSQL evidence/audit state, read-only restart
 reconciliation and a restore verified through a separate API process.
 The [hardening milestone](docs/milestones/05-backend-hardening.md) adds restricted
 database roles, scoped and supervised collection, and a dedicated backend CI job
-with real test/scan/publication gates. The real-data interface is next.
+with real test/scan/publication gates. The [portal milestone](docs/milestones/06-real-data-portal.md)
+adds authenticated real-data views, evidence history and admin audit access.
 
 A self-hosted Kubernetes release platform under development. Jenkins owns builds;
 Git owns desired configuration; Argo CD owns synchronization; Argo Rollouts owns
-candidate promotion. The custom API records their real state; the product UI follows.
+candidate promotion. The custom API records their real state; the React portal displays it.
 
 ## Current milestone
 
@@ -86,7 +87,7 @@ container runtime. The current Windows host has about 8 GiB RAM: start with the 
 single-node profile for routine work and the full profile for serial trusted-lab
 CI trials. A separate isolated build host remains later work. PostgreSQL and the
 product API now run with restricted roles and supervised local services. The
-interface, post-promotion recovery and full monitoring follow.
+post-promotion recovery and full monitoring follow.
 
 The installed Windows lab can be managed from PowerShell:
 

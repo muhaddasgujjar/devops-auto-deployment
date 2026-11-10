@@ -34,7 +34,8 @@ runtime fault matrix. See [CI evidence](milestones/02-ci-gitops.md) and
 [runtime evidence](milestones/03-runtime-failure-validation.md). The
 [durable state gate](milestones/04-durable-state.md) and
 [backend hardening gate](milestones/05-backend-hardening.md) also passed local
-acceptance. See [current priorities](progress-after-hardening.md).
+acceptance. The [real-data portal](milestones/06-real-data-portal.md) now adds
+role-based sessions and evidence views. See [current priorities](progress-after-portal.md).
 
 Remaining integration and production work:
 
@@ -51,14 +52,13 @@ Remaining integration and production work:
 The database roles, backend CI and supervised collection prerequisites are now
 accepted locally. The remaining sequence is:
 
-1. Minimal real-data React environment status, release history and decision evidence.
-2. Post-promotion detection, retention, serialized Git-authoritative recovery and
+1. Post-promotion detection, retention, serialized Git-authoritative recovery and
    explicit failed recovery handling before exposing recovery actions in the UI.
-3. Persistent Prometheus/Grafana/Alertmanager, local notification receiver, bounded
+2. Persistent Prometheus/Grafana/Alertmanager, local notification receiver, bounded
    delivery retries and broader platform backup/restore.
-4. Other-machine reproduction, isolated builds, TLS registry, staging environment
+3. Other-machine reproduction, isolated builds, TLS registry, staging environment
    and infrastructure dependency verification.
-5. Repeated failure experiments and fresh-machine reproduction; publish measured
+4. Repeated failure experiments and fresh-machine reproduction; publish measured
    p50/p95 timings, trial counts, false positives, availability, and resource use.
 
 Five user interviews, team capacity confirmation, a second-user pilot, and the

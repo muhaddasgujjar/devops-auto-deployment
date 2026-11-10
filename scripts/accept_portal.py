@@ -2,6 +2,7 @@
 import hashlib
 import json
 import subprocess
+import time
 from datetime import datetime, timezone
 
 import httpx
@@ -14,6 +15,16 @@ def main():
     base = 'http://127.0.0.1:8090'
     tokens = json.loads((SECRET_ROOT / 'tokens.json').read_text())
     with httpx.Client(base_url=base, timeout=10, trust_env=False) as client:
+        deadline = time.monotonic() + 30
+        while True:
+            try:
+                if client.get('/health/live', timeout=2).status_code == 200:
+                    break
+            except httpx.TransportError:
+                pass
+            if time.monotonic() >= deadline:
+                raise TimeoutError('Installed portal API did not become ready within 30 seconds')
+            time.sleep(1)
         index = client.get('/')
         assert index.status_code == 200 and 'Release Lab' in index.text
         assert "script-src 'self'" in index.headers['content-security-policy']
