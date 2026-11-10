@@ -1,12 +1,12 @@
 {
-  "recorded_at_utc": "2026-11-10T06:19:35.613087+00:00",
+  "recorded_at_utc": "2026-11-10T07:02:35.125118+00:00",
   "python": "3.12.3",
   "platform": "Linux",
   "tests_run": 54,
   "failures": 0,
   "errors": 0,
   "skipped": 0,
-  "duration_seconds": 5.574,
+  "duration_seconds": 4.784,
   "passed": true,
   "scope": "Canonical/foundation HTTP, rendering, temporary Git publication, lifecycle, runtime-decision and observation-continuity tests; live CI/runtime evidence is recorded separately",
   "cases": []
