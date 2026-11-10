@@ -22,7 +22,7 @@ report = {
     "skipped": len(result.skipped),
     "duration_seconds": round(time.perf_counter() - start, 3),
     "passed": result.wasSuccessful(),
-    "scope": "Canonical and foundation HTTP, manifest renderer and local temporary Git publication tests; not live CI or recovery validation",
+    "scope": "Canonical/foundation HTTP, rendering, temporary Git publication, lifecycle, runtime-decision and observation-continuity tests; live CI/runtime evidence is recorded separately",
     "cases": [str(test) for test, _ in result.failures + result.errors],
 }
 destination = root / "docs/evidence/merge-validation.json"

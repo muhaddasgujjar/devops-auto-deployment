@@ -17,6 +17,7 @@ from urllib.error import HTTPError, URLError
 from scripts.live_trial import kube, resource, sample, service_hash
 from scripts.render_release import ROOT
 from scripts.runtime_decision import decision
+from scripts.observation import stable_sample_quality
 
 
 def queued_build_number(item):
@@ -88,7 +89,7 @@ def main():
     summary = {'scenario': args.scenario, 'previous_stable_hash': old_hash, 'started': datetime.now(timezone.utc).isoformat()}
     summary['observer_commit'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     summary['observer_sha256'] = {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-                                  for name in ('scripts/gitops_trial.py', 'scripts/runtime_decision.py')}
+                                  for name in ('scripts/gitops_trial.py', 'scripts/runtime_decision.py', 'scripts/observation.py')}
     stop, threads = threading.Event(), []
     monitoring = None
     log = (folder / 'proxy.log').open('w')
@@ -98,7 +99,10 @@ def main():
     def traffic(service, filename):
         with (folder / filename).open('a') as stream:
             while not stop.is_set():
-                stream.write(json.dumps(sample(root + service + ':80/proxy/')) + '\n')
+                started_monotonic = time.monotonic()
+                row = sample(root + service + ':80/proxy/')
+                row['client_monotonic_seconds'] = started_monotonic
+                stream.write(json.dumps(row) + '\n')
                 stream.flush()
                 stop.wait(0.2)
 
@@ -157,6 +161,7 @@ def main():
             (folder / filename).write_bytes(jenkins.request(f'job/{args.job}/{number}/artifact/output/{filename}')[0])
         print('Build passed; observing Argo reconciliation and candidate analysis', flush=True)
         summary['observation_started'] = datetime.now(timezone.utc).isoformat()
+        observation_monotonic = time.monotonic()
         summary['availability_boundary'] = 'After CI completion; excludes build/scan and Git publication interval'
         start_traffic('demo-stable', 'stable.jsonl')
         expected_revision = evidence['source_commit'] + '-' + evidence['release_id']
@@ -190,6 +195,7 @@ def main():
             if verdict:
                 summary['verdict'] = verdict
                 summary['decision_observed'] = datetime.now(timezone.utc).isoformat()
+                summary['client_monotonic_observation_seconds'] = round(time.monotonic() - observation_monotonic, 3)
                 break
             time.sleep(3)
         else:
@@ -254,7 +260,13 @@ def main():
         rows = [json.loads(line) for line in (folder / 'stable.jsonl').read_text().splitlines()] if (folder / 'stable.jsonl').exists() else []
         summary.update(stable_requests=len(rows), stable_non_200=sum(row.get('status') != 200 for row in rows),
                        finished=datetime.now(timezone.utc).isoformat())
-        summary['availability_gate_passed'] = bool(rows) and summary['stable_non_200'] == 0
+        try:
+            summary['sampling_quality'] = stable_sample_quality(rows)
+            summary['sampling_gate_passed'] = True
+        except ValueError as exc:
+            summary['sampling_gate_passed'] = False
+            summary['sampling_error'] = str(exc)
+        summary['availability_gate_passed'] = summary['sampling_gate_passed'] and summary['stable_non_200'] == 0
         summary['acceptance_passed'] = (summary.get('verdict') not in (None, 'trial-failed')
                                         and summary['availability_gate_passed']
                                         and not summary.get('telemetry_restore_error'))
