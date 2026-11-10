@@ -2,13 +2,14 @@ export const statusNames = {
   promoted: 'Promoted', rejected: 'Rejected', readiness_aborted: 'Readiness aborted',
   inconclusive: 'Inconclusive', telemetry_error: 'Telemetry error', aborted: 'Aborted',
   progressing: 'In progress', published: 'Published', SUCCESS: 'CI passed', FAILURE: 'CI failed',
+  proposed: 'Proposed', applying: 'Applying', verifying: 'Verifying', recovered: 'Recovered', failed: 'Failed', superseded: 'Superseded',
 };
 
 export function label(status) { return statusNames[status] || status || 'Unknown'; }
 export function tone(status) {
-  if (['promoted', 'SUCCESS', 'Successful', 'accepted', 'current'].includes(status)) return 'good';
-  if (['rejected', 'readiness_aborted', 'aborted', 'FAILURE', 'Failed'].includes(status)) return 'bad';
-  if (['inconclusive', 'telemetry_error', 'Error', 'Inconclusive', 'excluded', 'stale', 'unavailable', 'api_unavailable', 'historical'].includes(status)) return 'warn';
+  if (['promoted', 'SUCCESS', 'Successful', 'accepted', 'current', 'recovered'].includes(status)) return 'good';
+  if (['rejected', 'readiness_aborted', 'aborted', 'FAILURE', 'Failed', 'failed'].includes(status)) return 'bad';
+  if (['inconclusive', 'telemetry_error', 'Error', 'Inconclusive', 'excluded', 'stale', 'unavailable', 'api_unavailable', 'historical', 'proposed', 'applying', 'verifying'].includes(status)) return 'warn';
   return 'muted';
 }
 export function scanSummary(artifact) {

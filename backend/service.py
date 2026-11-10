@@ -56,11 +56,13 @@ class StateService:
                                 'status': 'ci_failed', 'reason': 'synthetic_test_gate; publication blocked'})
             for item in releases:
                 changes.append(self._release(conn, env, event_id, item, source))
+            from backend.recovery import supersede_changed
+            supersede_changed(self, conn, env, event_id)
             if unavailable is not None:
                 env.update(freshness='unavailable', detail=unavailable)
             env['version'] += 1
             updates = {key: env[key] for key in ('version', 'desired_release_id', 'stable_release_id',
-                       'stable_revision', 'stable_hash', 'stable_image', 'source_uid', 'last_observed_at', 'freshness', 'detail')}
+                       'stable_revision', 'stable_hash', 'stable_image', 'source_uid', 'last_observed_at', 'freshness', 'detail', 'observation_sequence')}
             conn.execute(envs.update().where(envs.c.id == self.env_id).values(**updates))
             result = {'event_id': external_id, 'version': env['version'], 'duplicate': False,
                       'changes': changes, 'source': source}
@@ -74,7 +76,9 @@ class StateService:
     def _release(self, conn, env, event_id, item, source):
         builds, artifacts, releases = self.t('builds'), self.t('artifacts'), self.t('releases')
         build_id = identity(f'{self.settings.project}/{self.settings.job}/{item.build_number}')
-        release_id = identity(f'{self.env_id}/{build_id}')
+        deployment = conn.execute(select(releases).where(releases.c.environment_id == self.env_id,
+                     releases.c.build_id == build_id, releases.c.environment_commit == item.environment_commit)).mappings().first()
+        release_id = deployment['id'] if deployment else identity(f'{self.env_id}/{build_id}/{item.environment_commit}')
         build = conn.execute(select(builds).where(builds.c.id == build_id)).mappings().first()
         static_refs = {key: value for key, value in item.artifacts.items()
                        if key in {'scan.json', 'sbom.json', 'source.json', 'image-inspect.json'}}
@@ -97,18 +101,23 @@ class StateService:
                          number=item.build_number, source_commit=item.source_commit, result='SUCCESS'))
             conn.execute(artifacts.insert().values(id=identity(build_id + '/artifact'), build_id=build_id, image=item.image,
                          scanned_image_id=item.scanned_image_id, reported_high_critical=item.reported_high_critical, refs=static_refs))
-        row = conn.execute(select(releases).where(releases.c.id == release_id)).mappings().first()
+        row = deployment
         if row and (row['environment_commit'] != item.environment_commit or
                     (row['candidate_hash'] and item.candidate_hash and row['candidate_hash'] != item.candidate_hash) or
                     (row['source_uid'] and item.source_uid and row['source_uid'] != item.source_uid)):
             raise Conflict('Release Git/candidate/controller identity changed')
+        if row and row['recovery_id'] != item.recovery_id:
+            raise Conflict('Deployment recovery identity changed')
+        from backend.recovery import authorize_deployment
+        recovery = authorize_deployment(self, conn, env, item, source)
         newer = row is None or item.observation_sequence > row['observation_sequence']
         values = dict(candidate_hash=item.candidate_hash or (row['candidate_hash'] if row else None),
                       status=item.status, observation_sequence=item.observation_sequence,
-                      source_uid=item.source_uid or (row['source_uid'] if row else None), observed_at=item.observed_at)
+                      source_uid=item.source_uid or (row['source_uid'] if row else None), observed_at=item.observed_at,
+                      promoted_at=(row['promoted_at'] if row else None) or (item.observed_at if item.status == 'promoted' else None))
         if row is None:
             conn.execute(releases.insert().values(id=release_id, environment_id=self.env_id, build_id=build_id,
-                         environment_commit=item.environment_commit, **values))
+                         environment_commit=item.environment_commit, recovery_id=item.recovery_id, **values))
         elif newer:
             conn.execute(releases.update().where(releases.c.id == release_id).values(**values))
         if newer:
@@ -131,18 +140,22 @@ class StateService:
                         item.observation_sequence == row['observation_sequence'] and item.status == row['status'] and
                         item.candidate_hash == row['candidate_hash'] and item.source_uid == row['source_uid'] and
                         item.stable_hash == env['stable_hash'] and item.stable_revision == env['stable_revision'])
-        applied = (newer or live_refresh) and item.build_number >= latest_number
+        sequence_ok = item.observation_sequence >= env['observation_sequence'] if source != 'import' else not env['source_uid']
+        applied = (newer or live_refresh) and sequence_ok and (item.build_number >= latest_number or recovery is not None)
         if applied:
             if source != 'import' and item.source_uid:
                 if env['source_uid'] not in (None, item.source_uid):
                     raise Conflict('Controller identity changed; explicit environment re-enrollment is required')
                 env['source_uid'] = item.source_uid
+                env['observation_sequence'] = item.observation_sequence
             env['desired_release_id'] = release_id
             if item.stable_revision:
                 stable_sha, stable_number = item.stable_revision.split('-jenkins-')
-                stable_id = conn.scalar(select(releases.c.id).join(builds, releases.c.build_id == builds.c.id).where(
-                    releases.c.environment_id == self.env_id, builds.c.number == int(stable_number),
-                    builds.c.source_commit == stable_sha))
+                stable_id = release_id if item.status == 'promoted' else conn.scalar(
+                    select(releases.c.id).join(builds, releases.c.build_id == builds.c.id).where(
+                        releases.c.environment_id == self.env_id, builds.c.number == int(stable_number),
+                        builds.c.source_commit == stable_sha, releases.c.candidate_hash == item.stable_hash)
+                    .order_by(releases.c.observed_at.desc()).limit(1))
                 env.update(stable_release_id=stable_id, stable_revision=item.stable_revision,
                            stable_hash=item.stable_hash, stable_image=item.stable_image)
             if source == 'import':
@@ -150,6 +163,10 @@ class StateService:
             elif item.status != 'published' and item.stable_revision:
                 observed = max(env['last_observed_at'], item.observed_at) if live_refresh and env['last_observed_at'] else item.observed_at
                 env.update(freshness='current', last_observed_at=observed, detail=None)
+            if recovery and recovery['phase'] == 'applying':
+                from backend.recovery import transition
+                transition(self, conn, env, recovery, event_id, 'verifying',
+                           commit=item.environment_commit, evidence={'source': 'signed-observer'})
         return {'release_id': release_id, 'build': item.build_number, 'status': item.status,
                 'quality': item.quality, 'state_applied': applied}
 

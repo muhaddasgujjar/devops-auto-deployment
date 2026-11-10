@@ -20,7 +20,7 @@ class Settings:
         if not self.database_url.startswith('postgresql+psycopg://'):
             raise ValueError('A PostgreSQL psycopg URL is required')
         if not self.api_keys or any(not re.fullmatch(r'[a-f0-9]{64}', key) or
-                                    role not in {'read', 'developer', 'admin'} for key, role in self.api_keys.items()):
+                                    role not in {'read', 'developer', 'admin', 'recovery'} for key, role in self.api_keys.items()):
             raise ValueError('Configure hashed API keys and read/developer/admin roles')
         if len(self.callback_secret) < 32:
             raise ValueError('A separate callback secret of at least 32 characters is required')

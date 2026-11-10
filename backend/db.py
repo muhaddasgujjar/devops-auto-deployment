@@ -1,6 +1,6 @@
 from sqlalchemy import MetaData, create_engine, select, text
 
-HEAD = '0001_release_state'
+HEAD = '0002_recovery'
 
 
 class Database:
@@ -17,7 +17,8 @@ class Database:
             if conn.scalar(text('SELECT version_num FROM alembic_version')) != HEAD:
                 raise RuntimeError('Database migrations are not at the supported revision')
             self.metadata.reflect(conn, only=['projects', 'environments', 'builds', 'artifacts',
-                                             'releases', 'analyses', 'observations', 'incoming_events', 'audit'])
+                                             'releases', 'analyses', 'observations', 'incoming_events', 'audit',
+                                             'recoveries', 'health_windows', 'recovery_events'])
 
     def table(self, name):
         return self.metadata.tables[name]

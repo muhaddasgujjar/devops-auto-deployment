@@ -37,12 +37,19 @@ spec:
         runAsNonRoot: true
         runAsUser: 10001
         runAsGroup: 10001
+        fsGroup: 10001
         seccompProfile: {type: RuntimeDefault}
+      volumes:
+        - name: lab-fault
+          emptyDir: {medium: Memory, sizeLimit: 1Mi}
       containers:
         - name: app
           image: __IMAGE__
           env:
             - {name: APP_REVISION, value: "__COMMIT__"}
+            - {name: DEMO_FAULT_FILE, value: /fault/mode}
+          volumeMounts:
+            - {name: lab-fault, mountPath: /fault}
           ports:
             - {name: http, containerPort: 8080}
           readinessProbe:

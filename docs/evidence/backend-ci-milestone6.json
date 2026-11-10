@@ -1,0 +1,86 @@
+{
+  "recorded_at_utc": "2026-11-10T11:09:57.165894+00:00",
+  "passed": true,
+  "job": "backend-gate",
+  "source_commit": "8d1faef9b1039031e1587032dcf9fe3b70b37802",
+  "positive": {
+    "source_commit": "8d1faef9b1039031e1587032dcf9fe3b70b37802",
+    "build": 6,
+    "negative_test": false,
+    "published": true,
+    "passed": true,
+    "image_tag": "localhost:5001/release-state:8d1faef9b1039031e1587032dcf9fe3b70b37802-jenkins-6",
+    "runtime_portal_assets_verified": true,
+    "image": "localhost:5001/release-state@sha256:aee2bb83a397b9d989bf0af9c4bda2e23b1a9284578e1ff5604da67a6a3601db",
+    "image_config_id": "sha256:aee2bb83a397b9d989bf0af9c4bda2e23b1a9284578e1ff5604da67a6a3601db",
+    "runtime_uid": 10001,
+    "tests_run": 47,
+    "scanner_version": "0.76.0",
+    "ephemeral_resources_removed": true,
+    "cleanup_errors": []
+  },
+  "negative": {
+    "source_commit": "8d1faef9b1039031e1587032dcf9fe3b70b37802",
+    "build": 5,
+    "negative_test": true,
+    "published": false,
+    "passed": false,
+    "image_tag": "localhost:5001/release-state:8d1faef9b1039031e1587032dcf9fe3b70b37802-jenkins-5",
+    "ephemeral_resources_removed": true,
+    "cleanup_errors": []
+  },
+  "positive_tests": {
+    "recorded_at_utc": "2026-11-10T11:08:48.377970+00:00",
+    "passed": true,
+    "tests_run": 47,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 17.33,
+    "scope": "Fresh PostgreSQL migration, real evidence import, API auth/HMAC/limits, transactions, concurrency, ordering, restart and freshness",
+    "failed_cases": []
+  },
+  "negative_tests": {
+    "recorded_at_utc": "2026-11-10T11:07:51.049401+00:00",
+    "passed": false,
+    "tests_run": 48,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 16.909,
+    "scope": "Fresh PostgreSQL migration, real evidence import, API auth/HMAC/limits, transactions, concurrency, ordering, restart and freshness",
+    "failed_cases": [
+      "unittest.case.FunctionTestCase (intentional_failure)"
+    ]
+  },
+  "negative_registry_tag_absent": true,
+  "scan_classes": [
+    "lang-pkgs",
+    "os-pkgs"
+  ],
+  "reported_high_critical": 0,
+  "docker_image_id": "sha256:aee2bb83a397b9d989bf0af9c4bda2e23b1a9284578e1ff5604da67a6a3601db",
+  "registry_manifest_digest": "sha256:aee2bb83a397b9d989bf0af9c4bda2e23b1a9284578e1ff5604da67a6a3601db",
+  "oci_config_digest": "sha256:7f3c2a60174f287ee2f8ade38cfca12d9c559d55aa897a68d5fc79ca011a93dc",
+  "runtime_user": "10001:10001",
+  "sbom_components": 63,
+  "frontend_input_sha256": "d0adc3427da0f3111c3b83b6bacaaa5898984579c29470a941cda6fbf3ea8d7a",
+  "frontend_runtime_assets_verified": true,
+  "frontend_reported_high_critical": 0,
+  "positive_raw_trial": "output/backend-ci-trial-20261110T110803Z",
+  "negative_raw_trial": "output/backend-ci-trial-20261110T110637Z",
+  "artifact_sha256": {
+    "source.json": "ccc72a069409dbbee9aa88729bb4790958596da794b9639debb863a14f7804c1",
+    "result.json": "25ded77fec5ebeb59eb366691d4e08f6e403254b42181f1597c67996350ec59a",
+    "tests.json": "8434413c45fd2be9367d5f2b420b7ab6eba1f3c8d9577a548ceea35eaa05aac3",
+    "scan.json": "5af893a5b1e656826e1c04615bb3474e24917aec636eb1f1c52997388d0469ab",
+    "sbom.json": "3bd329f7d463157f0491bb4aac129132f0dadf414d2a23f539ce11565d77d57b",
+    "frontend-audit.json": "146df30cbd0ba47e7ae55924491e506bffdfa4e71b197e64ff46b9c24690abbd",
+    "frontend-build.json": "d88fbedf53e8dd4674647f761bdf62c5da4dbd03269cdf89d9a8904c891070d5"
+  },
+  "limitations": [
+    "Local manually triggered trusted Docker-socket agent; external SCM/PR isolation still pending",
+    "Backend image publication does not change application environment Git or promote a release",
+    "All CI PostgreSQL data/credentials are ephemeral and separate from the real backend database"
+  ]
+}

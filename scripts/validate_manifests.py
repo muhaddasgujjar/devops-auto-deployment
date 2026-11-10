@@ -81,7 +81,8 @@ def main():
         render(image, "b" * 40, release)
         render(image, "b" * 40, baseline, baseline=True)
         paths = [*release.glob("*.yaml"), *baseline.glob("*.yaml"),
-                 ROOT / "platform/monitoring.yaml", ROOT / "platform/argocd/application.yaml"]
+                 ROOT / "platform/monitoring.yaml", ROOT / "platform/argocd/application.yaml",
+                 ROOT / "platform/backend-observer.yaml", ROOT / "platform/backend-recovery.yaml"]
         for path in paths:
             for doc in yaml.safe_load_all(path.read_text(encoding="utf-8")):
                 if doc["kind"] == "Deployment" and doc["metadata"]["name"] == "prometheus":

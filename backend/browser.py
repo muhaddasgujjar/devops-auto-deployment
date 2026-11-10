@@ -136,6 +136,8 @@ def mount_browser(app, settings):
         role = key_role(settings, digest)
         if role is None:
             raise HTTPException(401, 'That access key was not recognized')
+        if role == 'recovery':
+            raise HTTPException(403, 'Service credentials cannot create browser sessions')
         token, csrf = sessions.issue(digest, request.cookies.get(COOKIE))
         response = JSONResponse({'role': role, 'csrf_token': csrf})
         response.set_cookie(COOKIE, token, max_age=3600, httponly=True, samesite='strict',

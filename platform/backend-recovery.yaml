@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: release-recovery
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: release-recovery
+  namespace: release-recovery
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: release-recovery
+  namespace: demo-dev
+rules:
+  - apiGroups: [""]
+    resources: [pods, services]
+    verbs: [get, list]
+  - apiGroups: [argoproj.io]
+    resources: [rollouts, analysisruns]
+    verbs: [get, list]
+  - apiGroups: [""]
+    resources: [services/proxy]
+    resourceNames: ["demo-stable", "demo-stable:80", "demo-preview", "demo-preview:80"]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: release-recovery
+  namespace: demo-dev
+subjects:
+  - kind: ServiceAccount
+    name: release-recovery
+    namespace: release-recovery
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: release-recovery
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: release-recovery
+  namespace: argocd
+rules:
+  - apiGroups: [argoproj.io]
+    resources: [applications]
+    resourceNames: [release-demo-dev]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: release-recovery
+  namespace: argocd
+subjects:
+  - kind: ServiceAccount
+    name: release-recovery
+    namespace: release-recovery
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: release-recovery
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: release-recovery
+  namespace: monitoring
+rules:
+  - apiGroups: [""]
+    resources: [services/proxy]
+    resourceNames: ["prometheus", "prometheus:9090"]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: release-recovery
+  namespace: monitoring
+subjects:
+  - kind: ServiceAccount
+    name: release-recovery
+    namespace: release-recovery
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: release-recovery

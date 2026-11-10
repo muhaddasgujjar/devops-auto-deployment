@@ -20,7 +20,7 @@ def main():
     report = {'recorded_at_utc': datetime.now(timezone.utc).isoformat(), 'passed': result.wasSuccessful(),
               'tests_run': result.testsRun, 'failures': len(result.failures), 'errors': len(result.errors),
               'skipped': len(result.skipped), 'duration_seconds': round(time.monotonic() - started, 3),
-              'scope': 'Fresh PostgreSQL migration, real evidence import, API auth/HMAC/limits, transactions, concurrency, ordering, restart and freshness',
+              'scope': 'Fresh PostgreSQL migration, API/session/HMAC/permissions, evidence, recovery policy/ledger, temporary Git CAS/replay, signal/worker bounds and observation ordering',
               'failed_cases': [str(test) for test, _ in result.failures + result.errors]}
     destination = os.environ.get('RELEASE_TEST_REPORT', str(ROOT / 'docs/evidence/backend-tests.json'))
     from pathlib import Path

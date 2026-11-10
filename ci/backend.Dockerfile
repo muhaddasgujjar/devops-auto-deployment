@@ -27,6 +27,9 @@ EXPOSE 8090
 CMD ["python", "-m", "uvicorn", "backend.api:create_app", "--factory", "--host", "0.0.0.0", "--port", "8090", "--no-access-log"]
 
 FROM runtime AS test
+USER 0:0
+RUN apk add --no-cache git
+USER 10001:10001
 COPY --from=frontend /frontend-audit.json /app/frontend-audit.json
 COPY backend_tests /app/backend_tests
 COPY scripts /app/scripts

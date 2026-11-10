@@ -43,6 +43,7 @@ class ReleaseObservation(Contract):
     stable_requests: int = Field(default=0, ge=0)
     stable_non_200: int = Field(default=0, ge=0)
     observation_details: dict = Field(default_factory=dict)
+    recovery_id: Annotated[str, Field(pattern=r'^[a-f0-9-]{36}$')] | None = None
 
     @model_validator(mode='after')
     def consistent(self):
@@ -65,7 +66,7 @@ class ReleaseObservation(Contract):
 class ImportRequest(Contract):
     event_id: EventId
     expected_version: int = Field(ge=0)
-    kind: Literal['ci_acceptance', 'runtime_acceptance', 'ci_negative_gate']
+    kind: Literal['ci_acceptance', 'runtime_acceptance', 'ci_negative_gate', 'recovery_target']
     report: dict
 
 
@@ -87,3 +88,24 @@ class CallbackRequest(Contract):
 class FailedBuild(Contract):
     build_number: int = Field(gt=0, le=2**63 - 1)
     source_commit: Sha
+
+
+class HealthWindow(Contract):
+    event_id: EventId
+    expected_version: int = Field(ge=0)
+    release_id: str = Field(max_length=64)
+    pod_hash: PodHash
+    window_end: datetime
+    quality: Literal['measured', 'unavailable']
+    data: dict
+
+
+class RecoveryEvent(Contract):
+    event_id: EventId
+    expected_version: int = Field(ge=0)
+    expected_recovery_version: int = Field(ge=0)
+    phase: Literal['applying', 'verifying', 'recovered', 'failed', 'superseded']
+    recovery_commit: Sha | None = None
+    outcome: Literal['git_unavailable','concurrent_git_change','verification_timeout','source_unavailable',
+                     'no_accepted_target','healthy_target_verified','newer_release'] | None = None
+    evidence: dict = Field(default_factory=dict)

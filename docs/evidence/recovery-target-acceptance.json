@@ -1,0 +1,180 @@
+{
+  "recorded_at_utc": "2026-11-10T12:10:33.049581+00:00",
+  "passed": true,
+  "source_report_sha256": "b36d88ce99ed45e3a3f82bb85df90521e24afd223f9c28ecbfe32f15c67595c0",
+  "target": {
+    "scenario": "healthy",
+    "previous_stable_hash": "7bf7bf5488",
+    "started": "2026-11-10T06:22:40.074874+00:00",
+    "observer_commit": "d7c79afecf2e33064ff268d7a14aba0937211518",
+    "observer_sha256": {
+      "scripts/gitops_trial.py": "68664877b6f1beadd59fbe9c0c5842448b12797039dea5126df59a83b38146af",
+      "scripts/runtime_decision.py": "1c0a0a962750a82cb9af9652a9b922ff6f979e2a89ba830f4a20650156779817",
+      "scripts/observation.py": "90004a581697de90d99baa22a0777810e6c624798973871f651ca4af50386e36"
+    },
+    "baseline_response": {
+      "timestamp": "2026-11-10T06:22:40.841950+00:00",
+      "status": 200,
+      "response": {
+        "service": "release-demo",
+        "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-14",
+        "mode": "healthy"
+      },
+      "duration_seconds": 0.020314
+    },
+    "jenkins_build": 16,
+    "source_commit": "05d553b044d566ce06fca3205db0632fe0328c77",
+    "image": "localhost:5001/release-demo@sha256:56c097a893ae7e05da7833afedd8c7e95242defdec4c702bf4774730ac3c75d4",
+    "release_id": "jenkins-16",
+    "environment_commit": "2d1d629be3a81bdad0c23dc809b47236313e184c",
+    "changed": true,
+    "observation_started": "2026-11-10T06:23:16.684735+00:00",
+    "availability_boundary": "After CI completion; excludes build/scan and Git publication interval",
+    "verdict": "candidate-promoted-through-gitops",
+    "decision_observed": "2026-11-10T06:25:27.950243+00:00",
+    "client_monotonic_observation_seconds": 138.134,
+    "final_response": {
+      "timestamp": "2026-11-10T06:25:27.950361+00:00",
+      "status": 200,
+      "response": {
+        "service": "release-demo",
+        "revision": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-16",
+        "mode": "healthy"
+      },
+      "duration_seconds": 0.015446
+    },
+    "serving_hash": "78f7c449ff",
+    "stable_requests": 601,
+    "stable_non_200": 0,
+    "finished": "2026-11-10T06:25:31.349955+00:00",
+    "sampling_quality": {
+      "max_wall_sample_gap_seconds": 0.632,
+      "wall_clock_reversals": 5,
+      "max_monotonic_sample_gap_seconds": 0.632
+    },
+    "sampling_gate_passed": true,
+    "availability_gate_passed": true,
+    "acceptance_passed": true,
+    "passed": true,
+    "ci_duration_ms": 24840,
+    "candidate_hash": "78f7c449ff",
+    "tests_in_release_snapshot": 36,
+    "analyses": [
+      {
+        "name": "release-demo-78f7c449ff-40-pre",
+        "phase": "Successful",
+        "metrics": [
+          {
+            "consecutiveSuccess": 5,
+            "count": 5,
+            "measurements": [
+              {
+                "finishedAt": "2026-11-10T06:24:25Z",
+                "phase": "Successful",
+                "startedAt": "2026-11-10T06:24:25Z",
+                "value": "[0]"
+              },
+              {
+                "finishedAt": "2026-11-10T06:24:40Z",
+                "phase": "Successful",
+                "startedAt": "2026-11-10T06:24:40Z",
+                "value": "[0]"
+              },
+              {
+                "finishedAt": "2026-11-10T06:24:55Z",
+                "phase": "Successful",
+                "startedAt": "2026-11-10T06:24:55Z",
+                "value": "[0]"
+              },
+              {
+                "finishedAt": "2026-11-10T06:25:10Z",
+                "phase": "Successful",
+                "startedAt": "2026-11-10T06:25:10Z",
+                "value": "[0]"
+              },
+              {
+                "finishedAt": "2026-11-10T06:25:25Z",
+                "phase": "Successful",
+                "startedAt": "2026-11-10T06:25:25Z",
+                "value": "[0]"
+              }
+            ],
+            "metadata": {
+              "ResolvedPrometheusQuery": "(\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"78f7c449ff\",status=\"500\"}[60s]))\n  /\n  sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"78f7c449ff\"}[60s]))\n)\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"78f7c449ff\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"78f7c449ff\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"78f7c449ff\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"78f7c449ff\"})) <= 15)\n"
+            },
+            "name": "candidate-error-ratio",
+            "phase": "Successful",
+            "successful": 5
+          },
+          {
+            "consecutiveSuccess": 5,
+            "count": 5,
+            "measurements": [
+              {
+                "finishedAt": "2026-11-10T06:24:25Z",
+                "phase": "Successful",
+                "startedAt": "2026-11-10T06:24:25Z",
+                "value": "[0.0475]"
+              },
+              {
+                "finishedAt": "2026-11-10T06:24:40Z",
+                "phase": "Successful",
+                "startedAt": "2026-11-10T06:24:40Z",
+                "value": "[0.0475]"
+              },
+              {
+                "finishedAt": "2026-11-10T06:24:55Z",
+                "phase": "Successful",
+                "startedAt": "2026-11-10T06:24:55Z",
+                "value": "[0.047499999999999994]"
+              },
+              {
+                "finishedAt": "2026-11-10T06:25:10Z",
+                "phase": "Successful",
+                "startedAt": "2026-11-10T06:25:10Z",
+                "value": "[0.04750000000000001]"
+              },
+              {
+                "finishedAt": "2026-11-10T06:25:25Z",
+                "phase": "Successful",
+                "startedAt": "2026-11-10T06:25:25Z",
+                "value": "[0.0475]"
+              }
+            ],
+            "metadata": {
+              "ResolvedPrometheusQuery": "histogram_quantile(0.95, sum by (le) (rate(demo_request_duration_seconds_bucket{namespace=\"demo-dev\",revision=\"78f7c449ff\"}[60s])))\nand on() (sum(increase(demo_requests_total{namespace=\"demo-dev\",revision=\"78f7c449ff\"}[60s])) >= 100)\nand on() (min(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"78f7c449ff\"}) == 1)\nand on() (count(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"78f7c449ff\"}) == 2)\nand on() (max(time() - timestamp(up{job=\"demo-pods\",namespace=\"demo-dev\",revision=\"78f7c449ff\"})) <= 15)\n"
+            },
+            "name": "candidate-p95-latency",
+            "phase": "Successful",
+            "successful": 5
+          }
+        ]
+      }
+    ],
+    "reported_high_critical": 0,
+    "wall_observation_to_decision_seconds": 131.266,
+    "raw_trial": "output/gitops-healthy-20261110T062239Z",
+    "artifact_sha256": {
+      "summary.json": "9769b452604535ecb0ac4257a7c2fe4d5f581eba2f7734cdb07ce76a95c7ae9a",
+      "jenkins-build.json": "dc74df8e3846a20c75f2a07a748b5e0b0646e3dc6484ddbdd94c46118b330707",
+      "source.json": "f103ad5f0729cad128953956ed8f06209c4658d328b900534fb0768adfc0a49c",
+      "scan.json": "4ae2a69a7f755acccadfa6517d7f20085a06808e5822681a0daf6d2706660836",
+      "sbom.json": "2d2b681cc7d0994948cfba47a34dbfdf679f3f3cabadc9b1dbe065db56c66fd6",
+      "image-inspect.json": "8268a1ceca7e6642a9cba8aeda1b679da22f1fa7739c1680bad7c2967e77b269",
+      "environment-commit.json": "eb633d42900f71cad23e99f09249229472c072c8ed8878aa0cf4d31db551b9e1",
+      "rollout.json": "4f73b0e41c925ee79eed7b2d3627bac7aefc9002a5df6027ac21e1555e421ccc",
+      "analysisrun.json": "42a88703f6ee6b4a11a903236ddf6e81cfa3c6147452017757b5f0cacf089715",
+      "application.json": "9f12435ea8d1aa618687b83f2739469c53cd27ffa2344ebc76bbbba7d2780172",
+      "service.json": "21f28b8e26d83f63bffa27508071ac8c026b62b548f37aed3884ba23ec26db0a",
+      "pod.json": "9b6073c6ad7f4e6b2c22c3ac47d8059e497f147c4c34c36daab4f121301b0c57",
+      "stable.jsonl": "b7d500ff4caa2d4b22d0309d02a332fbba437a5496a8ea78658b2886e75eaa3a",
+      "jenkins-console.txt": "a112ff5447418e0ddd683d1849ed2672bfa26e8291b92ccac0f074275be71ccf",
+      "preview-0.jsonl": "f14461ce7589afa38924f6d0410304acaa9a577d9bc2d5dafbefe3b7afb07990",
+      "preview-1.jsonl": "d3e0430669aef7b2fb0b51be8653fc6a37fab7af585896b82551e7849dff049b",
+      "preview-2.jsonl": "3e246bcf289bddd1e9ebea1c1072606e0da8717175f294d4a40c07a45a4a5a36",
+      "preview-3.jsonl": "6c129e61916efea49535aa5792711e0685bd559a4e562d1dfc40eebbae9048f6"
+    },
+    "scanned_image_id": "sha256:56c097a893ae7e05da7833afedd8c7e95242defdec4c702bf4774730ac3c75d4"
+  },
+  "scope": "Supplemental binding of preserved healthy-trial scan identity; no historical report rewritten or new experiment claimed"
+}

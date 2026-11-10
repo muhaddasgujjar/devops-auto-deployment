@@ -10,12 +10,13 @@ from sqlalchemy.engine import make_url
 RUNTIME = 'release_state_runtime'
 MIGRATOR = 'release_state_migrator'
 TABLES = ('projects', 'environments', 'builds', 'artifacts', 'releases', 'analyses',
-          'observations', 'incoming_events', 'audit', 'alembic_version')
+          'observations', 'incoming_events', 'audit', 'alembic_version', 'recoveries', 'health_windows', 'recovery_events')
 UPDATES = {
     'environments': ('version', 'desired_release_id', 'stable_release_id', 'stable_revision', 'stable_hash',
-                     'stable_image', 'source_uid', 'last_observed_at', 'freshness', 'detail'),
+                     'stable_image', 'source_uid', 'last_observed_at', 'freshness', 'detail', 'observation_sequence'),
     'artifacts': ('scanned_image_id', 'reported_high_critical', 'refs'),
-    'releases': ('candidate_hash', 'status', 'observation_sequence', 'source_uid', 'observed_at'),
+    'releases': ('candidate_hash', 'status', 'observation_sequence', 'source_uid', 'observed_at', 'promoted_at'),
+    'recoveries': ('phase', 'version', 'recovery_commit', 'outcome', 'evidence', 'updated_at'),
     'analyses': ('phase', 'data'), 'incoming_events': ('result',),
 }
 
@@ -70,8 +71,10 @@ def configure_database(conn):
         if table != 'alembic_version':
             conn.execute(sql.SQL('GRANT INSERT ON public.{} TO {}').format(sql.Identifier(table), sql.Identifier(RUNTIME)))
         if table in UPDATES:
+            existing = {r[0] for r in conn.execute('SELECT column_name FROM information_schema.columns '
+                         "WHERE table_schema='public' AND table_name=%s", (table,)).fetchall()}
             conn.execute(sql.SQL('GRANT UPDATE ({}) ON public.{} TO {}').format(
-                sql.SQL(',').join(map(sql.Identifier, UPDATES[table])), sql.Identifier(table), sql.Identifier(RUNTIME)))
+                sql.SQL(',').join(sql.Identifier(c) for c in UPDATES[table] if c in existing), sql.Identifier(table), sql.Identifier(RUNTIME)))
     if conn.execute("SELECT to_regclass('public.audit_id_seq')").fetchone()[0]:
         conn.execute(sql.SQL('ALTER SEQUENCE public.audit_id_seq OWNER TO {}').format(sql.Identifier(MIGRATOR)))
         conn.execute(sql.SQL('GRANT USAGE, SELECT ON SEQUENCE public.audit_id_seq TO {}').format(sql.Identifier(RUNTIME)))

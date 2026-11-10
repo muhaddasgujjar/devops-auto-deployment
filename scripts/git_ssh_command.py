@@ -7,6 +7,8 @@ REPOSITORY = '/var/lib/release-lab/git/environment.git'
 
 
 def allowed_command(original, role):
+    if role not in ('read', 'write', 'recovery'):
+        raise ValueError('Unknown repository role')
     args = shlex.split(original)
     verbs = {'git-upload-pack'} if role == 'read' else {'git-upload-pack', 'git-receive-pack'}
     if len(args) != 2 or args[0] not in verbs or args[1] != REPOSITORY:

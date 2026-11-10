@@ -82,7 +82,8 @@ def collect(kubeconfig, environment_git):
         status = 'inconclusive'
     elif phase == 'Error':
         status = 'telemetry_error'
-    elif state.get('phase') == 'Healthy' and candidate == stable_hash and phase == 'Successful':
+    elif state.get('phase') == 'Healthy' and candidate == stable_hash and (phase == 'Successful' or
+            (metadata.get('annotations', {}).get('release-lab/recovery-id') and phase is None)):
         status = 'promoted'
     else:
         status = 'progressing'
@@ -94,6 +95,8 @@ def collect(kubeconfig, environment_git):
         environment_commit=desired_git, candidate_hash=candidate, status=status,
         observation_sequence=int(metadata['resourceVersion']), source_uid=metadata['uid'],
         observed_at=datetime.now(timezone.utc), stable_revision=stable_revisions.pop(),
+        recovery_id=metadata.get('annotations', {}).get('release-lab/recovery-id'),
         stable_hash=stable_hash, stable_image=stable_images.pop(), analyses=analyses,
         observation_details={'source': 'read-only-kubernetes-and-environment-git',
+                             'stable_pod_names': sorted(p['metadata']['name'] for p in pods),
                              'rollout_generation': metadata['generation'], 'resource_version': metadata['resourceVersion']})

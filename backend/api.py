@@ -12,7 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from starlette.concurrency import run_in_threadpool
 
 from backend.config import load_settings
-from backend.contracts import CallbackRequest, ImportRequest
+from backend.contracts import CallbackRequest, ImportRequest, HealthWindow, RecoveryEvent
 from backend.db import Database
 from backend.imports import negative_gate, normalize
 from backend.service import Conflict, StateService
@@ -61,9 +61,39 @@ def create_app(settings=None):
             return channel + ':' + role + ':' + digest[:12]
         return dependency
 
-    read = authorize('read', 'developer', 'admin')
+    read = authorize('read', 'developer', 'admin', 'recovery')
     write = authorize('developer', 'admin')
     admin = authorize('admin')
+    recover = authorize('admin', 'recovery')
+
+    from backend.recovery import RecoveryService, InvalidRecovery
+    from backend.recovery_policy import POLICY
+
+    @app.exception_handler(InvalidRecovery)
+    async def invalid_recovery(request, exc):
+        return JSONResponse(status_code=422, content={'detail': str(exc)})
+
+    @app.get('/recoveries', dependencies=[Depends(read)])
+    def recoveries(request: Request, limit: int = Query(50, ge=1, le=100)):
+        return RecoveryService(request.app.state.service).history(limit)
+
+    @app.get('/recovery/policy', dependencies=[Depends(read)])
+    def recovery_policy():
+        return POLICY
+
+    @app.get('/recovery/health', dependencies=[Depends(read)])
+    def health_windows(request: Request, release_id: str, limit: int = Query(3, ge=1, le=100)):
+        return RecoveryService(request.app.state.service).windows(release_id, limit)
+
+    @app.post('/recovery/health')
+    async def post_health(request: Request, actor=Depends(recover)):
+        envelope = parse(await body(request), HealthWindow)
+        return await run_in_threadpool(RecoveryService(request.app.state.service).observe, envelope, actor)
+
+    @app.post('/recoveries/{recovery_id}/events')
+    async def recovery_event(recovery_id: str, request: Request, actor=Depends(recover)):
+        envelope = parse(await body(request), RecoveryEvent)
+        return await run_in_threadpool(RecoveryService(request.app.state.service).event, recovery_id, envelope, actor)
 
     async def body(request):
         chunks, length = [], 0
@@ -130,7 +160,8 @@ def create_app(settings=None):
         schemas = document.setdefault('components', {}).setdefault('schemas', {})
         # Bodies are streamed manually for size and exact-byte HMAC validation.
         # Publish their actual Pydantic contracts explicitly for API consumers.
-        for path, contract in (('/imports', ImportRequest), ('/callbacks', CallbackRequest)):
+        for path, contract in (('/imports', ImportRequest), ('/callbacks', CallbackRequest),
+                               ('/recovery/health', HealthWindow), ('/recoveries/{recovery_id}/events', RecoveryEvent)):
             body_schema = contract.model_json_schema(ref_template='#/components/schemas/{model}')
             schemas.update(body_schema.pop('$defs', {}))
             schemas[contract.__name__] = body_schema

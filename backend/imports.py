@@ -39,6 +39,7 @@ def normalize_runtime(item, *, selected):
         environment_commit=item['environment_commit'], candidate_hash=candidate,
         status=status, observed_at=item['decision_observed'], stable_revision=final['response']['revision'],
         stable_hash=item['serving_hash'], reported_high_critical=0 if selected else None,
+        scanned_image_id=item.get('scanned_image_id'),
         artifacts=item.get('artifact_sha256', {}), analyses=item.get('analyses', []),
         quality='accepted' if selected else ('historical' if accepted else 'excluded'),
         stable_requests=item['stable_requests'], stable_non_200=item['stable_non_200'],
@@ -51,6 +52,11 @@ def normalize_runtime(item, *, selected):
 def normalize(kind, report):
     if report.get('passed') is not True:
         raise ValueError('Only curated passing report envelopes are supported')
+    if kind == 'recovery_target':
+        target = normalize_runtime(report['target'], selected=True)
+        if target.status != 'promoted' or not target.scanned_image_id or not any(a.phase == 'Successful' for a in target.analyses):
+            raise ValueError('Recovery target lacks bound image scan or successful analysis')
+        return [target]
     if kind == 'ci_acceptance':
         if report['controller_verdict'] != 'candidate-promoted-through-gitops' or report['reported_high_critical'] != 0:
             raise ValueError('CI report is not an accepted promotion')

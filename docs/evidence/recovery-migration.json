@@ -1,0 +1,20 @@
+{
+  "recorded_at_utc": "2026-11-10T12:19:31.678865+00:00",
+  "passed": true,
+  "from_revision": "0001_release_state",
+  "to_revision": "0002_recovery",
+  "restored_copy_checked_before_main": true,
+  "existing_counts": {
+    "builds": 11,
+    "artifacts": 10,
+    "releases": 10,
+    "observations": 34,
+    "incoming_events": 31,
+    "audit": 31
+  },
+  "original_environment_and_release_identities_preserved": true,
+  "restricted_runtime_ready": true,
+  "disposable_copy_removed": true,
+  "backup": "output/before-recovery-9e497952a893.dump",
+  "backup_sha256": "9c264614273c9960231a8f02345f287738edab49b5639952b50aa251e5b9756b"
+}

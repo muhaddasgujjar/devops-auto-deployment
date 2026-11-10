@@ -29,7 +29,7 @@ def main():
     sub.add_parser('state')
     imp = sub.add_parser('import')
     imp.add_argument('report', type=Path)
-    imp.add_argument('--kind', choices=['ci_acceptance', 'runtime_acceptance', 'ci_negative_gate'], required=True)
+    imp.add_argument('--kind', choices=['ci_acceptance', 'runtime_acceptance', 'ci_negative_gate', 'recovery_target'], required=True)
     rec = sub.add_parser('reconcile')
     rec.add_argument('--kubeconfig', type=Path, required=True)
     rec.add_argument('--environment-git', type=Path, default=Path('/var/lib/release-lab/git/environment.git'))

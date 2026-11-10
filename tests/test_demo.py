@@ -36,6 +36,25 @@ def request(url):
 
 
 class DemoTests(unittest.TestCase):
+    def test_opt_in_post_promotion_fault_changes_requests_but_keeps_probes_healthy(self):
+        with tempfile.TemporaryDirectory() as directory:
+            marker=Path(directory)/'mode'
+            with serving(revision='accepted-before-fault',fault_file=marker,latency=.12) as base:
+                self.assertEqual(request(base+'/')[0],200)
+                marker.write_text('error')
+                self.assertEqual(request(base+'/')[0],500)
+                self.assertEqual(request(base+'/readyz')[0],200)
+                marker.write_text('latency')
+                started=time.monotonic(); response=request(base+'/')
+                self.assertEqual(response[0],200)
+                self.assertGreaterEqual(time.monotonic()-started,.12)
+                self.assertEqual(json.loads(response[1])['revision'],'accepted-before-fault')
+
+    def test_fault_marker_has_no_effect_without_opt_in(self):
+        with serving() as base:
+            self.assertEqual(request(base+'/?fault=error')[0],200)
+            self.assertEqual(request(base+'/activate-fault')[0],404)
+
     def test_healthy_response_and_revision(self):
         with serving(revision="abc123") as base:
             status, body = request(base + "/")

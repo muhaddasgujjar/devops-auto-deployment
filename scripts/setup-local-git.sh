@@ -31,17 +31,19 @@ fi
 if [[ ! -d "$home/environment.git" ]]; then
   git init --bare --initial-branch=main "$home/environment.git"
 fi
-for role in read write; do
+for role in read write recovery; do
   [[ -f "$secrets/environment-$role" ]] || ssh-keygen -q -t ed25519 -N '' -C "release-lab-$role" -f "$secrets/environment-$role"
 done
 [[ -f "$secrets/git-host-key" ]] || ssh-keygen -q -t ed25519 -N '' -C release-lab-git-host -f "$secrets/git-host-key"
 install -m 755 scripts/git_ssh_command.py "$home/git_ssh_command.py"
 {
-  for role in read write; do
+  for role in read write recovery; do
     printf 'restrict,command="/usr/bin/python3 %s/git_ssh_command.py %s" %s\n' "$home" "$role" "$(cat "$secrets/environment-$role.pub")"
   done
 } > "$home/authorized_keys"
 chown -R release-git:release-git "$home"
+runuser -u release-git -- git --git-dir="$home/environment.git" config receive.denyNonFastForwards true
+runuser -u release-git -- git --git-dir="$home/environment.git" config receive.denyDeletes true
 chmod 600 "$home/authorized_keys"
 gateway=$(docker network inspect k3d-release-lab --format '{{(index .IPAM.Config 0).Gateway}}')
 cat > "$secrets/sshd_config" <<EOF

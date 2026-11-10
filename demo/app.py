@@ -6,6 +6,7 @@ import threading
 import time
 from collections import Counter
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from urllib.parse import urlsplit
 
 MODES = {"healthy", "error", "latency", "startup"}
@@ -42,7 +43,7 @@ class Metrics:
             return ("\n".join(lines) + "\n").encode()
 
 
-def create_server(host="127.0.0.1", port=8080, mode="healthy", revision="local", latency=0.8):
+def create_server(host="127.0.0.1", port=8080, mode="healthy", revision="local", latency=0.8, fault_file=None):
     if mode not in MODES:
         raise ValueError(f"Invalid mode: {mode}")
     if not 0 <= latency <= 10:
@@ -63,10 +64,20 @@ def create_server(host="127.0.0.1", port=8080, mode="healthy", revision="local",
                 self.respond(404, b'{"error":"not found"}')
                 return
             start = time.monotonic()
-            if mode == "latency":
+            effective = mode
+            # Opt-in lab injection, writable only through the pod's bounded
+            # ephemeral volume. No HTTP endpoint or controller write is exposed.
+            if fault_file:
+                try:
+                    injected = Path(fault_file).read_text()[:32].strip()
+                    if injected in {"error", "latency"}:
+                        effective = injected
+                except OSError:
+                    pass
+            if effective == "latency":
                 time.sleep(latency)
-            status = 500 if mode == "error" else 200
-            body = json.dumps({"service": "release-demo", "revision": revision, "mode": mode}).encode()
+            status = 500 if effective == "error" else 200
+            body = json.dumps({"service": "release-demo", "revision": revision, "mode": effective}).encode()
             metrics.observe(status, time.monotonic() - start)
             self.respond(status, body)
 
@@ -91,7 +102,7 @@ def create_server(host="127.0.0.1", port=8080, mode="healthy", revision="local",
 def main():
     server = create_server(os.getenv("HOST", "0.0.0.0"), int(os.getenv("PORT", "8080")),
                            os.getenv("DEMO_MODE", "healthy"), os.getenv("APP_REVISION", "local"),
-                           float(os.getenv("DEMO_LATENCY_SECONDS", "0.8")))
+                           float(os.getenv("DEMO_LATENCY_SECONDS", "0.8")), os.getenv('DEMO_FAULT_FILE'))
 
     def stop(_signum, _frame):
         threading.Thread(target=server.shutdown, daemon=True).start()
