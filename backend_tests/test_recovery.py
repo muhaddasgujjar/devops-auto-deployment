@@ -148,7 +148,11 @@ class RecoveryPostgreSQLTests(unittest.TestCase):
         proof={'requests':120,'target_requests':120,'identity_mismatches':0,'non_200':0,'maximum_gap_seconds':.1,'revision':target.stable_revision,
                'environment_commit':'d'*40,'controller_uid':'test-rollout-uid',
                'image':target.image,'pod_hash':target.candidate_hash}
-        self.assertEqual(self.move('recovered',outcome='healthy_target_verified',evidence=proof).status_code,200)
+        result=self.move('recovered',outcome='healthy_target_verified',evidence=proof)
+        self.assertEqual(result.status_code,200,result.text+' '+json.dumps({
+            'environment':self.client.get('/environment').json(),
+            'windows':self.client.get('/recovery/health',params={'release_id':current['desired']['id']}).json(),
+            'incident':self.incident()},default=str))
         stale=self.observation(seq=200)
         self.assertEqual(self.signed({'event_id':'late-old-origin','expected_version':self.version(),'release':stale.model_dump(mode='json')}).status_code,200)
         self.assertEqual(self.client.get('/environment').json()['desired']['environment_commit'],'d'*40)

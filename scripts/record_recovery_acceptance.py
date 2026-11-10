@@ -31,6 +31,7 @@ def manifest(digest):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--trial',action='append',required=True)
+    parser.add_argument('--failed-trial',action='append',default=[])
     args=parser.parse_args()
     trials=[]; git='/var/lib/release-lab/git/environment.git'
     def revision(*args): return subprocess.check_output(['git','--git-dir',git,*args],text=True).strip()
@@ -60,6 +61,8 @@ def main():
         assert summary['final_observation']['stable_image']==target['artifact']['image']
         assert summary['final_http']['status']==200 and summary['final_http']['mode']=='healthy'
         rows=[json.loads(line) for line in (folder/'stable.jsonl').read_text().splitlines()]
+        offsets=[datetime.fromisoformat(r['timestamp']).timestamp()-r['completed_monotonic_seconds'] for r in rows]
+        assert max(offsets)-min(offsets)<=2, 'Host clock changed during the trial'
         gaps=[b['client_monotonic_seconds']-a['client_monotonic_seconds'] for a,b in zip(rows,rows[1:])]
         assert len(rows)>=100 and 0<=min(gaps) and max(gaps)<=10
         expected=target['build']['source_commit']+'-jenkins-'+str(target['build']['number'])
@@ -95,7 +98,21 @@ def main():
             'actual_verification_requests':proof['requests'],'raw_trial':folder.relative_to(ROOT).as_posix(),
             'summary_sha256':hashlib.sha256((folder/'summary.json').read_bytes()).hexdigest()})
     assert len(trials)==2 and {t['fault'] for t in trials}=={'error','latency'}
+    failed=[]
+    for name in args.failed_trial:
+        folder=ROOT/name; summary=json.loads((folder/'summary.json').read_text())
+        assert summary['passed'] is False
+        for artifact,digest in summary['artifact_sha256'].items():
+            assert hashlib.sha256((folder/artifact).read_bytes()).hexdigest()==digest
+        rows=[json.loads(line) for line in (folder/'stable.jsonl').read_text().splitlines()]
+        offsets=[datetime.fromisoformat(r['timestamp']).timestamp()-r.get('completed_monotonic_seconds',r['client_monotonic_seconds']) for r in rows]
+        span=max(offsets)-min(offsets)
+        failed.append({'raw_trial':name,'origin_build':summary.get('jenkins_build'),
+            'outcome':summary.get('incident',{}).get('outcome'),'counted_as_success':False,
+            'clock_offset_span_seconds':round(span,3),'clock_discontinuity':span>2,
+            'summary_sha256':hashlib.sha256((folder/'summary.json').read_bytes()).hexdigest()})
     result={'recorded_at_utc':datetime.now(timezone.utc).isoformat(),'passed':True,'policy':POLICY,'trials':trials,
+            'failed_attempts':failed,
             'limitations':['Two local functional trials, not a repeated benchmark or production availability result',
                 'Error trial includes a deliberate telemetry gap and writer restart; timings include those injections',
                 'No-target, Git failure, timeout, competing writers and uncertain publication replay are exercised separately in real PostgreSQL/temporary Git tests',
