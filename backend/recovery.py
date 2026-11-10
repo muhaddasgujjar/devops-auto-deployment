@@ -47,8 +47,10 @@ def authorize_deployment(service, conn, env, item, source):
     table = service.t('recoveries')
     row = conn.execute(select(table).where(table.c.id == item.recovery_id,
         table.c.environment_id == service.env_id).with_for_update()).mappings().first()
-    if source == 'import' or not row or row['phase'] not in ('applying', 'verifying', 'recovered'):
+    if source == 'import' or not row or row['phase'] not in ('applying', 'verifying', 'recovered', 'failed'):
         raise Conflict('Recovery deployment is not authorized')
+    if row['phase'] == 'failed' and not row['recovery_commit']:
+        raise Conflict('An unpublished failed recovery cannot authorize a deployment')
     if row['recovery_commit'] and row['recovery_commit'] != item.environment_commit:
         raise Conflict('Recovery deployment Git identity differs')
     target = service.release(conn, row['target_release_id'])
@@ -56,9 +58,9 @@ def authorize_deployment(service, conn, env, item, source):
             target['build']['number'], target['build']['source_commit'], target['artifact']['image']):
         raise Conflict('Recovery deployment target differs')
     # A replay of a completed recovery cannot replace a later desired release.
-    if row['phase'] == 'recovered' and env['desired_release_id']:
+    if row['phase'] in ('recovered', 'failed') and env['desired_release_id']:
         desired = service.release(conn, env['desired_release_id'])
-        if desired['recovery_id'] != row['id']:
+        if desired['recovery_id'] != row['id'] and not (row['phase'] == 'failed' and desired['id'] == row['origin_release_id']):
             raise Conflict('Recovery was superseded by later desired state')
     return row
 
@@ -188,7 +190,7 @@ class RecoveryService:
                        'verifying': ('recovered', 'failed', 'superseded')}
             if envelope.phase not in allowed.get(row['phase'], ()):
                 raise Conflict('Recovery transition is not allowed')
-            if envelope.phase in ('applying', 'verifying') and (now - row['created_at']).total_seconds() >= POLICY['recovery_timeout_seconds']:
+            if envelope.phase in ('applying', 'verifying') and not 0 <= (now - row['created_at']).total_seconds() < POLICY['recovery_timeout_seconds']:
                 raise Conflict('Recovery publication deadline expired')
             desired = self.service.release(conn, env['desired_release_id'])
             if envelope.phase in ('applying', 'verifying') and desired and desired['id'] != row['origin_release_id'] and desired['recovery_id'] != row['id']:

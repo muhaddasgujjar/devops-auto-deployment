@@ -19,6 +19,10 @@ from backend.recovery_policy import POLICY, as_time, measured, sustained
 from backend.recovery_signals import Signals
 
 
+class ClockDiscontinuity(RuntimeError):
+    pass
+
+
 class RecoveryWorker:
     def __init__(self, config, *, client=None, observe=collect, signals=None, writer=publish_recovery):
         parsed = urlparse(config['api_url'])
@@ -28,6 +32,7 @@ class RecoveryWorker:
         if config['repository'] != 'ssh://release-git@127.0.0.1:2222/var/lib/release-lab/git/environment.git':
             raise ValueError('Recovery writer is restricted to the local environment repository')
         self.config, self.observe, self.writer = config, observe, writer
+        self.boot_wall, self.boot_monotonic = time.time(), time.monotonic()
         self.client = client or httpx.Client(base_url=config['api_url'], headers={'X-API-Key': config['api_key']},
                                             timeout=10, follow_redirects=False, trust_env=False)
         self.signals = signals or Signals(config['kubeconfig'])
@@ -93,13 +98,14 @@ class RecoveryWorker:
         return quality if result else 'state_changed'
 
     def guard(self, recovery):
+        self.check_clock()
         state = self.get('/environment')
         if not state.get('desired') or state['desired']['id'] != recovery['origin_release_id']:
             raise ConcurrentGitChange('Desired deployment changed before recovery publication')
         latest = next((r for r in self.get('/recoveries') if r['id'] == recovery['id']), None)
         if not latest or latest['phase'] != 'applying':
             raise ConcurrentGitChange('Recovery no longer owns publication')
-        if time.time() - as_time(latest['created_at']).timestamp() >= POLICY['recovery_timeout_seconds']:
+        if not 0 <= time.time() - as_time(latest['created_at']).timestamp() < POLICY['recovery_timeout_seconds']:
             raise TimeoutError('Recovery publication deadline expired')
 
     def apply(self, recovery):
@@ -175,15 +181,23 @@ class RecoveryWorker:
         return 'verifying'
 
     def cycle(self, stop):
+        self.check_clock()
         state = self.get('/environment')
         outcome = self.sample(state)
         for recovery in self.get('/recoveries'):
             if recovery['phase'] in ('proposed', 'applying', 'verifying'):
+                if time.time() < as_time(recovery['created_at']).timestamp():
+                    self.event(recovery, 'failed', outcome='source_unavailable', evidence={'reason': 'host_clock_uncertain'})
+                    return 'host_clock_uncertain'
                 if time.time() - as_time(recovery['created_at']).timestamp() >= POLICY['recovery_timeout_seconds']:
                     self.event(recovery, 'failed', outcome='verification_timeout')
                     return 'verification_timeout'
                 return self.verify(recovery, stop) if recovery['phase'] == 'verifying' else self.apply(recovery)
         return outcome
+
+    def check_clock(self):
+        if abs((time.time() - self.boot_wall) - (time.monotonic() - self.boot_monotonic)) > 5:
+            raise ClockDiscontinuity('Host wall clock changed; stop actuation and re-establish time')
 
 
 def main():

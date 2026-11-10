@@ -1,12 +1,14 @@
 import json
 import unittest
+import threading
+from unittest.mock import patch
 from datetime import datetime, timedelta, timezone
 
 import httpx
 
 from backend.collector import SourcesUnavailable
 from backend.recovery_signals import Signals
-from backend.recovery_worker import RecoveryWorker
+from backend.recovery_worker import RecoveryWorker, ClockDiscontinuity
 
 
 class RecoverySignalTests(unittest.TestCase):
@@ -65,6 +67,15 @@ class RecoveryWorkerTests(unittest.TestCase):
         worker=RecoveryWorker(self.config(),client=client,signals=object())
         self.assertTrue(worker.post('/unit',{'event_id':'same-event','expected_version':3})['duplicate'])
         self.assertEqual(captured[0],captured[1]); self.assertEqual(len(captured),2)
+
+    def test_wall_clock_jump_stops_before_api_or_git_actuation(self):
+        client=httpx.Client(base_url='http://127.0.0.1:8090',transport=httpx.MockTransport(
+            lambda request: (_ for _ in ()).throw(AssertionError('Clock guard must run first'))))
+        self.addCleanup(client.close)
+        worker=RecoveryWorker(self.config(),client=client,signals=object())
+        with patch('backend.recovery_worker.time.time',return_value=worker.boot_wall+4460), \
+             patch('backend.recovery_worker.time.monotonic',return_value=worker.boot_monotonic+1):
+            with self.assertRaises(ClockDiscontinuity): worker.cycle(threading.Event())
 
     def test_source_failure_records_unavailable_window_instead_of_incident(self):
         captured=[]

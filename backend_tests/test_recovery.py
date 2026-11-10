@@ -201,3 +201,13 @@ class RecoveryPostgreSQLTests(unittest.TestCase):
         self.assertEqual(self.incident()['outcome'],'git_unavailable')
         self.assertEqual([e['phase'] for e in self.incident()['events']],['proposed','applying','failed'])
         self.assertEqual(self.move('applying').status_code,409)
+
+    def test_failed_verification_still_records_actual_serving_target(self):
+        target=self.prepare_verification()
+        self.assertEqual(self.move('failed',outcome='verification_timeout').status_code,200)
+        response=self.signed({'event_id':'late-serving-truth','expected_version':self.version(),
+            'release':target.model_copy(update={'observed_at':datetime.now(timezone.utc),'observation_sequence':400}).model_dump(mode='json')})
+        self.assertEqual(response.status_code,200,response.text)
+        self.assertEqual(self.client.get('/environment').json()['desired']['status'],'promoted')
+        self.assertEqual(self.incident()['phase'],'failed')
+        self.assertEqual(self.move('recovered').status_code,409)

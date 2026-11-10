@@ -54,6 +54,10 @@ its original acceptance record. Lower build numbers only apply through an
 authorized recovery; old controller sequences cannot regress desired state.
 
 Incidents move proposed → applying → verifying → recovered, failed or superseded.
+Failure remains terminal even if a previously published recovery later serves
+healthy traffic. Observations still record that serving truth; they do not turn
+the failed incident into a success. Clock discontinuities stop actuation, and a
+trial with inconsistent wall/monotonic time is excluded rather than benchmarked.
 The dedicated `recovery` API role can read evidence and submit health/phase events;
 it cannot import curated acceptance, access admin audit or create browser sessions.
 The observer's HMAC credential cannot create a recovery incident. Runtime SQL

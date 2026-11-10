@@ -54,7 +54,7 @@ def main():
             while not stop.is_set():
                 stamp=time.monotonic(); row=signals.probe(service)
                 stream.write(json.dumps({'timestamp':datetime.now(timezone.utc).isoformat(),
-                    'client_monotonic_seconds':stamp,**row})+'\n'); stream.flush()
+                    'client_monotonic_seconds':stamp,'completed_monotonic_seconds':time.monotonic(),**row})+'\n'); stream.flush()
                 stop.wait(.05)
     try:
         baseline=signals.probe('demo-stable')
@@ -200,6 +200,10 @@ def main():
                 rows=[json.loads(line) for line in (folder/'stable.jsonl').read_text().splitlines()]
                 gaps=[b['client_monotonic_seconds']-a['client_monotonic_seconds'] for a,b in zip(rows,rows[1:])]
                 assert len(rows)>=100 and gaps and 0<=min(gaps) and max(gaps)<=10, 'Interrupted independent HTTP stream'
+                offsets=[datetime.fromisoformat(r['timestamp']).timestamp()-r['completed_monotonic_seconds'] for r in rows]
+                drift=max(offsets)-min(offsets)
+                summary['clock_discontinuity_seconds']=round(drift,6)
+                assert drift<=2, 'Host wall clock discontinuity invalidates this trial'
                 affected=[r for r in rows if r['client_monotonic_seconds']>=injected_monotonic and r['revision']==expected_revision]
                 assert any(r['status']==500 for r in affected) if args.fault=='error' else any(r['status']==200 and r['seconds']>=.5 for r in affected), 'Injected serving failure not observed'
                 assert all(r['status']==200 and r['revision']==target_revision for r in rows[-100:]), 'Last 100 requests do not verify the accepted target'
