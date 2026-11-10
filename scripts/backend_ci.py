@@ -64,6 +64,7 @@ def main():
             for target, image in (('runtime', tag), ('test', test_tag)):
                 result = command('docker', 'build', '-f', str(context / 'ci/backend.Dockerfile'), '--target', target,
                     '--build-arg', 'PYTHON_IMAGE=' + versions['python_image'], '--build-arg', 'SOURCE_SHA=' + args.source_sha,
+                    '--build-arg', 'NODE_IMAGE=' + versions['node_image'],
                     '-t', image, str(context), timeout=900)
                 (output / ('build-' + target + '.log')).write_bytes(result.stdout + result.stderr)
             command('docker', 'network', 'create', '--label', label, network)
@@ -100,6 +101,8 @@ def main():
             execution = command('docker', 'start', '-a', test, check=False, timeout=300)
             print((execution.stdout + execution.stderr).decode(errors='replace')[-5000:], flush=True)
             command('docker', 'cp', test + ':/tmp/backend-tests.json', str(output / 'tests.json'), check=False)
+            command('docker', 'cp', test + ':/app/frontend-audit.json', str(output / 'frontend-audit.json'))
+            command('docker', 'cp', test + ':/app/frontend/dist/build.json', str(output / 'frontend-build.json'))
             tests = json.loads((output / 'tests.json').read_text())
             if execution.returncode or not tests['passed']:
                 raise RuntimeError('Backend tests blocked scan and publication')
@@ -122,6 +125,23 @@ def main():
             require_uid = command('docker', 'exec', api, 'id', '-u').stdout.decode().strip()
             if require_uid != '10001':
                 raise RuntimeError('Runtime image is not running as the expected non-root UID')
+            portal_probe = """import hashlib,json,urllib.request,urllib.error
+from pathlib import Path
+base='http://127.0.0.1:8090'
+assert b'Release Lab' in urllib.request.urlopen(base,timeout=3).read()
+manifest=json.loads(Path('/app/frontend/dist/build.json').read_text())
+for name,digest in manifest['files'].items():
+    path='/' if name=='index.html' else '/portal/'+name
+    assert hashlib.sha256(urllib.request.urlopen(base+path,timeout=3).read()).hexdigest()==digest
+try:
+    urllib.request.urlopen(base+'/environment',timeout=3)
+except urllib.error.HTTPError as error:
+    assert error.code==401
+else:
+    raise AssertionError('Unauthenticated private data access')
+"""
+            command('docker', 'exec', api, 'python', '-c', portal_probe)
+            summary['runtime_portal_assets_verified'] = True
             print('Runtime target passed startup; scanning OS and Python dependencies', flush=True)
             pinned_scanner = json.loads((ROOT / 'versions.json').read_text())['trivy']
             if ('Version: ' + pinned_scanner) not in command('trivy', '--version').stdout.decode():

@@ -16,6 +16,7 @@ from backend.contracts import CallbackRequest, ImportRequest
 from backend.db import Database
 from backend.imports import negative_gate, normalize
 from backend.service import Conflict, StateService
+from backend.browser import browser_identity, key_role, mount_browser
 
 
 def content_hash(payload):
@@ -39,18 +40,25 @@ def create_app(settings=None):
     app = FastAPI(title='Release Lab State API', version='0.1.0', lifespan=lifespan,
                   docs_url=None, redoc_url=None, openapi_url=None)
     key_header = APIKeyHeader(name='X-API-Key', auto_error=False)
+    sessions = mount_browser(app, settings)
 
     def authorize(*allowed):
-        def dependency(token=Depends(key_header)):
-            if not token or len(token) > 1024:
-                raise HTTPException(401, 'API key required')
-            digest = hashlib.sha256(token.encode()).hexdigest()
-            role = next((role for stored, role in settings.api_keys.items() if hmac.compare_digest(stored, digest)), None)
+        def dependency(request: Request, token=Depends(key_header)):
+            channel = 'api'
+            if token is not None:
+                if not token or len(token) > 1024:
+                    raise HTTPException(401, 'API key required')
+                digest = hashlib.sha256(token.encode()).hexdigest()
+                role = key_role(settings, digest)
+            else:
+                session, role = browser_identity(request, sessions, settings,
+                    mutation=request.method not in ('GET', 'HEAD', 'OPTIONS'))
+                digest, channel = session.key_hash, 'browser'
             if role is None:
                 raise HTTPException(401, 'Invalid API key')
             if role not in allowed:
                 raise HTTPException(403, 'Role cannot perform this action')
-            return 'api:' + role + ':' + digest[:12]
+            return channel + ':' + role + ':' + digest[:12]
         return dependency
 
     read = authorize('read', 'developer', 'admin')

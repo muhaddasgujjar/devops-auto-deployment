@@ -10,6 +10,7 @@ import tempfile
 from pathlib import Path
 
 from backend.security import private_json
+from backend.ui_bundle import copy_bundle, verify
 from scripts.backend_runtime import CONFIG, SECRET_ROOT
 from scripts.render_release import ROOT
 
@@ -30,16 +31,18 @@ def main():
         if subprocess.run(['id', '-u', user], capture_output=True).returncode:
             command('useradd', '--system', '--no-create-home', '--shell', '/usr/sbin/nologin', user)
     sha = command('git', '-C', str(ROOT), 'rev-parse', 'HEAD')
-    for path in command('git', '-C', str(ROOT), 'diff', '--name-only', 'HEAD', '--', 'backend').splitlines():
-        raise RuntimeError('Commit backend code before installing its service snapshot')
+    if command('git', '-C', str(ROOT), 'status', '--porcelain', '--', 'backend', 'frontend'):
+        raise RuntimeError('Commit backend and frontend source before installing the service snapshot')
     snapshot = Path('/opt/release-lab/backend-runtime') / sha
     if not snapshot.exists():
         snapshot.mkdir(parents=True)
         with tempfile.TemporaryFile() as archive:
-            subprocess.run(['git', '-C', str(ROOT), 'archive', sha, 'backend'], stdout=archive, check=True)
+            subprocess.run(['git', '-C', str(ROOT), 'archive', sha, 'backend', 'frontend'], stdout=archive, check=True)
             archive.seek(0)
             with tarfile.open(fileobj=archive) as content:
                 content.extractall(snapshot, filter='data')
+    verify(snapshot / 'frontend', ROOT / 'frontend/dist')
+    copy_bundle(ROOT / 'frontend', snapshot / 'frontend/dist')
     observer_config = SECRET_ROOT / 'collector.json'
     if not observer_config.exists():
         current = json.loads(CONFIG.read_text())

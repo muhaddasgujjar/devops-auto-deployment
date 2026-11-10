@@ -79,7 +79,7 @@ class PostgreSQLStateTests(unittest.TestCase):
     def setUp(self):
         with self.clean_engine.begin() as conn:
             conn.execute(text('TRUNCATE projects CASCADE'))
-        self.context = TestClient(create_app(self.settings))
+        self.context = TestClient(create_app(self.settings), base_url='http://127.0.0.1')
         self.client = self.context.__enter__()
         self.client.headers['X-API-Key'] = self.tokens['admin']
         self.service = self.client.app.state.service
@@ -350,3 +350,87 @@ class PostgreSQLStateTests(unittest.TestCase):
                 conn.execute(text('DROP TABLE public.migration_probe'))
         finally:
             engine.dispose()
+
+    def browser_login(self, role='read'):
+        self.client.headers.pop('X-API-Key', None)
+        response = self.client.post('/auth/session', json={'key': self.tokens[role]}, headers={'Origin': 'http://127.0.0.1'})
+        self.assertEqual(response.status_code, 200, response.text)
+        return response
+
+    def test_browser_cookie_logout_and_credential_non_disclosure(self):
+        response = self.browser_login('admin')
+        cookie = response.headers['set-cookie'].lower()
+        self.assertIn('httponly', cookie)
+        self.assertIn('samesite=strict', cookie)
+        self.assertNotIn(self.tokens['admin'], response.text)
+        self.assertEqual(self.client.get('/environment').status_code, 200)
+        self.assertEqual(self.client.get('/audit').status_code, 200)
+        self.assertEqual(self.client.delete('/auth/session').status_code, 403)
+        logout = self.client.delete('/auth/session', headers={'Origin': 'http://127.0.0.1', 'X-CSRF-Token': response.json()['csrf_token']})
+        self.assertEqual(logout.status_code, 200)
+        self.assertEqual(self.client.get('/environment').status_code, 401)
+        self.assertEqual(self.counts()['incoming_events'], 0)
+
+    def test_browser_role_checks_apply_to_direct_api_requests(self):
+        info = self.browser_login('read').json()
+        self.assertEqual(self.client.get('/audit').status_code, 403)
+        response = self.client.post('/imports', json=self.report(), headers={'Origin': 'http://127.0.0.1', 'X-CSRF-Token': info['csrf_token']})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.counts()['builds'], 0)
+
+    def test_browser_writes_need_both_origin_and_csrf(self):
+        info = self.browser_login('developer').json()
+        payload = self.report()
+        self.assertEqual(self.client.post('/imports', json=payload).status_code, 403)
+        self.assertEqual(self.client.post('/imports', json=payload, headers={'Origin': 'http://127.0.0.1', 'X-CSRF-Token': 'wrong'}).status_code, 403)
+        self.assertEqual(self.client.post('/imports', json=payload, headers={'Origin': 'http://evil.example', 'X-CSRF-Token': info['csrf_token']}).status_code, 403)
+        response = self.client.post('/imports', json=payload, headers={'Origin': 'http://127.0.0.1', 'X-CSRF-Token': info['csrf_token']})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.service.audit()[0]['data']['actor'].startswith('browser:developer:'))
+
+    def test_browser_login_requires_same_origin_and_rejects_bad_keys(self):
+        self.client.headers.pop('X-API-Key', None)
+        body = {'key': self.tokens['admin']}
+        self.assertEqual(self.client.post('/auth/session', json=body).status_code, 403)
+        self.assertEqual(self.client.post('/auth/session', json=body, headers={'Origin': 'http://evil.example'}).status_code, 403)
+        self.assertEqual(self.client.post('/auth/session', json={'key': 'x' * 40}, headers={'Origin': 'http://127.0.0.1'}).status_code, 401)
+
+    def test_browser_expiry_and_key_revocation(self):
+        self.browser_login()
+        self.client.app.state.browser_sessions.clock = lambda: time.time() + 4000
+        self.assertEqual(self.client.get('/environment').status_code, 401)
+        self.client.app.state.browser_sessions.clock = time.time
+        self.browser_login()
+        digest = hashlib.sha256(self.tokens['read'].encode()).hexdigest()
+        role = self.settings.api_keys.pop(digest)
+        try:
+            self.assertEqual(self.client.get('/environment').status_code, 401)
+        finally:
+            self.settings.api_keys[digest] = role
+
+    def test_browser_rotation_and_restart_reject_old_cookie(self):
+        self.browser_login()
+        old = self.client.cookies.get('release_lab_session')
+        self.browser_login()
+        response = self.client.get('/environment', headers={'Cookie': 'release_lab_session=' + old})
+        self.assertEqual(response.status_code, 401)
+        with TestClient(create_app(self.settings), base_url='http://127.0.0.1') as restarted:
+            response = restarted.get('/environment', headers={'Cookie': 'release_lab_session=' + self.client.cookies.get('release_lab_session')})
+            self.assertEqual(response.status_code, 401)
+
+    def test_browser_login_body_bound_and_headers(self):
+        response = self.client.post('/auth/session', content=b'x' * 5000, headers={'Origin': 'http://127.0.0.1', 'Content-Type': 'application/json'})
+        self.assertEqual(response.status_code, 413)
+        self.assertEqual(response.headers['cache-control'], 'no-store')
+        self.assertIn("frame-ancestors 'none'", response.headers['content-security-policy'])
+        self.assertEqual(response.headers['x-content-type-options'], 'nosniff')
+
+    def test_portal_assets_are_served_without_database_or_key_material(self):
+        self.client.headers.pop('X-API-Key', None)
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Release Lab', response.text)
+        for token in self.tokens.values():
+            self.assertNotIn(token, response.text)
+        self.assertEqual(self.client.get('/environment').status_code, 401)
+        self.assertEqual(self.client.get('/portal/../../backend/config.py').status_code, 404)

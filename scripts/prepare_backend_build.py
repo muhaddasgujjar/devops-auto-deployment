@@ -6,6 +6,7 @@ import shutil
 from pathlib import Path
 
 from scripts.render_release import ROOT
+from backend.ui_bundle import inputs
 
 
 def prepare(context, wheels):
@@ -20,6 +21,10 @@ def prepare(context, wheels):
             target = context / directory / source.name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source, target)
+    for name in inputs(ROOT / 'frontend'):
+        target = context / 'frontend' / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / 'frontend' / name, target)
     files = ['alembic.ini', 'requirements-backend-musl.lock', 'ci/backend.Dockerfile',
              'ci/backend_tests_entrypoint.py', 'scripts/validate_backend.py', 'scripts/render_release.py',
              'docs/evidence/ci-gitops-acceptance.json', 'docs/evidence/runtime-failure-validation.json',

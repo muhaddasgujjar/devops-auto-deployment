@@ -12,3 +12,6 @@ kubeconfig*
 *.pem
 *.key
 *.log
+node_modules/
+frontend/dist/
+.sites-runtime/

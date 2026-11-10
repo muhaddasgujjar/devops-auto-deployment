@@ -61,6 +61,12 @@ def main():
     require(not any(v.get('Severity') in ('HIGH', 'CRITICAL') for r in scan['Results']
                     for v in r.get('Vulnerabilities', [])), 'HIGH/CRITICAL findings remain')
     require(sbom.get('bomFormat') == 'CycloneDX' and sbom.get('components'), 'SBOM is missing')
+    frontend_audit = read(args.positive, 'frontend-audit.json')
+    frontend_build = read(args.positive, 'frontend-build.json')
+    require(not frontend_audit.get('error') and frontend_audit['metadata']['vulnerabilities']['high'] == 0 and
+            frontend_audit['metadata']['vulnerabilities']['critical'] == 0, 'Frontend dependency gate failed')
+    require(frontend_build['format'] == 1 and 'index.html' in frontend_build['files'] and
+            positive.get('runtime_portal_assets_verified'), 'Packaged portal runtime proof missing')
     body, digest = manifest(positive['image'].split('@')[1])
     require(positive['image'].endswith('@' + digest), 'Registry manifest digest differs')
     if 'manifests' in body:
@@ -75,9 +81,11 @@ def main():
               'reported_high_critical': 0, 'docker_image_id': inspected['Id'],
               'registry_manifest_digest': digest, 'oci_config_digest': body['config']['digest'],
               'runtime_user': inspected['Config']['User'], 'sbom_components': len(sbom['components']),
+              'frontend_input_sha256': frontend_build['input_sha256'],
+              'frontend_runtime_assets_verified': True, 'frontend_reported_high_critical': 0,
               'positive_raw_trial': args.positive.as_posix(), 'negative_raw_trial': args.negative.as_posix(),
               'artifact_sha256': {name: hashlib.sha256((args.positive / name).read_bytes()).hexdigest()
-                                  for name in ('source.json', 'result.json', 'tests.json', 'scan.json', 'sbom.json')},
+                                  for name in ('source.json', 'result.json', 'tests.json', 'scan.json', 'sbom.json', 'frontend-audit.json', 'frontend-build.json')},
               'limitations': ['Local manually triggered trusted Docker-socket agent; external SCM/PR isolation still pending',
                               'Backend image publication does not change application environment Git or promote a release',
                               'All CI PostgreSQL data/credentials are ephemeral and separate from the real backend database']}
