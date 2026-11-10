@@ -1,0 +1,101 @@
+{
+  "recorded_at_utc": "2026-11-10T08:39:02.919847+00:00",
+  "passed": true,
+  "runtime_database_role": "release_state_runtime",
+  "collector_service": {
+    "Restart": "on-failure",
+    "MainPID": "98996",
+    "NRestarts": "1",
+    "User": "release-observer",
+    "ProtectSystem": "strict",
+    "NoNewPrivileges": "yes",
+    "ActiveState": "active"
+  },
+  "api_service": {
+    "Restart": "on-failure",
+    "MainPID": "100177",
+    "NRestarts": "1",
+    "User": "release-api",
+    "ProtectSystem": "strict",
+    "NoNewPrivileges": "yes",
+    "ActiveState": "active"
+  },
+  "kubernetes_authorization": [
+    {
+      "request": [
+        "get",
+        "rollouts.argoproj.io/release-demo",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": true
+    },
+    {
+      "request": [
+        "get",
+        "applications.argoproj.io/release-demo-dev",
+        "-n",
+        "argocd"
+      ],
+      "allowed": true
+    },
+    {
+      "request": [
+        "patch",
+        "rollouts.argoproj.io/release-demo",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "list",
+        "secrets",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "create",
+        "pods",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "get",
+        "applications.argoproj.io/other",
+        "-n",
+        "argocd"
+      ],
+      "allowed": false
+    }
+  ],
+  "collector_automatic_restart_passed": true,
+  "api_automatic_restart_passed": true,
+  "source_authorization_outage_and_recovery_passed": true,
+  "api_outage_retry_attempts": 3,
+  "serving_revision_preserved": "05d553b044d566ce06fca3205db0632fe0328c77-jenkins-17",
+  "backup": {
+    "sha256": "11fa535934479a8526b5e6b7caee9d9acc574e94917330687b99f2572614bdc3",
+    "bytes": 59606,
+    "archive": "output/restricted-backend-499693c10cca.dump",
+    "restored_database": "release_state_restore_9d2259e08203",
+    "identical_restricted_api_views": [
+      "environment",
+      "releases",
+      "builds",
+      "audit"
+    ]
+  },
+  "limitations": [
+    "One-hour observer token is explicitly refreshed by the administrator before later sessions",
+    "Units are installed but not enabled at boot; laptop services are started/stopped explicitly",
+    "The collector uses namespace-scoped read access and cannot deploy or recover releases"
+  ]
+}
