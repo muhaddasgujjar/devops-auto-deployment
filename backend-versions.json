@@ -1,6 +1,7 @@
 {
   "postgres_image": "postgres:17-alpine@sha256:eee6c6e1b0894fa4fe0075eb054af9fd1cf39a35321c2d4110626cfe506411fb",
   "python_image": "python:3.12-alpine3.24@sha256:e064671ca452259bab50e8e2c7bd896e39e9a343bb06ca25234adf6fe18d0fc7",
+  "krb5_security_patch": "1.22.3-r0",
   "node_image": "node:24-alpine3.24@sha256:a34ab6d7f6f4813f4d0c5469d74685604b962fbdbf5793a7bc7b4998ecb867c8",
   "scope": "Local PostgreSQL and separately packaged backend; demo deployment remains separate"
 }

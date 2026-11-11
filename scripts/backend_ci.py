@@ -65,6 +65,7 @@ def main():
                 result = command('docker', 'build', '-f', str(context / 'ci/backend.Dockerfile'), '--target', target,
                     '--build-arg', 'PYTHON_IMAGE=' + versions['python_image'], '--build-arg', 'SOURCE_SHA=' + args.source_sha,
                     '--build-arg', 'NODE_IMAGE=' + versions['node_image'],
+                    '--build-arg', 'KRB5_VERSION=' + versions['krb5_security_patch'],
                     '-t', image, str(context), timeout=900)
                 (output / ('build-' + target + '.log')).write_bytes(result.stdout + result.stderr)
             command('docker', 'network', 'create', '--label', label, network)

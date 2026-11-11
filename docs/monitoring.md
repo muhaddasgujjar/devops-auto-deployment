@@ -3,6 +3,16 @@
 Milestone 8 implementation is under acceptance. The accepted MVP estimate remains
 80% until CI, the live monitoring trial and isolated restore pass.
 
+The first positive CI attempt retained an upstream vulnerability-database timeout.
+After the official ECR database refresh, a repeat scan blocked the older runtime
+on 16 HIGH findings in `krb5-libs` 1.22.2-r1. The official Python base tag still
+resolved to the existing pinned digest. The backend therefore retains that base
+and installs the exact signed Alpine security package `1.22.3-r0`, also pinned in
+`backend-versions.json`. No vulnerability ignore or update-skip flag was added.
+The subsequent final CI receipt must prove the patched runtime scan.
+See [the vendor package](https://pkgs.alpinelinux.org/package/v3.24/main/x86_64/krb5-libs)
+and [official database sources](https://trivy.dev/docs/latest/configuration/db/).
+
 Prometheus uses a 1 GiB static local PVC, `Retain` reclaim policy, one replica and
 Recreate updates. Its TSDB retention is 24 hours / 512 MB with a 384 MiB memory
 limit. These retention limits are not a hard filesystem quota: head data, WAL,

@@ -1,0 +1,15 @@
+{
+  "status": "blocked",
+  "source_commit": "3829386578c618a73dafae3bacf436780844e134",
+  "preview": "Disposable copy of real PostgreSQL records at loopback port 8093; public fixture keys only",
+  "browser_review_completed": false,
+  "screenshots_claimed": false,
+  "attempts": [
+    {"surface": "In-app browser", "outcome": "Initialization timed out; inventory reported a Statsig values timeout and no tabs"},
+    {"surface": "Windows Chrome via the computer-use skill", "outcome": "Tool stopped the turn before new-tab input because it could not verify the current browser URL with enough confidence to enforce policy"}
+  ],
+  "further_ui_input_attempted_after_stop": false,
+  "disposable_preview_stopped_and_database_config_cleaned": true,
+  "remaining": ["Recovery history visual review", "Monitoring populated/empty views at desktop and narrow widths", "Second-user pilot"],
+  "separate_checks": "Five frontend tests, TypeScript compilation and production bundle build passed; these do not substitute for browser visual acceptance"
+}
