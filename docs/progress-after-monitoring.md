@@ -29,8 +29,9 @@ not inferred from compilation or API checks. These require real observations;
 no feedback or approval has been invented.
 
 Next prepare one portable repository bundle and a fresh-machine checklist on
-this laptop. No remote is configured, so there is currently no published clone
-URL. Preserve private backups separately, inventory the other machine's CPU/RAM,
+this laptop. The source is now published on the `codex/foundation-baseline` branch;
+see [clone instructions](machine-transfer.md). Preserve private backups separately,
+inventory the other machine's CPU/RAM,
 disk and Linux/container support, and recreate credentials there. A GPU does not
 replace host RAM for this platform. Then reproduce installation and restore on
 that machine before adding TLS, isolated builders and external SCM triggers.

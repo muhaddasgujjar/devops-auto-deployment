@@ -48,8 +48,9 @@ actual target-machine reproduction remain open; progress stays at 83%.
 1. Close the early human/visual gaps above. Record actual findings and fix any
    reproducible defects before treating those items as accepted.
 2. Export a verified Git bundle of the one merged repository and record its SHA.
-   No remote is configured; do not invent a clone URL. A local bundle supports
-   `git clone <bundle-path> <new-folder>` on the other machine without publishing.
+   The current implementation is published on GitHub's `codex/foundation-baseline`
+   branch; use the exact clone command in [transfer instructions](machine-transfer.md).
+   A local bundle also supports `git clone <bundle-path> <new-folder>`.
 3. Prepare a fresh-machine inventory and runbook covering pinned tools, Linux and
    Docker, CPU/RAM/disk, registry names, protected secrets, service identities and
    migration order. Backups are private and transfer separately from Git.

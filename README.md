@@ -1,5 +1,14 @@
 # DevOps auto-deployment
 
+The current merged implementation is published on GitHub's
+[`codex/foundation-baseline` branch](https://github.com/muhaddasgujjar/devops-auto-deployment/tree/codex/foundation-baseline).
+The existing remote `main` has a separate history and was preserved. Clone the
+completed implementation with:
+
+```sh
+git clone --branch codex/foundation-baseline https://github.com/muhaddasgujjar/devops-auto-deployment.git
+```
+
 The old-chat implementation and the newer foundation have been merged into this
 single Git project, preserving both histories. The canonical application is
 `demo/app.py`; `examples/foundation/` is an isolated earlier test fixture, not a
