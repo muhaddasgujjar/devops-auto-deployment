@@ -25,10 +25,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--refresh-observer-token', action='store_true')
     parser.add_argument('--refresh-recovery-token', action='store_true')
+    parser.add_argument('--refresh-notifier-token', action='store_true')
     args = parser.parse_args()
     if os.geteuid() != 0:
         raise RuntimeError('Service installation requires the local Linux administrator')
-    for user in ('release-api', 'release-observer', 'release-recovery'):
+    for user in ('release-api', 'release-observer', 'release-recovery', 'release-notifier', 'release-notification-receiver'):
         if subprocess.run(['id', '-u', user], capture_output=True).returncode:
             command('useradd', '--system', '--no-create-home', '--shell', '/usr/sbin/nologin', user)
     sha = command('git', '-C', str(ROOT), 'rev-parse', 'HEAD')
@@ -94,6 +95,28 @@ def main():
                 'repository': 'ssh://release-git@127.0.0.1:2222/var/lib/release-lab/git/environment.git',
                 'kubeconfig': str(SECRET_ROOT / 'recovery.kubeconfig'),
                 'environment_git': '/var/lib/release-lab/git/environment.git'})
+    notification_config = SECRET_ROOT / 'notification.json'
+    receiver_config = SECRET_ROOT / 'receiver.json'
+    if args.refresh_notifier_token:
+        base = ['kubectl', '--kubeconfig', str(ROOT / 'output/lab.kubeconfig'), '--context=k3d-release-lab']
+        command(*base, 'apply', '-f', str(ROOT / 'platform/backend-notifier.yaml'))
+        raw = json.loads(command(*base, 'config', 'view', '--raw', '--minify', '-o', 'json'))
+        token = command(*base, 'create', 'token', 'release-notifier', '-n', 'release-notifier', '--duration=1h')
+        limited = {'apiVersion':'v1','kind':'Config','current-context':'k3d-release-lab','clusters':raw['clusters'],
+            'users':[{'name':'notifier','user':{'token':token}}],
+            'contexts':[{'name':'k3d-release-lab','context':{'cluster':raw['clusters'][0]['name'],'user':'notifier'}}]}
+        target = SECRET_ROOT / 'notifier.kubeconfig'
+        pending = target.with_suffix('.pending'); private_json(pending,limited); os.replace(pending,target)
+        if not notification_config.exists():
+            if receiver_config.exists(): raise RuntimeError('Incomplete notifier setup requires manual reconciliation')
+            key,receiver_token = secrets.token_urlsafe(32),secrets.token_urlsafe(32)
+            current = json.loads(CONFIG.read_text())
+            current['api_keys'][hashlib.sha256(key.encode()).hexdigest()] = 'notifier'
+            pending = CONFIG.with_suffix('.notifier-pending'); private_json(pending,current); os.replace(pending,CONFIG)
+            private_json(receiver_config,{'token':receiver_token})
+            private_json(notification_config,{'api_url':'http://127.0.0.1:8090','api_key':key,
+                'receiver_url':'http://127.0.0.1:8092','receiver_token':receiver_token,
+                'kubeconfig':str(SECRET_ROOT/'notifier.kubeconfig')})
     common = f'''[Unit]
 After=network.target
 StartLimitIntervalSec=120
@@ -151,6 +174,28 @@ Environment=RELEASE_RECOVERY_KNOWN_HOSTS=%d/known-hosts
 StateDirectory=release-recovery
 StateDirectoryMode=0750
 ExecStart=/opt/release-lab/backend-venv/bin/python -m backend.recovery_worker
+'''
+    if notification_config.exists():
+        if not receiver_config.exists() or not (SECRET_ROOT/'notifier.kubeconfig').exists():
+            raise RuntimeError('Notifier requires its separate receiver and scoped token')
+        units['release-state-notifier'] = common + f'''User=release-notifier
+Group=release-notifier
+LoadCredential=notification.json:{notification_config}
+LoadCredential=kubeconfig:{SECRET_ROOT / 'notifier.kubeconfig'}
+Environment=RELEASE_NOTIFICATION_CONFIG_FILE=%d/notification.json
+Environment=RELEASE_NOTIFICATION_KUBECONFIG=%d/kubeconfig
+StateDirectory=release-notifier
+StateDirectoryMode=0750
+ExecStart=/opt/release-lab/backend-venv/bin/python -m backend.notification_worker
+'''
+        units['release-notification-receiver'] = common + f'''User=release-notification-receiver
+Group=release-notification-receiver
+MemoryMax=96M
+LoadCredential=receiver.json:{receiver_config}
+Environment=RELEASE_RECEIVER_CONFIG_FILE=%d/receiver.json
+StateDirectory=release-notification-receiver
+StateDirectoryMode=0750
+ExecStart=/opt/release-lab/backend-venv/bin/python -m backend.notification_receiver
 '''
     for name, unit in units.items():
         path = Path('/etc/systemd/system') / (name + '.service')

@@ -26,7 +26,7 @@ def prepare(context, wheels):
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / 'frontend' / name, target)
     files = ['alembic.ini', 'requirements-backend-musl.lock', 'ci/backend.Dockerfile',
-             'ci/backend_tests_entrypoint.py', 'scripts/validate_backend.py', 'scripts/render_release.py',
+             'ci/backend_tests_entrypoint.py', 'scripts/validate_backend.py', 'scripts/render_release.py', 'scripts/backend_runtime.py',
              'docs/evidence/ci-gitops-acceptance.json', 'docs/evidence/runtime-failure-validation.json',
              'docs/evidence/ci-negative-gate.json']
     for name in files:

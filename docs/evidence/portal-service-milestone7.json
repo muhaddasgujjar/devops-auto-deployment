@@ -1,0 +1,22 @@
+{
+  "recorded_at_utc": "2026-11-10T15:08:16.955428+00:00",
+  "passed": true,
+  "installed_source_commit": "1718c24d32bdb922f0a1624b934dd3cb2d88db14",
+  "frontend_input_sha256": "fb39c145b54ca85e499be628cb85420930bf1fd1fbdf438654ac9571cf60489c",
+  "verified_asset_count": 3,
+  "read_audit_denied": true,
+  "admin_audit_allowed": true,
+  "csrf_enforced": true,
+  "logout_revokes_access": true,
+  "keys_disclosed": false,
+  "release_records": 12,
+  "build_records": 12,
+  "desired_build": 16,
+  "stable_build": 16,
+  "freshness": "current",
+  "environment_version": 91,
+  "limitations": [
+    "Loopback HTTP, one API worker, process-local sessions; TLS/remote hosting remain future work",
+    "This check reads production lab evidence; it does not promote or recover releases"
+  ]
+}

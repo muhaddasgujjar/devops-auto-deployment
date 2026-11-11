@@ -3,12 +3,17 @@ export const statusNames = {
   inconclusive: 'Inconclusive', telemetry_error: 'Telemetry error', aborted: 'Aborted',
   progressing: 'In progress', published: 'Published', SUCCESS: 'CI passed', FAILURE: 'CI failed',
   proposed: 'Proposed', applying: 'Applying', verifying: 'Verifying', recovered: 'Recovered', failed: 'Failed', superseded: 'Superseded',
+  firing: 'Firing', resolved: 'Resolved', pending: 'Waiting to retry', leased: 'Delivering', delivered: 'Delivered', dead: 'Attempts exhausted',
+  candidate_rejected: 'Candidate rejected', candidate_inconclusive: 'Candidate evidence inconclusive',
+  post_promotion_incident: 'Post-promotion incident', recovery_failed: 'Recovery failed',
+  observation_unavailable: 'Controller observation unavailable', monitor_unavailable: 'Monitoring worker unavailable',
+  telemetry_unavailable: 'Prometheus unavailable', workload_signal: 'Workload signal',
 };
 
 export function label(status) { return statusNames[status] || status || 'Unknown'; }
 export function tone(status) {
-  if (['promoted', 'SUCCESS', 'Successful', 'accepted', 'current', 'recovered'].includes(status)) return 'good';
-  if (['rejected', 'readiness_aborted', 'aborted', 'FAILURE', 'Failed', 'failed'].includes(status)) return 'bad';
+  if (['promoted', 'SUCCESS', 'Successful', 'accepted', 'current', 'recovered', 'delivered', 'resolved'].includes(status)) return 'good';
+  if (['rejected', 'readiness_aborted', 'aborted', 'FAILURE', 'Failed', 'failed', 'firing', 'dead'].includes(status)) return 'bad';
   if (['inconclusive', 'telemetry_error', 'Error', 'Inconclusive', 'excluded', 'stale', 'unavailable', 'api_unavailable', 'historical', 'proposed', 'applying', 'verifying'].includes(status)) return 'warn';
   return 'muted';
 }

@@ -64,6 +64,8 @@ class StateService:
             updates = {key: env[key] for key in ('version', 'desired_release_id', 'stable_release_id',
                        'stable_revision', 'stable_hash', 'stable_image', 'source_uid', 'last_observed_at', 'freshness', 'detail', 'observation_sequence')}
             conn.execute(envs.update().where(envs.c.id == self.env_id).values(**updates))
+            from backend.monitoring import MonitoringService
+            MonitoringService(self).evaluate(conn, actor)
             result = {'event_id': external_id, 'version': env['version'], 'duplicate': False,
                       'changes': changes, 'source': source}
             conn.execute(events.update().where(events.c.id == event_id).values(result=result))

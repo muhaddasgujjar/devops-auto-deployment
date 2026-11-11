@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "recorded_at_utc": "2026-11-11T06:59:56.230616+00:00",
+  "image": "prom/prometheus:v3.15.0",
+  "rules_sha256": "422b98d36f6a6e49179f82f1a1122aa7925d547d797f19a92d968eb15a6bf136",
+  "test_source_sha256": "3f742395a5d3ce0c58f6d9672696da403b438c4255c4ee7628277ffc12381b9d",
+  "rule_names": [
+    "DemoPodsUnavailable",
+    "DemoRequestErrors",
+    "DemoRequestLatency"
+  ],
+  "cases": [
+    "sustained errors fire",
+    "healthy rates resolve",
+    "available scrapes do not fire unavailable",
+    "absent scrapes fire",
+    "latency with traffic fires",
+    "low traffic cannot fire latency"
+  ]
+}

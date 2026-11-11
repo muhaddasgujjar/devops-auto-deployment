@@ -1,11 +1,11 @@
 {
-  "recorded_at_utc": "2026-11-10T14:44:37.990537+00:00",
+  "recorded_at_utc": "2026-11-11T07:01:29.475507+00:00",
   "passed": true,
-  "tests_run": 74,
+  "tests_run": 87,
   "failures": 0,
   "errors": 0,
   "skipped": 0,
-  "duration_seconds": 49.972,
+  "duration_seconds": 77.053,
   "scope": "Fresh PostgreSQL migration, API/session/HMAC/permissions, evidence, recovery policy/ledger, temporary Git CAS/replay, signal/worker bounds and observation ordering",
   "failed_cases": []
 }

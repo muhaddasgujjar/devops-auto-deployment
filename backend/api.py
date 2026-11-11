@@ -12,7 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from starlette.concurrency import run_in_threadpool
 
 from backend.config import load_settings
-from backend.contracts import CallbackRequest, ImportRequest, HealthWindow, RecoveryEvent
+from backend.contracts import CallbackRequest, ImportRequest, HealthWindow, RecoveryEvent, MonitoringTick, DeliveryResult
 from backend.db import Database
 from backend.imports import negative_gate, normalize
 from backend.service import Conflict, StateService
@@ -61,10 +61,39 @@ def create_app(settings=None):
             return channel + ':' + role + ':' + digest[:12]
         return dependency
 
-    read = authorize('read', 'developer', 'admin', 'recovery')
+    read = authorize('read', 'developer', 'admin', 'recovery', 'notifier')
     write = authorize('developer', 'admin')
     admin = authorize('admin')
     recover = authorize('admin', 'recovery')
+    notify = authorize('admin', 'notifier')
+
+    from backend.monitoring import MonitoringService
+
+    @app.get('/monitoring', dependencies=[Depends(read)])
+    def monitoring(request: Request):
+        return MonitoringService(request.app.state.service).snapshot()
+
+    @app.post('/monitoring/tick')
+    async def monitoring_tick(request: Request, actor=Depends(notify)):
+        try:
+            return await run_in_threadpool(MonitoringService(request.app.state.service).tick,
+                parse(await body(request), MonitoringTick), actor)
+        except ValueError as error:
+            if isinstance(error, Conflict): raise
+            raise HTTPException(422, str(error))
+
+    @app.post('/notifications/claim')
+    def notification_claim(request: Request, actor=Depends(notify)):
+        return MonitoringService(request.app.state.service).claim(actor)
+
+    @app.post('/notifications/{notification_id}/result')
+    async def notification_result(notification_id: str, request: Request, actor=Depends(notify)):
+        try:
+            return await run_in_threadpool(MonitoringService(request.app.state.service).finish,
+                notification_id, parse(await body(request), DeliveryResult), actor)
+        except ValueError as error:
+            if isinstance(error, Conflict): raise
+            raise HTTPException(422, str(error))
 
     from backend.recovery import RecoveryService, InvalidRecovery
     from backend.recovery_policy import POLICY

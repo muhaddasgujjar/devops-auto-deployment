@@ -1,0 +1,59 @@
+rule_files: [release-alerts.yml]
+evaluation_interval: 5s
+tests:
+  - interval: 5s
+    input_series:
+      - series: 'up{job="demo-pods",namespace="demo-dev",revision="abc"}'
+        values: '1+0x60'
+      - series: 'demo_requests_total{namespace="demo-dev",revision="abc",status="200"}'
+        values: '0+100x60'
+      - series: 'demo_requests_total{namespace="demo-dev",revision="abc",status="500"}'
+        values: '0+10x15 150+0x45'
+    alert_rule_test:
+      - eval_time: 60s
+        alertname: DemoRequestErrors
+        exp_alerts:
+          - exp_labels: {revision: abc, severity: warning, policy: local-monitoring-v1}
+            exp_annotations: {summary: 'A workload revision has sustained HTTP errors; this is not a controller decision'}
+      - {eval_time: 180s, alertname: DemoRequestErrors, exp_alerts: []}
+      - {eval_time: 60s, alertname: DemoPodsUnavailable, exp_alerts: []}
+  - interval: 5s
+    input_series: []
+    alert_rule_test:
+      - eval_time: 45s
+        alertname: DemoPodsUnavailable
+        exp_alerts:
+          - exp_labels: {job: demo-pods, namespace: demo-dev, severity: warning, policy: local-monitoring-v1}
+            exp_annotations: {summary: Demo telemetry is absent or a discovered pod cannot be scraped}
+  - interval: 5s
+    input_series:
+      - series: 'up{job="demo-pods",namespace="demo-dev",revision="slow"}'
+        values: '1+0x40'
+      - series: 'demo_requests_total{namespace="demo-dev",revision="slow",status="200"}'
+        values: '0+10x40'
+      - series: 'demo_request_duration_seconds_bucket{namespace="demo-dev",revision="slow",le="0.5"}'
+        values: '0+0x40'
+      - series: 'demo_request_duration_seconds_bucket{namespace="demo-dev",revision="slow",le="1"}'
+        values: '0+10x40'
+      - series: 'demo_request_duration_seconds_bucket{namespace="demo-dev",revision="slow",le="+Inf"}'
+        values: '0+10x40'
+    alert_rule_test:
+      - eval_time: 90s
+        alertname: DemoRequestLatency
+        exp_alerts:
+          - exp_labels: {revision: slow, severity: warning, policy: local-monitoring-v1}
+            exp_annotations: {summary: 'A workload revision has sustained high latency; this is not a recovery verdict'}
+  - interval: 5s
+    input_series:
+      - series: 'up{job="demo-pods",namespace="demo-dev",revision="low"}'
+        values: '1+0x40'
+      - series: 'demo_requests_total{namespace="demo-dev",revision="low",status="200"}'
+        values: '0+1x40'
+      - series: 'demo_request_duration_seconds_bucket{namespace="demo-dev",revision="low",le="0.5"}'
+        values: '0+0x40'
+      - series: 'demo_request_duration_seconds_bucket{namespace="demo-dev",revision="low",le="1"}'
+        values: '0+1x40'
+      - series: 'demo_request_duration_seconds_bucket{namespace="demo-dev",revision="low",le="+Inf"}'
+        values: '0+1x40'
+    alert_rule_test:
+      - {eval_time: 90s, alertname: DemoRequestLatency, exp_alerts: []}

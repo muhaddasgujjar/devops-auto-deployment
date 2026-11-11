@@ -109,3 +109,29 @@ class RecoveryEvent(Contract):
     outcome: Literal['git_unavailable','concurrent_git_change','verification_timeout','source_unavailable',
                      'no_accepted_target','healthy_target_verified','newer_release'] | None = None
     evidence: dict = Field(default_factory=dict)
+
+
+class NativeAlert(Contract):
+    name: Literal['DemoPodsUnavailable','DemoRequestErrors','DemoRequestLatency']
+    revision: str = Field(max_length=64,pattern=r'^[a-z0-9-]*$')
+    state: Literal['pending','firing']
+
+
+class MonitoringTick(Contract):
+    observed_at: datetime
+    telemetry_available: bool = Field(strict=True)
+    alerts: list[NativeAlert] = Field(default_factory=list,max_length=20)
+
+    @model_validator(mode='after')
+    def consistent_probe(self):
+        if not self.telemetry_available and self.alerts:
+            raise ValueError('Unavailable telemetry cannot supply current native alerts')
+        return self
+
+
+class DeliveryResult(Contract):
+    lease_id: str = Field(min_length=36,max_length=36)
+    delivered: bool = Field(strict=True)
+    receipt_id: str | None = Field(default=None,max_length=64)
+    receipt_sha256: str | None = Field(default=None,pattern=r'^[a-f0-9]{64}$')
+    result: Literal['receiver_acknowledged','receiver_unavailable','invalid_receipt']

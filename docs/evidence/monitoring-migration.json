@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "recorded_at_utc": "2026-11-11T07:06:51.288644+00:00",
+  "from_revision": "0002_recovery",
+  "to_revision": "0003_monitoring",
+  "restored_copy_checked_before_main": true,
+  "original_tables_identical": {
+    "projects": {
+      "count": 1,
+      "sha256": "8f59e359c42f988ed68dc2206970b9493295f4911a37ee73acde81571e651808"
+    },
+    "environments": {
+      "count": 1,
+      "sha256": "e8bd07241a4f84b334faae34e9214a53ad36cd532c3c6c13383151c5d7e32e9f"
+    },
+    "builds": {
+      "count": 15,
+      "sha256": "571154561c62a371a615bdbeb1e708fbd35b1b891ef4b2a9ba187bbda3d8fb67"
+    },
+    "artifacts": {
+      "count": 14,
+      "sha256": "8573a94669900349393a4f554dce951059563777d27f7c3a0dabcba1e4435a72"
+    },
+    "releases": {
+      "count": 18,
+      "sha256": "4601fbbbd6f51a8f6123d38d578a7e0530823bdf53954da5559d8f99fcab9f51"
+    },
+    "analyses": {
+      "count": 14,
+      "sha256": "1097f6f68f33662f3c0b7f9ef6ea15c79ac3f401185a933ab906295bf68cf37e"
+    },
+    "observations": {
+      "count": 170,
+      "sha256": "de61af58ca99ca6ac77624dfabde0966f881a024d62c7371ddb1d89842bc55a8"
+    },
+    "incoming_events": {
+      "count": 303,
+      "sha256": "7feda3ba4b1d57e722dad634a9974dafd124ff697f415817626f7a8e8b3f504b"
+    },
+    "audit": {
+      "count": 303,
+      "sha256": "74df8cdb6d995963ab02f3cf34a8e0f24a10f4cd4e004ad0ba7505566eb6001f"
+    },
+    "recoveries": {
+      "count": 4,
+      "sha256": "2fe509f150d508310e9b833356f09c43510edc19a7290768036a546812b97369"
+    },
+    "health_windows": {
+      "count": 88,
+      "sha256": "9f897ed5ea810f4329f1906713ff642c8ff37b28e45dbbaa0f6d72b20e614c5d"
+    },
+    "recovery_events": {
+      "count": 16,
+      "sha256": "c24f78c8915ad5ef45cdbe660a4d46a61613ae9e66a109eac7150393ccc97946"
+    }
+  },
+  "restricted_runtime_ready": true,
+  "disposable_copy_removed": true,
+  "backup": "output/before-monitoring-1728bbbff40e.dump",
+  "backup_sha256": "153ec3aa19941d1f1818a6eebc848a1070134df4e33160eaa0091c5a851216df"
+}

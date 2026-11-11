@@ -103,12 +103,12 @@ repositories. They are not represented as extra live Kubernetes fault trials.
 
 - [Independent recovery receipt](../evidence/recovery-acceptance.json): passing
   trials and the two retained failed/excluded attempts.
-- [Backend CI](../evidence/backend-ci-acceptance.json) and
-  [backend tests](../evidence/backend-tests.json): final source, gates and counts.
+- [Backend CI](../evidence/backend-ci-milestone7.json) and
+  [backend tests](../evidence/backend-tests-milestone7.json): final source, gates and counts.
 - [Migration](../evidence/recovery-migration.json),
   [target enrollment](../evidence/recovery-target-acceptance.json) and
   [actual permissions](../evidence/recovery-permissions.json): prerequisite proof.
-- [Installed portal](../evidence/portal-service-acceptance.json) and
+- [Installed portal](../evidence/portal-service-milestone7.json) and
   [compiled bundle](../evidence/recovery-portal-build.json): authentication and
   packaged asset agreement. A new browser visual review of the extension remains open.
 - [Closeout](../evidence/recovery-closeout.json): stopped owned services/containers,

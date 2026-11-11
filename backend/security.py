@@ -10,8 +10,12 @@ from sqlalchemy.engine import make_url
 RUNTIME = 'release_state_runtime'
 MIGRATOR = 'release_state_migrator'
 TABLES = ('projects', 'environments', 'builds', 'artifacts', 'releases', 'analyses',
-          'observations', 'incoming_events', 'audit', 'alembic_version', 'recoveries', 'health_windows', 'recovery_events')
+          'observations', 'incoming_events', 'audit', 'alembic_version', 'recoveries', 'health_windows', 'recovery_events',
+          'monitoring_state', 'monitoring_alerts', 'monitoring_events', 'notification_outbox', 'notification_events')
 UPDATES = {
+    'monitoring_state': ('checked_at','telemetry_available','native_alerts'),
+    'monitoring_alerts': ('state','generation','data','updated_at'),
+    'notification_outbox': ('state','attempts','next_attempt_at','lease_id','lease_until','delivered_at'),
     'environments': ('version', 'desired_release_id', 'stable_release_id', 'stable_revision', 'stable_hash',
                      'stable_image', 'source_uid', 'last_observed_at', 'freshness', 'detail', 'observation_sequence'),
     'artifacts': ('scanned_image_id', 'reported_high_critical', 'refs'),
@@ -75,9 +79,10 @@ def configure_database(conn):
                          "WHERE table_schema='public' AND table_name=%s", (table,)).fetchall()}
             conn.execute(sql.SQL('GRANT UPDATE ({}) ON public.{} TO {}').format(
                 sql.SQL(',').join(sql.Identifier(c) for c in UPDATES[table] if c in existing), sql.Identifier(table), sql.Identifier(RUNTIME)))
-    if conn.execute("SELECT to_regclass('public.audit_id_seq')").fetchone()[0]:
-        conn.execute(sql.SQL('ALTER SEQUENCE public.audit_id_seq OWNER TO {}').format(sql.Identifier(MIGRATOR)))
-        conn.execute(sql.SQL('GRANT USAGE, SELECT ON SEQUENCE public.audit_id_seq TO {}').format(sql.Identifier(RUNTIME)))
+    for sequence in ('audit_id_seq','notification_outbox_sequence_seq'):
+        if conn.execute('SELECT to_regclass(%s)',('public.'+sequence,)).fetchone()[0]:
+            conn.execute(sql.SQL('ALTER SEQUENCE public.{} OWNER TO {}').format(sql.Identifier(sequence),sql.Identifier(MIGRATOR)))
+            conn.execute(sql.SQL('GRANT USAGE, SELECT ON SEQUENCE public.{} TO {}').format(sql.Identifier(sequence),sql.Identifier(RUNTIME)))
     # Future migrations must explicitly grant write access to new tables/columns.
     conn.execute(sql.SQL('ALTER DEFAULT PRIVILEGES FOR ROLE {} IN SCHEMA public GRANT SELECT ON TABLES TO {}').format(
         sql.Identifier(MIGRATOR), sql.Identifier(RUNTIME)))

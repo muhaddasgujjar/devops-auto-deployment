@@ -23,6 +23,8 @@ version=$(python3 -c 'import json; print(json.load(open("versions.json"))["argo_
 kubectl apply --server-side -n argo-rollouts -f "https://github.com/argoproj/argo-rollouts/releases/download/$version/install.yaml"
 kubectl wait --for=condition=Established crd/rollouts.argoproj.io --timeout=120s
 kubectl rollout status -n argo-rollouts deployment/argo-rollouts --timeout=180s
+docker exec k3d-release-lab-server-0 mkdir -p /var/lib/release-lab/prometheus
+docker exec k3d-release-lab-server-0 chown 65534:65534 /var/lib/release-lab/prometheus
 kubectl apply -f platform/monitoring.yaml
 kubectl rollout status -n monitoring deployment/prometheus --timeout=180s
 echo "Lab ready. export KUBECONFIG=$PWD/output/lab.kubeconfig"

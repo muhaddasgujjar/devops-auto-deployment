@@ -98,6 +98,8 @@ class RecoveryService:
         conn.execute(self.t('incoming_events').update().where(self.t('incoming_events').c.id == event_id).values(result=result))
         conn.execute(self.t('audit').insert().values(environment_id=self.env_id, event_id=event_id,
                      action=action, version=env['version'], data=data))
+        from backend.monitoring import MonitoringService
+        MonitoringService(self.service).evaluate(conn, data['actor'])
         return result
 
     def _target(self, conn, origin, now):

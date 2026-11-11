@@ -1,6 +1,6 @@
 from sqlalchemy import MetaData, create_engine, select, text
 
-HEAD = '0002_recovery'
+HEAD = '0003_monitoring'
 
 
 class Database:
@@ -18,7 +18,9 @@ class Database:
                 raise RuntimeError('Database migrations are not at the supported revision')
             self.metadata.reflect(conn, only=['projects', 'environments', 'builds', 'artifacts',
                                              'releases', 'analyses', 'observations', 'incoming_events', 'audit',
-                                             'recoveries', 'health_windows', 'recovery_events'])
+                                             'recoveries', 'health_windows', 'recovery_events',
+                                             'monitoring_state', 'monitoring_alerts', 'monitoring_events',
+                                             'notification_outbox', 'notification_events'])
 
     def table(self, name):
         return self.metadata.tables[name]
