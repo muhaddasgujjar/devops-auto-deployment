@@ -12,7 +12,9 @@ The initial host has 8 GiB of RAM. Its newly created `%USERPROFILE%\.wslconfig`
 caps WSL at 3 GiB, four processors, and 2 GiB swap; GUI applications are disabled
 and gradual memory reclamation is enabled. This is a cap, not a reservation.
 Existing applications were not closed. Memory pressure may still prevent a trial;
-check available memory before starting the lab. Jenkins stays outside this host.
+check available memory before starting the lab. The later accepted local lab runs
+resource-limited Jenkins/agent containers here for serial trusted builds, stopping
+them for cluster-heavy checks; isolated external builds remain future work.
 
 WSL 2.7.11 and the Linux kernel were already installed. Ubuntu installation:
 

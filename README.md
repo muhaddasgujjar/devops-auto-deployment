@@ -7,6 +7,8 @@ second product. See [merged status and the solo one-week plan](docs/merged-proje
 The earlier 20% assessment is superseded by the combined-work estimate there.
 After persistent monitoring and isolated restore acceptance, the current weighted
 MVP estimate is approximately **83%**; see [progress and next priorities](docs/progress-after-monitoring.md).
+For the next machine, use [portable source and fresh-install preparation](docs/machine-transfer.md)
+and [independent acceptance](docs/target-machine-acceptance.md).
 
 Run the 60 core/demo tests using `python scripts/validate.py` in an environment with
 `requirements-validation.txt` installed. Results go to `docs/evidence/merge-validation.json`.

@@ -41,6 +41,10 @@ afterward.
 
 ## Milestone 9: prepare transfer on this laptop
 
+Prepared: [transfer guide](machine-transfer.md), [target acceptance worksheet](target-machine-acceptance.md)
+and [milestone record](milestones/09-transfer-preparation.md). Human reviews and
+actual target-machine reproduction remain open; progress stays at 83%.
+
 1. Close the early human/visual gaps above. Record actual findings and fix any
    reproducible defects before treating those items as accepted.
 2. Export a verified Git bundle of the one merged repository and record its SHA.

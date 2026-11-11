@@ -12,8 +12,8 @@ python -m venv .venv
 Create `.venv` once; reuse it for subsequent commands. Optional PowerShell activation:
 `.\.venv\Scripts\Activate.ps1`. Direct interpreter paths work without activation
 or changes to PowerShell execution policy. `.venv/` is ignored by Git.
-The demo and tests need only Python's standard library; PyYAML and jsonschema are
-the current project's only third-party Python dependencies and support validation.
+The demo uses Python's standard library. Core validation uses PyYAML/jsonschema;
+the separate product backend has its own pinned dependencies and venv.
 
 Set a fault in a new terminal before starting the process:
 
@@ -41,7 +41,8 @@ On Windows use `.venv\Scripts\python.exe` in place of `.venv/bin/python`.
 Use Linux or WSL2 with a working Linux Docker runtime, Python 3.11+, Git, kubectl,
 and k3d matching `versions.json`. Install tools from their official distributions.
 The bootstrap does not install Docker or change Windows virtualization settings.
-Start with spare RAM for Docker; keep Jenkins outside this 8 GiB host.
+Start with spare RAM for Docker. The accepted 8 GiB lab serializes its limited
+trusted Jenkins builds against cluster-heavy validation; isolated builds remain open.
 
 On a Linux shell at the repository root:
 

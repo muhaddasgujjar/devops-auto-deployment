@@ -22,8 +22,8 @@ API/import/reconciliation suite still passed.
 
 The grants follow PostgreSQL's [privilege model](https://www.postgresql.org/docs/17/ddl-priv.html)
 and [role-specific default privileges](https://www.postgresql.org/docs/17/sql-alterdefaultprivileges.html).
-The current schema is still revision `0001_release_state`; ownership changes do
-not replace or reset application data.
+The current schema is revision `0003_monitoring`, after the recovery and monitoring
+migrations. Ownership changes do not replace or reset application data.
 
 For a fresh installation in Ubuntu/WSL, after creating the pinned backend venv:
 
