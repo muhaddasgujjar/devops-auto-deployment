@@ -67,7 +67,8 @@ class MonitoringService:
         rows={r['condition_key']:r for r in conn.execute(select(table).where(table.c.environment_id==self.env_id)).mappings()}
         # Loss of telemetry cannot resolve an already firing workload signal.
         # Keep it open until a fresh successful Prometheus probe supplies evidence.
-        if not monitor or not monitor['checked_at'] or not monitor['telemetry_available'] or not 0 <= (now-monitor['checked_at']).total_seconds() <= 60:
+        scrapes_uncertain=bool(monitor and any(x['name']=='DemoPodsUnavailable' for x in monitor['native_alerts']))
+        if not monitor or not monitor['checked_at'] or not monitor['telemetry_available'] or scrapes_uncertain or not 0 <= (now-monitor['checked_at']).total_seconds() <= 60:
             for key,row in rows.items():
                 if row['kind']=='workload_signal' and row['state']=='firing':
                     conditions.setdefault(key,(row['kind'],row['subject'],row['data']['detail']))

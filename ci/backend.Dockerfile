@@ -18,7 +18,7 @@ FROM ${PYTHON_IMAGE} AS runtime
 ARG SOURCE_SHA
 ARG KRB5_VERSION=1.22.3-r0
 # Keep the immutable Python base; install the exact signed Alpine security fix.
-RUN apk upgrade --no-cache "krb5-libs=${KRB5_VERSION}"
+RUN apk add --no-cache --upgrade "krb5-libs=${KRB5_VERSION}"
 LABEL org.opencontainers.image.revision=${SOURCE_SHA}
 COPY --from=dependencies /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 ENV PYTHONPATH=/app PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1

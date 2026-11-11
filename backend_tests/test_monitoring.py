@@ -87,6 +87,15 @@ class MonitoringPostgreSQLTests(unittest.TestCase):
         self.tick(True)
         self.assertFalse(any(x['state']=='firing' for x in self.view()['alerts']))
 
+    def test_missing_demo_scrapes_preserve_error_until_current_evidence_returns(self):
+        self.tick(alerts=[{'name':'DemoRequestErrors','revision':'abc','state':'firing'}])
+        self.tick(alerts=[{'name':'DemoPodsUnavailable','revision':'','state':'pending'}])
+        self.assertEqual({x['subject'] for x in self.view()['alerts'] if x['state']=='firing'},{'DemoRequestErrors:abc'})
+        self.tick(alerts=[{'name':'DemoPodsUnavailable','revision':'','state':'firing'}])
+        self.assertEqual(len([x for x in self.view()['alerts'] if x['state']=='firing']),2)
+        self.tick(True)
+        self.assertFalse(any(x['state']=='firing' for x in self.view()['alerts']))
+
     def test_retry_backoff_is_bounded_and_wrong_ack_cannot_succeed(self):
         self.tick(False); row=self.claim()
         self.assertEqual(self.finish(row,receipt_sha256='0'*64).status_code,422)
