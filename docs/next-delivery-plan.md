@@ -58,6 +58,16 @@ actual target-machine reproduction remain open; progress stays at 83%.
    isolated restore, with receipts from that machine. Do not award reproduction
    credit for a checklist alone.
 
+## Next laptop engineering milestone: portable recovery enrollment
+
+Before asking the other machine to reproduce recovery, replace the current
+fixed historical-artifact target recorder with an explicit recorder for new
+healthy run evidence. Bind source/image/config/scan/analysis/HTTP identities,
+reject missing or modified artifacts and unrelated environments, preserve
+immutable acceptance records, and prove enrollment plus actual recovery locally.
+Do not silently migrate the old controller UID or reset Jenkins ordering. Keep
+this separate from human approval and fresh-machine reproduction credit.
+
 ## Then move to the other machine
 
 Clone this repository rather than creating a second project. Recreate credentials

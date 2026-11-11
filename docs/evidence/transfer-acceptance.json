@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "recorded_at_utc": "2026-11-11T09:27:09.963595+00:00",
+  "source_commit": "494feb6a87e542ffcc850e3f5b6afa7d7f7f993b",
+  "branch": "codex/foundation-baseline",
+  "bundle": "release-platform.bundle",
+  "bundle_sha256": "9fcb2d02744b33ecf491ac7c0d192a57a29301d0b2ec7cc6a71962581cec8e0e",
+  "bytes": 496184,
+  "refs": [
+    "eeb5a38cb68433abe8b4432ddc1440007a5b17ad refs/codex/turn-diffs/captures/1794388982146/16c3b661-c68e-43e0-b2c8-606fa5cf19d1/base",
+    "eeb5a38cb68433abe8b4432ddc1440007a5b17ad refs/codex/turn-diffs/checkpoints/360ba4597e25075c5c4891428cda47e2/0c9587bbe4b976f2b24d526a0caf350f/1794387175594/c25f1f7c-ffd2-401a-8c77-60fd6d8a7797",
+    "494feb6a87e542ffcc850e3f5b6afa7d7f7f993b refs/heads/codex/foundation-baseline",
+    "492d52d79097486646cfaa3fba135b6515e77259 refs/heads/codex/legacy-history"
+  ],
+  "independent_clone_and_fsck_passed": true,
+  "worktree_tree_identical": true,
+  "scope": "Committed Git history only. Excludes ignored runtime files, credentials, database, registry images and raw output. Not an offline dependency installer or fresh-machine runtime acceptance.",
+  "existing_destination_refused_without_modification": true,
+  "dirty_checkout_refusal_observed_before_commit": true,
+  "local_bundle_path": "output/transfer/494feb6a87e542ffcc850e3f5b6afa7d7f7f993b/release-platform.bundle"
+}
