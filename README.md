@@ -5,12 +5,12 @@ single Git project, preserving both histories. The canonical application is
 `demo/app.py`; `examples/foundation/` is an isolated earlier test fixture, not a
 second product. See [merged status and the solo one-week plan](docs/merged-project-status.md).
 The earlier 20% assessment is superseded by the combined-work estimate there.
-After post-promotion recovery acceptance, the current weighted MVP estimate is approximately
-**80%**; see [progress and next priorities](docs/progress-after-recovery.md).
+After persistent monitoring and isolated restore acceptance, the current weighted
+MVP estimate is approximately **83%**; see [progress and next priorities](docs/progress-after-monitoring.md).
 
-Run the 56 core/demo tests using `python scripts/validate.py` in an environment with
+Run the 60 core/demo tests using `python scripts/validate.py` in an environment with
 `requirements-validation.txt` installed. Results go to `docs/evidence/merge-validation.json`.
-The separate 74-test backend/session/recovery/worker suite requires PostgreSQL and the pinned backend
+The separate 88-test backend/session/recovery/monitoring suite requires PostgreSQL and the pinned backend
 venv; see [permissions, CI and supervised operation](docs/backend-hardening.md).
 The November 9 merge passed tests/schema checks but exposed live lab failures.
 The laptop recovery session restored controllers, serving telemetry and GitOps
@@ -42,6 +42,12 @@ and read-only recovery history. Real serving-error and latency trials restored a
 enrolled accepted digest through Git; missing telemetry and worker restart were
 also exercised. Earlier clock-invalid attempts remain excluded. See the
 [recovery runbook](docs/recovery.md) and [next delivery plan](docs/next-delivery-plan.md).
+
+The [monitoring milestone](docs/milestones/08-persistent-monitoring.md) adds retained
+Prometheus storage, versioned alerts, a durable notification outbox and a local
+receiver. A real fault/outage/replay trial and an isolated platform restore passed.
+See [the monitoring and restore runbook](docs/monitoring.md). Browser visual review,
+user interviews and supervisor acceptance remain open.
 
 A self-hosted Kubernetes release platform under development. Jenkins owns builds;
 Git owns desired configuration; Argo CD owns synchronization; Argo Rollouts owns
@@ -98,8 +104,8 @@ container runtime. The current Windows host has about 8 GiB RAM: start with the 
 single-node profile for routine work and the full profile for serial trusted-lab
 CI trials. A separate isolated build host remains later work. PostgreSQL and the
 product API now run with restricted roles and supervised local services. The
-post-promotion recovery is accepted locally; persistent monitoring, notifications
-and broader platform restore follow.
+post-promotion recovery, persistent monitoring, local notifications and a quiesced
+platform restore are accepted locally. Independent-machine reproduction follows.
 
 The installed Windows lab can be managed from PowerShell:
 

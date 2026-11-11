@@ -1,0 +1,248 @@
+{
+  "passed": true,
+  "recorded_at_utc": "2026-11-11T08:46:44.994633+00:00",
+  "raw_trial": "output/monitoring-20261111T083842Z",
+  "observer_source_commit": "83705f347d535dba6cb1e6ddeede1925ed42b1b8",
+  "origin_source_commit": "83705f347d535dba6cb1e6ddeede1925ed42b1b8",
+  "origin_build": 22,
+  "image": "localhost:5001/release-demo@sha256:9c03c46562e06050e4f888d3dbb905d4132517c0fe9a23f852c428dcbd7f4105",
+  "reported_high_critical": 0,
+  "core_tests_in_origin": 60,
+  "actual_fault_samples": 5338,
+  "stable_requests": 21901,
+  "maximum_sample_gap_seconds": 0.943722,
+  "clock_offset_span_seconds": 0.064088,
+  "final_100_matching_healthy_200": true,
+  "alert_id": "9e447629-65e4-4c5c-bdb5-a768e52c555a",
+  "alert_transitions": [
+    {
+      "state": "firing",
+      "generation": 1,
+      "actor": "api:notifier:6939a21efe81",
+      "notification_id": "dde49836-afb7-47d3-adb4-13abe803a1f4",
+      "attempts": 3
+    },
+    {
+      "state": "resolved",
+      "generation": 1,
+      "actor": "api:notifier:6939a21efe81",
+      "notification_id": "0d07426b-bfee-48d8-81d9-f602f5839b63",
+      "attempts": 1
+    }
+  ],
+  "firing_delivery_events": [
+    {
+      "attempt": 1,
+      "phase": "claimed",
+      "data": {
+        "actor": "api:notifier:6939a21efe81"
+      }
+    },
+    {
+      "attempt": 1,
+      "phase": "retry",
+      "data": {
+        "actor": "api:notifier:6939a21efe81",
+        "result": "receiver_unavailable",
+        "receipt_sha256": null
+      }
+    },
+    {
+      "attempt": 2,
+      "phase": "claimed",
+      "data": {
+        "actor": "api:notifier:6939a21efe81"
+      }
+    },
+    {
+      "attempt": 2,
+      "phase": "expired",
+      "data": {
+        "actor": "api:notifier:6939a21efe81"
+      }
+    },
+    {
+      "attempt": 3,
+      "phase": "claimed",
+      "data": {
+        "actor": "api:notifier:6939a21efe81"
+      }
+    },
+    {
+      "attempt": 3,
+      "phase": "delivered",
+      "data": {
+        "actor": "api:notifier:6939a21efe81",
+        "result": "receiver_acknowledged",
+        "receipt_sha256": "10ddb75cfbffeb920b6433ac3d3bd29139cea0dde04010884ff4d33d4ba8f177"
+      }
+    }
+  ],
+  "outage_replay": {
+    "notification_id": "dde49836-afb7-47d3-adb4-13abe803a1f4",
+    "receiver_ack": {
+      "id": "dde49836-afb7-47d3-adb4-13abe803a1f4",
+      "sha256": "10ddb75cfbffeb920b6433ac3d3bd29139cea0dde04010884ff4d33d4ba8f177"
+    },
+    "outage_attempts": 1,
+    "manual_ack_attempt": 2,
+    "delivered_attempts": 3,
+    "previous_pid": "518898",
+    "new_pid": "554289",
+    "receiver_restarted": true,
+    "one_inbox_entry": true,
+    "scope": "Real ACK received, result intentionally omitted, then service restarted and lease expired normally"
+  },
+  "persistence": {
+    "old_pod_uid": "0bca03e7-3c19-466e-9019-1fb723fd2520",
+    "new_pod_uid": "d297d9e0-fd98-44ce-846d-6b76e294a7a2",
+    "pvc_uid": "12594ff6-e377-458c-a72e-b2ce53b4ffa4",
+    "pv_uid": "fd5643f5-bbb6-4c0a-9666-c36b24c62e6b",
+    "reclaim_policy": "Retain",
+    "query": "/api/v1/query?query=demo_requests_total%7Bnamespace%3D%22demo-dev%22%7D&time=1794386709",
+    "historical_result": [
+      {
+        "metric": {
+          "__name__": "demo_requests_total",
+          "instance": "10.42.0.182:8080",
+          "job": "demo-pods",
+          "namespace": "demo-dev",
+          "pod": "release-demo-8464bf5d67-bkmrb",
+          "revision": "8464bf5d67",
+          "status": "200"
+        },
+        "value": [
+          1794386709,
+          "7221"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "demo_requests_total",
+          "instance": "10.42.0.182:8080",
+          "job": "demo-pods",
+          "namespace": "demo-dev",
+          "pod": "release-demo-8464bf5d67-bkmrb",
+          "revision": "8464bf5d67",
+          "status": "500"
+        },
+        "value": [
+          1794386709,
+          "5352"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "demo_requests_total",
+          "instance": "10.42.0.183:8080",
+          "job": "demo-pods",
+          "namespace": "demo-dev",
+          "pod": "release-demo-8464bf5d67-lbgqd",
+          "revision": "8464bf5d67",
+          "status": "200"
+        },
+        "value": [
+          1794386709,
+          "7109"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "demo_requests_total",
+          "instance": "10.42.0.183:8080",
+          "job": "demo-pods",
+          "namespace": "demo-dev",
+          "pod": "release-demo-8464bf5d67-lbgqd",
+          "revision": "8464bf5d67",
+          "status": "500"
+        },
+        "value": [
+          1794386709,
+          "5320"
+        ]
+      }
+    ],
+    "historical_result_after": [
+      {
+        "metric": {
+          "__name__": "demo_requests_total",
+          "instance": "10.42.0.182:8080",
+          "job": "demo-pods",
+          "namespace": "demo-dev",
+          "pod": "release-demo-8464bf5d67-bkmrb",
+          "revision": "8464bf5d67",
+          "status": "200"
+        },
+        "value": [
+          1794386709,
+          "7221"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "demo_requests_total",
+          "instance": "10.42.0.182:8080",
+          "job": "demo-pods",
+          "namespace": "demo-dev",
+          "pod": "release-demo-8464bf5d67-bkmrb",
+          "revision": "8464bf5d67",
+          "status": "500"
+        },
+        "value": [
+          1794386709,
+          "5352"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "demo_requests_total",
+          "instance": "10.42.0.183:8080",
+          "job": "demo-pods",
+          "namespace": "demo-dev",
+          "pod": "release-demo-8464bf5d67-lbgqd",
+          "revision": "8464bf5d67",
+          "status": "200"
+        },
+        "value": [
+          1794386709,
+          "7109"
+        ]
+      },
+      {
+        "metric": {
+          "__name__": "demo_requests_total",
+          "instance": "10.42.0.183:8080",
+          "job": "demo-pods",
+          "namespace": "demo-dev",
+          "pod": "release-demo-8464bf5d67-lbgqd",
+          "revision": "8464bf5d67",
+          "status": "500"
+        },
+        "value": [
+          1794386709,
+          "5320"
+        ]
+      }
+    ],
+    "historical_series_verified": 4,
+    "storage_request": "2Gi",
+    "retention_time": "24h",
+    "retention_size": "512MB",
+    "prometheus_args": [
+      "--config.file=/etc/prometheus/prometheus.yml",
+      "--storage.tsdb.path=/prometheus",
+      "--storage.tsdb.retention.time=24h",
+      "--storage.tsdb.retention.size=512MB",
+      "--web.enable-admin-api"
+    ],
+    "disk_usage_kib": 1024
+  },
+  "environment_git_unchanged_by_monitoring": true,
+  "summary_sha256": "b516186dfb726210d39e860ca7f87f5c27ae37397b270a7936927d3ba87a5e96",
+  "limitations": [
+    "One functional laptop experiment, not a benchmark or production availability result",
+    "Uncertain receiver ACK is deliberately left unreported by a real client while the service is stopped; lease expiry/replay uses normal service behavior",
+    "Recovery actuator remains stopped to isolate monitoring; monitoring cannot publish Git or mutate workloads",
+    "Prometheus data survives a pod replacement on one retained local node; node loss requires the separate backup/restore proof"
+  ]
+}

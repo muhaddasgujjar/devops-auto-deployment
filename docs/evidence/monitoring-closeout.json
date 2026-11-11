@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "recorded_at_utc": "2026-11-11T08:51:29.683177+00:00",
+  "verified_source_commit": "83705f347d535dba6cb1e6ddeede1925ed42b1b8",
+  "installed_sources": {
+    "release-state-api": "83705f347d535dba6cb1e6ddeede1925ed42b1b8",
+    "release-state-collector": "83705f347d535dba6cb1e6ddeede1925ed42b1b8",
+    "release-state-recovery": "83705f347d535dba6cb1e6ddeede1925ed42b1b8",
+    "release-state-notifier": "83705f347d535dba6cb1e6ddeede1925ed42b1b8",
+    "release-notification-receiver": "83705f347d535dba6cb1e6ddeede1925ed42b1b8"
+  },
+  "source_files_verified": 41,
+  "frontend_input_sha256": "917463a9e53b40faf85539c55723aedfdf3fdb3f8f6c6ff7caa120c7574d5941",
+  "frontend_asset_count": 3,
+  "services": {
+    "release-state-api": "inactive",
+    "release-state-collector": "inactive",
+    "release-state-recovery": "inactive",
+    "release-state-notifier": "inactive",
+    "release-notification-receiver": "inactive"
+  },
+  "containers_stopped": {
+    "release-state-db": {
+      "running": false
+    },
+    "release-agent": {
+      "running": false
+    },
+    "release-jenkins": {
+      "running": false
+    },
+    "k3d-release-lab-server-0": {
+      "running": false
+    },
+    "k3d-release-lab-serverlb": {
+      "running": false
+    },
+    "registry.localhost": {
+      "running": false
+    }
+  },
+  "loopback_listeners_open": {
+    "8090": false,
+    "8092": false,
+    "8093": false,
+    "8082": false,
+    "15432": false
+  },
+  "original_pvc_uid": "12594ff6-e377-458c-a72e-b2ce53b4ffa4",
+  "original_pv_uid": "fd5643f5-bbb6-4c0a-9666-c36b24c62e6b",
+  "storage_request": "2Gi",
+  "reclaim_policy": "Retain",
+  "private_backup": "/var/lib/release-lab/platform-backups/8d0d7c026b01",
+  "private_backup_bytes": 2333615,
+  "private_archive_modes_verified": true,
+  "manifest_sha256": "22537d58f782ed3a3e94410602cb4d3cd4a2166d38e7799d6deb15dafa34d4e6",
+  "source_database_and_git_match_bundle": true,
+  "restore_database_and_container_absent": true,
+  "unrelated_port_5433_database_unchanged_and_running": true,
+  "resource_sample": "output/m8-post-restore-memory.txt (post-restore, writers/CI already stopped; not peak usage)"
+}

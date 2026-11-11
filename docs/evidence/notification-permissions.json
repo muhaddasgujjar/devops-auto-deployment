@@ -1,0 +1,104 @@
+{
+  "passed": true,
+  "recorded_at_utc": "2026-11-11T08:38:03.464884+00:00",
+  "kubernetes": [
+    {
+      "request": [
+        "get",
+        "services/prometheus:9090",
+        "--subresource=proxy",
+        "-n",
+        "monitoring"
+      ],
+      "allowed": true
+    },
+    {
+      "request": [
+        "create",
+        "services/prometheus:9090",
+        "--subresource=proxy",
+        "-n",
+        "monitoring"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "get",
+        "pods",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "create",
+        "pods",
+        "--subresource=exec",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "get",
+        "secrets",
+        "-n",
+        "monitoring"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "patch",
+        "services/demo-stable",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "patch",
+        "rollouts.argoproj.io/release-demo",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": false
+    },
+    {
+      "request": [
+        "get",
+        "services/demo-stable:80",
+        "--subresource=proxy",
+        "-n",
+        "demo-dev"
+      ],
+      "allowed": false
+    }
+  ],
+  "units": {
+    "release-state-notifier": {
+      "WorkingDirectory": "/opt/release-lab/backend-runtime/83705f347d535dba6cb1e6ddeede1925ed42b1b8",
+      "User": "release-notifier",
+      "ProtectSystem": "strict",
+      "NoNewPrivileges": "yes",
+      "ActiveState": "active"
+    },
+    "release-notification-receiver": {
+      "WorkingDirectory": "/opt/release-lab/backend-runtime/83705f347d535dba6cb1e6ddeede1925ed42b1b8",
+      "User": "release-notification-receiver",
+      "ProtectSystem": "strict",
+      "NoNewPrivileges": "yes",
+      "ActiveState": "active"
+    }
+  },
+  "separate_receiver_token": true,
+  "database_admin_hmac_credentials_in_worker": false,
+  "git_or_docker_credentials_in_worker": false,
+  "api_import_recovery_audit_browser_denied": true,
+  "receiver_bind": "127.0.0.1:8092",
+  "token_lifetime": "1h; explicit token refresh and service restart required"
+}

@@ -20,24 +20,39 @@ network access remain the user's resources.
    narrow widths. Build/API checks cover the extension; new visual acceptance
    remains open.
 
-## Milestone 8: durable monitoring and local notifications
+## Milestone 8: accepted local technical checks
 
-Implement one small piece at a time on the 8 GB laptop, with builds serialized
-against cluster-heavy validation.
+Completed on the 8 GB laptop, with builds serialized against cluster-heavy
+validation. See [the evidence report](milestones/08-persistent-monitoring.md).
 
 | Order | Deliverable | Acceptance |
 |---|---|---|
-| 1 | Retained Prometheus storage and explicit capacity/retention limits | A known metric range survives pod recreation; document limits and disk use |
-| 2 | Versioned alert rules and a small read-only dashboard | Desired/stable identity, candidate rejection, post-promotion incident, recovery failure and telemetry loss remain distinct |
-| 3 | Durable notification outbox and a local test receiver | One logical notification per transition, bounded retry/backoff, receiver-outage handling and restart deduplication |
-| 4 | Platform backup manifest covering database, environment Git and declarative configuration | Restore into an isolated target and verify Git refs, incident/audit identity and API state; retain backup hashes |
-| 5 | Laptop acceptance and operator runbook | Prove persistence, alert firing/resolution, unavailable receiver and restore; stop owned services and preserve data |
+| 1 | Retained Prometheus storage and retention limits | Passed: four exact historical series survived pod replacement on the original 2 GiB claim |
+| 2 | Versioned rules and read-only dashboard | Six native rule cases and API/assets checks passed; browser visual review remains open |
+| 3 | Durable outbox and local receiver | Passed: real outage, bounded retry tests, restart/expired-lease replay and deduplicated inbox |
+| 4 | Platform backup and isolated restore | Passed: 17 table fingerprints, Git/configuration, eight receipts, four metric series and separate API |
+| 5 | Laptop acceptance and runbook | Live technical checks passed; human/visual acceptance remains open |
 
 Keep secrets outside Git. Notifications should initially go to the local test
 receiver. Actual email/chat delivery requires the user's chosen destination and
 explicit authorization. Add dashboard/alert services only within measured RAM
 limits; optional components can be started for their own acceptance and stopped
 afterward.
+
+## Milestone 9: prepare transfer on this laptop
+
+1. Close the early human/visual gaps above. Record actual findings and fix any
+   reproducible defects before treating those items as accepted.
+2. Export a verified Git bundle of the one merged repository and record its SHA.
+   No remote is configured; do not invent a clone URL. A local bundle supports
+   `git clone <bundle-path> <new-folder>` on the other machine without publishing.
+3. Prepare a fresh-machine inventory and runbook covering pinned tools, Linux and
+   Docker, CPU/RAM/disk, registry names, protected secrets, service identities and
+   migration order. Backups are private and transfer separately from Git.
+4. Define reproduction acceptance: fresh install, clean source/build identity,
+   healthy promotion, rejected candidate, recovery, notification replay and
+   isolated restore, with receipts from that machine. Do not award reproduction
+   credit for a checklist alone.
 
 ## Then move to the other machine
 

@@ -1,0 +1,93 @@
+{
+  "passed": true,
+  "recorded_at_utc": "2026-11-11T08:47:36.084807+00:00",
+  "backup": "/var/lib/release-lab/platform-backups/8d0d7c026b01",
+  "manifest_sha256": "22537d58f782ed3a3e94410602cb4d3cd4a2166d38e7799d6deb15dafa34d4e6",
+  "database_tables": {
+    "projects": {
+      "count": 1,
+      "sha256": "8f59e359c42f988ed68dc2206970b9493295f4911a37ee73acde81571e651808"
+    },
+    "environments": {
+      "count": 1,
+      "sha256": "4a53a56b6ab5bc48837933b82f84c7a0f20d09cfc34129aef1f36acc499c797c"
+    },
+    "builds": {
+      "count": 16,
+      "sha256": "8aa24852008e5fae35d387d6c76b0fc44bb7fdc0f4207f4d249f0c87103b1715"
+    },
+    "artifacts": {
+      "count": 15,
+      "sha256": "cbacb80dbae37a0001dc6f4fe4d9d2345159b8391295a654075241abbc16a1ea"
+    },
+    "releases": {
+      "count": 19,
+      "sha256": "ee630ef9299877f64748ca8b6f07446570ff0e4ddcc5869febd108e14a603cf5"
+    },
+    "analyses": {
+      "count": 15,
+      "sha256": "bc78db86a3a65d623210d599971f703b271ed9a638e52adba22eaf0990787897"
+    },
+    "observations": {
+      "count": 186,
+      "sha256": "9d59bb3c7946da1877520a2615dcef23448acbfa1a7f88da531d8ad4c988e87e"
+    },
+    "incoming_events": {
+      "count": 320,
+      "sha256": "97c8aa4d4ee7ff4584cc2306444b7df816e824d492df93a3ff9ee8190d361269"
+    },
+    "audit": {
+      "count": 320,
+      "sha256": "35db10ecb1dcb1252e2f6aed75a142fcaa798f4a8e335c3c79a62b1b25287f50"
+    },
+    "recoveries": {
+      "count": 4,
+      "sha256": "2fe509f150d508310e9b833356f09c43510edc19a7290768036a546812b97369"
+    },
+    "health_windows": {
+      "count": 88,
+      "sha256": "9f897ed5ea810f4329f1906713ff642c8ff37b28e45dbbaa0f6d72b20e614c5d"
+    },
+    "recovery_events": {
+      "count": 16,
+      "sha256": "c24f78c8915ad5ef45cdbe660a4d46a61613ae9e66a109eac7150393ccc97946"
+    },
+    "monitoring_state": {
+      "count": 1,
+      "sha256": "57e6d21fa5e876a1260f8f8640e385728eea6bace9a4a845b4cd1934c60349ba"
+    },
+    "monitoring_alerts": {
+      "count": 3,
+      "sha256": "9e6e3e82c84c3a3f20937787e3c452d5c31cb199135533be70cadfdd2e999b65"
+    },
+    "monitoring_events": {
+      "count": 8,
+      "sha256": "1f6b2bf502941e24808bd8003671a8e6df5d1ef2bcbdbc6e9855ca602b13e8dd"
+    },
+    "notification_outbox": {
+      "count": 8,
+      "sha256": "9c78f7e49ada73288988df3eb1b5d3f1c0ad8ed4825b9c415cccd51c4724d994"
+    },
+    "notification_events": {
+      "count": 20,
+      "sha256": "d8ffb8452b7012ae1fde19b76e760fdb7c31d16e7b9dfb85d41681db3dd74c9f"
+    }
+  },
+  "git_refs_identical": true,
+  "git_fsck_passed": true,
+  "configuration_source_commit": "83705f347d535dba6cb1e6ddeede1925ed42b1b8",
+  "historical_prometheus_series_verified": 4,
+  "restored_prometheus_has_no_scrape_jobs": true,
+  "receiver_receipts_verified": 8,
+  "independent_api": {
+    "ready": true,
+    "desired_id": "dc3ee82b-d41d-5e28-8dbe-4df6cc06b35d",
+    "stable_id": "dc3ee82b-d41d-5e28-8dbe-4df6cc06b35d",
+    "recoveries": 4,
+    "monitoring_alerts": 3,
+    "audit_records_in_bounded_view": 100
+  },
+  "source_unchanged": true,
+  "restore_directory": "/var/lib/release-lab/platform-restores/a2f47a83dba5",
+  "disposable_database_and_processes_removed": true
+}
