@@ -13,18 +13,32 @@ The subsequent final CI receipt must prove the patched runtime scan.
 See [the vendor package](https://pkgs.alpinelinux.org/package/v3.24/main/x86_64/krb5-libs)
 and [official database sources](https://trivy.dev/docs/latest/configuration/db/).
 
-Prometheus uses a 1 GiB static local PVC, `Retain` reclaim policy, one replica and
+Prometheus uses the existing 2 GiB local PVC and `release-retain` storage class,
+`Retain` reclaim policy, one replica and
 Recreate updates. Its TSDB retention is 24 hours / 512 MB with a 384 MiB memory
 limit. These retention limits are not a hard filesystem quota: head data, WAL,
-compaction and snapshots also use space. The directory belongs to UID 65534 on
+compaction and snapshots also use space. The local-path directory stays on
 the labelled k3d server. This protects pod replacement, not destruction of the
-node/container or hardware loss. It is not replicated storage.
+node/container or hardware loss. It is not replicated storage. Installation
+validates the existing class, size, access mode and bound volume before applying
+changes. It refuses to shrink, rebind or replace a different existing claim.
 
-The first transition from the old ephemeral deployment initializes retained
-storage. Previously ephemeral monitoring history is not claimed as migrated.
+The existing retained claim came from the earlier project version; the current
+ephemeral Deployment had not been using it. This milestone adopts that claim.
+Previously ephemeral monitoring history is not claimed as migrated.
 Acceptance captures known samples on the new PVC and checks the exact historical
 query after replacement. Backups cover the retained TSDB separately.
 
+If a database mirror fails, refresh the existing managed agent from the official
+ECR source, then rerun the unchanged image gate:
+
+```sh
+docker exec -e GODEBUG=http2client=0 release-agent trivy image --download-db-only --db-repository public.ecr.aws/aquasecurity/trivy-db:2 --timeout 30m --no-progress
+```
+
+The HTTP/1 transport option avoids the observed HTTP/2 protocol failure; HTTPS
+certificate verification remains enabled. This refresh does not skip image
+scanning, change severity thresholds or allow a failed scan to publish.
 ## Rules and ownership
 
 The ConfigMap contains versioned native rules for absent/failed demo scrapes,
@@ -62,8 +76,8 @@ bootstrap and migrator file paths as in the backend runbook, then run
 upgrades a copy first, compares original row hashes, then upgrades the main DB.
 Do not rerun the older milestone-7 migration script on an upgraded database.
 
-Start the lean cluster and run `python -m scripts.install_monitoring` to prepare
-the owned node directory and apply the persistent configuration. Commit reviewed
+Start the lean cluster and run `python -m scripts.install_monitoring` to validate
+the retained claim and apply the persistent configuration. Commit reviewed
 source and build the portal before installing service snapshots:
 
 ```sh

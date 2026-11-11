@@ -85,22 +85,13 @@ data:
             labels: {severity: warning, policy: local-monitoring-v1}
             annotations: {summary: A workload revision has sustained high latency; this is not a recovery verdict}
 ---
-apiVersion: v1
-kind: PersistentVolume
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
-  name: release-lab-prometheus
-spec:
-  capacity: {storage: 1Gi}
-  accessModes: [ReadWriteOnce]
-  storageClassName: release-lab-local
-  persistentVolumeReclaimPolicy: Retain
-  claimRef: {namespace: monitoring, name: prometheus-data}
-  local: {path: /var/lib/release-lab/prometheus}
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - {key: kubernetes.io/hostname, operator: In, values: [k3d-release-lab-server-0]}
+  name: release-retain
+provisioner: rancher.io/local-path
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -109,10 +100,9 @@ metadata:
   namespace: monitoring
 spec:
   accessModes: [ReadWriteOnce]
-  storageClassName: release-lab-local
-  volumeName: release-lab-prometheus
+  storageClassName: release-retain
   resources:
-    requests: {storage: 1Gi}
+    requests: {storage: 2Gi}
 ---
 apiVersion: apps/v1
 kind: Deployment

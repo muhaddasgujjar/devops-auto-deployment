@@ -1,6 +1,6 @@
 {
   "base_digest_preserved": true,
-  "status": "patch implemented; final scan pending",
+  "status": "patched API runtime accepted",
   "selected_vendor_patch": "krb5-libs=1.22.3-r0",
   "exclusions_added": false,
   "runtime_publication_blocked": true,
@@ -119,5 +119,10 @@
     }
   ],
   "source_of_failed_scan": "output/backend-ci-trial-20261111T074942Z",
-  "vendor": "https://pkgs.alpinelinux.org/package/v3.24/main/x86_64/krb5-libs"
+  "vendor": "https://pkgs.alpinelinux.org/package/v3.24/main/x86_64/krb5-libs",
+  "accepted_source_commit": "8441a72931ddd1125c82131a1f3a1c22d99a9367",
+  "accepted_backend_build": 17,
+  "accepted_image": "localhost:5001/release-state@sha256:b9931d944e0677e04ac37c84dd09bcac879f14845af5c54ae7b80d4fac7c5845",
+  "reported_high_critical_after_patch": 0,
+  "scanned_krb5_version": "1.22.3-r0"
 }

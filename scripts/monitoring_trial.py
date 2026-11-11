@@ -146,7 +146,7 @@ def main():
         previous=signals.raw(path+query)['data']['result']; assert previous
         pod=json.loads(command(*kube,'get','pods','-n','monitoring','-l','app=prometheus','-o','json'))['items'][0]
         pvc=json.loads(command(*kube,'get','pvc','prometheus-data','-n','monitoring','-o','json'))
-        pv=json.loads(command(*kube,'get','pv','release-lab-prometheus','-o','json'))
+        pv=json.loads(command(*kube,'get','pv',pvc['spec']['volumeName'],'-o','json'))
         assert pvc['status']['phase']=='Bound' and pv['spec']['persistentVolumeReclaimPolicy']=='Retain'
         command(*kube,'delete','pod',pod['metadata']['name'],'-n','monitoring','--wait=false')
         def replaced():
@@ -159,7 +159,8 @@ def main():
         summary['persistence']={'old_pod_uid':pod['metadata']['uid'],'new_pod_uid':new_pod['metadata']['uid'],
             'pvc_uid':pvc['metadata']['uid'],'pv_uid':pv['metadata']['uid'],'reclaim_policy':'Retain',
             'query':query,'historical_result':previous,'historical_result_after':after,'historical_series_verified':len(previous),
-            'storage_request':'1Gi','retention_time':'24h','retention_size':'512MB',
+            'storage_request':pvc['spec']['resources']['requests']['storage'],'retention_time':'24h','retention_size':'512MB',
+            'prometheus_args':new_pod['spec']['containers'][0]['args'],
             'disk_usage_kib':int(command(*kube,'exec','-n','monitoring',new_pod['metadata']['name'],'--','du','-sk','/prometheus').split()[0])}
         wait(lambda: get('/monitoring')['fresh'] and get('/monitoring')['probe']['telemetry_available'],30,'Probe did not recover')
         wait(lambda:all(x['state']=='delivered' for x in get('/monitoring')['notifications']),90,'Final notification queue did not drain')

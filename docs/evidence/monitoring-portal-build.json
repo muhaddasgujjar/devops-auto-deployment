@@ -1,0 +1,9 @@
+{
+  "format": 1,
+  "input_sha256": "917463a9e53b40faf85539c55723aedfdf3fdb3f8f6c6ff7caa120c7574d5941",
+  "files": {
+    "assets/index-2zATVTqm.css": "dd07fd69ad04c23f3f2dcec60d146fc4a0ce19386e3cc2bf827b8597e19f1cb4",
+    "assets/index-nYOKR6e0.js": "a5d09153eb6ee7798ad95ae32449d019e9bdf08db2bd220c2d87257af586b01e",
+    "index.html": "7ade44ccc4dde972c3f1b055e7280204b0c20a6b02e4ac05590f61ab06856db8"
+  }
+}
