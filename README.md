@@ -1,12 +1,14 @@
 # DevOps auto-deployment
 
 The current merged implementation is published on GitHub's
-[`codex/foundation-baseline` branch](https://github.com/muhaddasgujjar/devops-auto-deployment/tree/codex/foundation-baseline).
-The existing remote `main` has a separate history and was preserved. Clone the
-completed implementation with:
+[`main` branch](https://github.com/muhaddasgujjar/devops-auto-deployment/tree/main).
+Prior remote history is retained through a merge; the current canonical source
+replaces the older duplicate implementation. Start with the
+[short nontechnical report](docs/simple-project-report.md) and
+[run/demo guide](docs/demo-guide.md). Clone with:
 
 ```sh
-git clone --branch codex/foundation-baseline https://github.com/muhaddasgujjar/devops-auto-deployment.git
+git clone https://github.com/muhaddasgujjar/devops-auto-deployment.git
 ```
 
 The old-chat implementation and the newer foundation have been merged into this

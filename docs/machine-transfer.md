@@ -32,12 +32,12 @@ Compare HEAD with `source_commit` in the receipt. A bundle clone's origin points
 to the copied bundle; it is not a hosted remote. The project is now also published:
 
 ```sh
-git clone --branch codex/foundation-baseline https://github.com/muhaddasgujjar/devops-auto-deployment.git release-platform
+git clone https://github.com/muhaddasgujjar/devops-auto-deployment.git release-platform
 ```
 
-Use that branch for the current merged implementation. The existing remote
-`main` has unrelated history and was preserved without force-pushing. The
-`codex/legacy-history` branch was also uploaded. The earlier portable bundle is
+Use `main` for the current merged implementation. Earlier remote history was
+retained through a merge without force-pushing; the main tree now contains the
+canonical project. The `codex/legacy-history` branch was also uploaded. The earlier portable bundle is
 a verified snapshot of its recorded source SHA; it does not include subsequent
 documentation commits. Re-export from a clean checkout for a newer snapshot.
 

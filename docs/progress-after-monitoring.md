@@ -29,7 +29,7 @@ not inferred from compilation or API checks. These require real observations;
 no feedback or approval has been invented.
 
 Next prepare one portable repository bundle and a fresh-machine checklist on
-this laptop. The source is now published on the `codex/foundation-baseline` branch;
+this laptop. The source is now published on the `main` branch;
 see [clone instructions](machine-transfer.md). Preserve private backups separately,
 inventory the other machine's CPU/RAM,
 disk and Linux/container support, and recreate credentials there. A GPU does not
